@@ -28,7 +28,7 @@ cursor.execute("USE `routing`;")
 
 # criando tabelas
 TABLES = {
-    'tickets': ('''
+    'zendesk_tickets': ('''
         CREATE TABLE `zendesk_tickets` (
             `id` int(11) NOT NULL AUTO_INCREMENT,
             `ticket_id` int(11) NOT NULL,

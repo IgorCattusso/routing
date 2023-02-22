@@ -1,8 +1,6 @@
 import requests
 import base64
-import json
 from config import *
-
 
 zendesk_endpoint_url = "api/v2/search.json"
 zendesk_search_query = "query=type:ticket status:new"
@@ -29,6 +27,11 @@ print(type(api_response))
 results = api_response['results']
 print(results)
 print(type(results))
+
+created_at_formatted = results[1]['created_at'].replace("T", " ").replace("Z", "")
+print(created_at_formatted)
+
+
 
 '''
 api_response_as_str = str(api_response['results']) + ","
