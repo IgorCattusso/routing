@@ -17,5 +17,5 @@ SQLALCHEMY_DATABASE_URI = \
         user='igor',
         password='igor',
         server='localhost',
-        database='jogoteca'
+        database='routing'
     )  # configurando conexão com o banco de dados
