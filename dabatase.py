@@ -26,7 +26,6 @@ cursor.execute("CREATE DATABASE `routing`;")
 
 cursor.execute("USE `routing`;")
 
-# criando tabelas
 TABLES = {
     'zendesk_tickets': ('''
         CREATE TABLE `zendesk_tickets` (
@@ -53,7 +52,6 @@ for tabela_nome in TABLES:
         print('Tabelas criadas com sucesso!')
 
 
-# inserindo jogos
 tickets_sql = 'INSERT INTO zendesk_tickets (ticket_id, subject, channel, created_at) VALUES (%s, %s, %s, %s)'
 tickets = [
     ('9999', 'Ticket teste banco', 'Web', '2023-02-22 00:00:00')
@@ -65,7 +63,6 @@ print(' -------------  Jogos:  -------------')
 for ticket in cursor.fetchall():
     print(ticket[1])
 
-# commitando se não nada tem efeito
 conn.commit()
 
 cursor.close()

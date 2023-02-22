@@ -18,12 +18,18 @@ def get_tickets():
 
     results = data['results']
 
+    inserted_tickets = []
+
     for ticket in results:
-        new_ticket = zendesk_tickets(ticket_id=ticket['id'], channel=ticket['via']['channel'],
-                                     subject=ticket['subject'],
-                                     created_at=ticket['created_at'].replace("T", " ").replace("Z", ""))
+        existing_ticket = zendesk_tickets.query.filter_by(ticket_id=ticket['id']).first()
+        if not existing_ticket:
+            new_ticket = zendesk_tickets(ticket_id=ticket['id'], channel=ticket['via']['channel'],
+                                         subject=ticket['subject'],
+                                         created_at=ticket['created_at'].replace("T", " ").replace("Z", ""))
 
-        db.session.add(new_ticket)
-        db.session.commit()  # commit changes
+            inserted_tickets.append(ticket['id'])
 
-    return str(json.dumps(api_response.json(), sort_keys=False, indent=4, ensure_ascii=False))
+            db.session.add(new_ticket)
+            db.session.commit()  # commit changes
+
+    return str(inserted_tickets)
