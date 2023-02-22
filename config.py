@@ -14,8 +14,8 @@ ZENDESK_API_KEY = SECRET_KEY
 SQLALCHEMY_DATABASE_URI = \
     '{SGBD}://{user}:{password}@{server}/{database}'.format(
         SGBD='mysql+mysqlconnector',
-        user='igor',
-        password='igor',
+        user=str(os.getenv('DATABASE_USER')),
+        password=str(os.getenv('DATABASE_PASSWORD')),
         server='localhost',
         database='routing'
     )  # configurando conexão com o banco de dados
