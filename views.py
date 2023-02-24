@@ -4,6 +4,7 @@ from helpers import *
 from config import *
 from app import app, db
 from models import *
+from sqlalchemy import select
 
 
 @app.route('/get-tickets')
@@ -53,8 +54,8 @@ def get_users():
         inserted_users = []
 
         for user in results:
-            existing_ticket = ZendeskUsers.query.filter_by(zendesk_user_id=user['id']).first()
-            if not existing_ticket:
+            existing_user = ZendeskUsers.query.filter_by(zendesk_user_id=user['id']).first()
+            if not existing_user:
                 new_user = ZendeskUsers(zendesk_user_id=user['id'], name=user['name'],
                                         email=user['email'], suspended=match_false_true(user['suspended'])
                                         )
@@ -114,11 +115,15 @@ def get_group_memberships():
             db.session.commit()  # commit changes
 
     if inserted_users_and_groups:
-        return f'Usuários inseridos: {str(inserted_users_and_groups)}'
+        return f'Relação de Usuários e Grupos inserida: {str(inserted_users_and_groups)}'
     else:
-        return f'Nenhum usuário inserido!'
+        return f'Nenhuma relação inserida!'
 
 
 @app.route('/')
 def home():
-    return 'Hello World!'
+    list = []
+
+    stmt = ZendeskGroupMemberships.query.filter_by(zendesk_user_id=11490525550747, default=1).first()
+
+    return str(stmt)
