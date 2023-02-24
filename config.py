@@ -3,9 +3,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_BASE_URL = "https://agilepromoter1671733243.zendesk.com/"
+API_BASE_URL = 'https://agilepromoter1671733243.zendesk.com/'
 
-USERNAME = "igor.cattusso@involves.com"
+USERNAME = 'igor.cattusso@involves.com'
 
 ZENDESK_API_KEY = str(os.getenv('SECRET_KEY'))
 

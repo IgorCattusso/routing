@@ -6,11 +6,11 @@ from app import app, db
 from models import *
 
 
-@app.route("/get-tickets")
+@app.route('/get-tickets')
 def get_tickets():
-    zendesk_endpoint_url = "api/v2/search.json"
-    zendesk_search_query = "query=type:ticket status:new"
-    api_url = API_BASE_URL + zendesk_endpoint_url + "?" + zendesk_search_query
+    zendesk_endpoint_url = 'api/v2/search.json'
+    zendesk_search_query = 'query=type:ticket status:new'
+    api_url = API_BASE_URL + zendesk_endpoint_url + '?' + zendesk_search_query
 
     api_response = requests.get(api_url, headers=generate_zendesk_headers())
 
@@ -25,7 +25,7 @@ def get_tickets():
         if not existing_ticket:
             new_ticket = zendesk_tickets(ticket_id=ticket['id'], channel=ticket['via']['channel'],
                                          subject=ticket['subject'],
-                                         created_at=ticket['created_at'].replace("T", " ").replace("Z", ""))
+                                         created_at=ticket['created_at'].replace('T', ' ').replace('Z', ''))
 
             inserted_tickets.append(ticket['id'])
 
@@ -38,10 +38,10 @@ def get_tickets():
         return f'Nenhum ticket inserido!'
 
 
-@app.route("/get-users")
+@app.route('/get-users')
 def get_users():
     for group in ZENDESK_SUPPORT_GROUP_ID:
-        zendesk_endpoint_url = f"/api/v2/groups/{group}/users"
+        zendesk_endpoint_url = f'/api/v2/groups/{group}/users'
         api_url = API_BASE_URL + zendesk_endpoint_url
 
         api_response = requests.get(api_url, headers=generate_zendesk_headers())
@@ -59,7 +59,7 @@ def get_users():
                                          email=user['email'], suspended=match_false_true(user['suspended'])
                                          )
 
-                inserted_users.append(user['id'])
+                inserted_users.append(user['name'])
 
                 db.session.add(new_user)
                 db.session.commit()  # commit changes
@@ -70,6 +70,6 @@ def get_users():
             return f'Nenhum usuário inserido!'
 
 
-@app.route("/")
+@app.route('/')
 def home():
-    return get_users()
+    return 'Hello World!'

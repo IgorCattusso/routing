@@ -2,19 +2,19 @@ import requests
 import base64
 from config import *
 
-zendesk_endpoint_url = "api/v2/search.json"
-zendesk_search_query = "query=type:ticket status:new"
+zendesk_endpoint_url = 'api/v2/search.json'
+zendesk_search_query = 'query=type:ticket status:new'
 api_url = API_BASE_URL + zendesk_endpoint_url + "?" + zendesk_search_query
 
 # Autenticação
-concatenate = USERNAME + "/token:" + ZENDESK_API_KEY
+concatenate = USERNAME + '/token:' + ZENDESK_API_KEY
 
-concatenate_bytes = concatenate.encode("ascii")
+concatenate_bytes = concatenate.encode('ascii')
 base64_bytes = base64.b64encode(concatenate_bytes)
-base64_string = base64_bytes.decode("ascii")
+base64_string = base64_bytes.decode('ascii')
 
 # Montando Headers
-headers = {"Authorization": "Basic " + base64_string}
+headers = {'Authorization': 'Basic ' + base64_string}
 
 # Enviando request e armazenando response em uma variável
 api_response = requests.get(api_url, headers=headers).json()
@@ -28,7 +28,7 @@ results = api_response['results']
 print(results)
 print(type(results))
 
-created_at_formatted = results[1]['created_at'].replace("T", " ").replace("Z", "")
+created_at_formatted = results[1]['created_at'].replace('T', ' ').replace('Z', '')
 print(created_at_formatted)
 
 
