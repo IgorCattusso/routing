@@ -24,7 +24,7 @@ class ZendeskUsers(db.Model):
     suspended = db.Column(db.Boolean, nullable=False)
 
     def __repr__(self):
-        return '<ticket_id %r' % self.name
+        return '<name %r' % self.name
 
 
 class ZendeskGroupMemberships(db.Model):
@@ -36,4 +36,4 @@ class ZendeskGroupMemberships(db.Model):
     default = db.Column(db.Boolean, nullable=False)
 
     def __repr__(self):
-        return '<user_id %r, group_id %r' % self.zendesk_user_id, self.group_id
+        return '<user_id %r' % self.zendesk_user_id
