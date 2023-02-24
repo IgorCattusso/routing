@@ -21,11 +21,11 @@ def get_tickets():
     inserted_tickets = []
 
     for ticket in results:
-        existing_ticket = zendesk_tickets.query.filter_by(ticket_id=ticket['id']).first()
+        existing_ticket = ZendeskTickets.query.filter_by(ticket_id=ticket['id']).first()
         if not existing_ticket:
-            new_ticket = zendesk_tickets(ticket_id=ticket['id'], channel=ticket['via']['channel'],
-                                         subject=ticket['subject'],
-                                         created_at=ticket['created_at'].replace('T', ' ').replace('Z', ''))
+            new_ticket = ZendeskTickets(ticket_id=ticket['id'], channel=ticket['via']['channel'],
+                                        subject=ticket['subject'],
+                                        created_at=ticket['created_at'].replace('T', ' ').replace('Z', ''))
 
             inserted_tickets.append(ticket['id'])
 
@@ -40,7 +40,7 @@ def get_tickets():
 
 @app.route('/get-users')
 def get_users():
-    for group in ZENDESK_SUPPORT_GROUP_ID:
+    for group in ZENDESK_GROUP_IDS:
         zendesk_endpoint_url = f'/api/v2/groups/{group}/users'
         api_url = API_BASE_URL + zendesk_endpoint_url
 
@@ -53,11 +53,11 @@ def get_users():
         inserted_users = []
 
         for user in results:
-            existing_ticket = zendesk_users.query.filter_by(zendesk_user_id=user['id']).first()
+            existing_ticket = ZendeskUsers.query.filter_by(zendesk_user_id=user['id']).first()
             if not existing_ticket:
-                new_user = zendesk_users(zendesk_user_id=user['id'], name=user['name'],
-                                         email=user['email'], suspended=match_false_true(user['suspended'])
-                                         )
+                new_user = ZendeskUsers(zendesk_user_id=user['id'], name=user['name'],
+                                        email=user['email'], suspended=match_false_true(user['suspended'])
+                                        )
 
                 inserted_users.append(user['name'])
 
@@ -68,6 +68,55 @@ def get_users():
             return f'Usuários inseridos: {str(inserted_users)}'
         else:
             return f'Nenhum usuário inserido!'
+
+
+@app.route('/assign-tickets')
+def assign_tickets(ticket_id, zendesk_user_id):
+    zendesk_endpoint_url = f'/api/v2/tickets/{ticket_id}'
+    api_url = API_BASE_URL + zendesk_endpoint_url
+
+    request_json = generate_assign_tickets_json(zendesk_user_id)
+    api_response = requests.put(api_url, json=request_json, headers=generate_zendesk_headers())
+
+    data = api_response.json()
+
+    results = data['ticket']['status']
+
+    return results
+
+
+@app.route('/get-group-memberships')
+def get_group_memberships():
+    zendesk_endpoint_url = '/api/v2/group_memberships'
+    api_url = API_BASE_URL + zendesk_endpoint_url
+
+    api_response = requests.get(api_url, headers=generate_zendesk_headers())
+
+    data = api_response.json()
+
+    results = data['group_memberships']
+
+    inserted_users_and_groups = []
+
+    for user in results:
+        existing_user_and_group = \
+            ZendeskGroupMemberships.query.filter_by(
+                zendesk_user_id=user['user_id'], group_id=user['group_id']).first()
+
+        if not existing_user_and_group:
+            new_user_group = ZendeskGroupMemberships(zendesk_user_id=user['user_id'], group_id=user['group_id'],
+                                                     default=match_false_true(user['default']))
+
+            user_and_group_id = str(user['user_id']) + '|' + str(user['group_id']) + '|' + str(user['default'])
+            inserted_users_and_groups.append(user_and_group_id)
+
+            db.session.add(new_user_group)
+            db.session.commit()  # commit changes
+
+    if inserted_users_and_groups:
+        return f'Usuários inseridos: {str(inserted_users_and_groups)}'
+    else:
+        return f'Nenhum usuário inserido!'
 
 
 @app.route('/')
