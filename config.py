@@ -17,3 +17,5 @@ SQLALCHEMY_DATABASE_URI = \
         server='localhost',
         database='routing'
     )  # configurando conexão com o banco de dados
+
+ZENDESK_SUPPORT_GROUP_ID = [11490566604187]

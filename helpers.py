@@ -13,3 +13,13 @@ def generate_zendesk_headers():
     headers = {"Authorization": "Basic " + base64_string}
 
     return headers
+
+
+def match_false_true(value):
+    match value:
+        case 'False':
+            return 0
+        case 'True':
+            return 1
+        case _:
+            return 0

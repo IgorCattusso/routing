@@ -1,9 +1,9 @@
 import json
 import requests
-from helpers import generate_zendesk_headers
+from helpers import *
 from config import *
 from app import app, db
-from models import zendesk_tickets
+from models import *
 
 
 @app.route("/get-tickets")
@@ -32,4 +32,44 @@ def get_tickets():
             db.session.add(new_ticket)
             db.session.commit()  # commit changes
 
-    return str(inserted_tickets)
+    if inserted_tickets:
+        return f'Usuários inseridos: {str(inserted_tickets)}'
+    else:
+        return f'Nenhum ticket inserido!'
+
+
+@app.route("/get-users")
+def get_users():
+    for group in ZENDESK_SUPPORT_GROUP_ID:
+        zendesk_endpoint_url = f"/api/v2/groups/{group}/users"
+        api_url = API_BASE_URL + zendesk_endpoint_url
+
+        api_response = requests.get(api_url, headers=generate_zendesk_headers())
+
+        data = api_response.json()
+
+        results = data['users']
+
+        inserted_users = []
+
+        for user in results:
+            existing_ticket = zendesk_users.query.filter_by(zendesk_user_id=user['id']).first()
+            if not existing_ticket:
+                new_user = zendesk_users(zendesk_user_id=user['id'], name=user['name'],
+                                         email=user['email'], suspended=match_false_true(user['suspended'])
+                                         )
+
+                inserted_users.append(user['id'])
+
+                db.session.add(new_user)
+                db.session.commit()  # commit changes
+
+        if inserted_users:
+            return f'Usuários inseridos: {str(inserted_users)}'
+        else:
+            return f'Nenhum usuário inserido!'
+
+
+@app.route("/")
+def home():
+    return get_users()
