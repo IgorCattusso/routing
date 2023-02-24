@@ -1,7 +1,9 @@
 from app import db
 
 
-class zendesk_tickets(db.Model):
+class ZendeskTickets(db.Model):
+    __tablename__ = "zendesk_users"
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     ticket_id = db.Column(db.Integer, nullable=False)
     subject = db.Column(db.String(150), nullable=False)
@@ -12,7 +14,9 @@ class zendesk_tickets(db.Model):
         return '<ticket_id %r' % self.ticket_id
 
 
-class zendesk_users(db.Model):
+class ZendeskUsers(db.Model):
+    __tablename__ = "zendesk_users"
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     zendesk_user_id = db.Column(db.BigInteger, nullable=False)
     name = db.Column(db.String(150), nullable=False)
@@ -21,3 +25,15 @@ class zendesk_users(db.Model):
 
     def __repr__(self):
         return '<ticket_id %r' % self.name
+
+
+class ZendeskGroupMemberships(db.Model):
+    __tablename__ = "zendesk_group_memberships"
+    __table_args__ = {'extend_existing': True}
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    zendesk_user_id = db.Column(db.BigInteger, nullable=False)
+    group_id = db.Column(db.BigInteger, nullable=False)
+    default = db.Column(db.Boolean, nullable=False)
+
+    def __repr__(self):
+        return '<user_id %r, group_id %r' % self.zendesk_user_id, self.group_id
