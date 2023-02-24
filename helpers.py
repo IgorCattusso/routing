@@ -1,5 +1,6 @@
 from config import *
 import base64
+from models import *
 
 
 def generate_zendesk_headers():
@@ -17,9 +18,27 @@ def generate_zendesk_headers():
 
 def match_false_true(value):
     match value:
-        case 'False':
+        case False:
             return 0
-        case 'True':
+        case True:
             return 1
         case _:
             return 0
+
+
+def zendesk_default_user_group(zendesk_user_id):
+    user_default_group = ZendeskGroupMemberships.query.filter_by(zendesk_user_id=zendesk_user_id, default=1).first()
+
+    return user_default_group
+
+
+def generate_assign_tickets_json(zendesk_user_id):
+    json = '[ { \
+      "ticket": { \
+        "status": "open", \
+        "assignee_id": {}, \
+        "group_id": {} \
+      } \
+    } ]'.format(zendesk_user_id, zendesk_default_user_group(zendesk_user_id))
+
+    return json
