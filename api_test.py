@@ -1,7 +1,11 @@
 import requests
 import base64
 from config import *
+from models import *
+from helpers import *
 
+
+'''
 zendesk_endpoint_url = 'api/v2/search.json'
 zendesk_search_query = 'query=type:ticket status:new'
 api_url = API_BASE_URL + zendesk_endpoint_url + "?" + zendesk_search_query
@@ -30,7 +34,7 @@ print(type(results))
 
 created_at_formatted = results[1]['created_at'].replace('T', ' ').replace('Z', '')
 print(created_at_formatted)
-
+'''
 
 
 '''
@@ -51,3 +55,22 @@ print("------------------")
 print("Data after replacement: " + result)
 print("------------------")
 '''
+
+'''
+zendesk_default_user_group(11490525550747)
+'''
+
+zendesk_endpoint_url = '/api/v2/group_memberships'
+api_url = API_BASE_URL + zendesk_endpoint_url
+
+api_response = requests.get(api_url, headers=generate_zendesk_headers())
+
+data = api_response.json()
+
+results = data['group_memberships']
+
+inserted_users_and_groups = []
+
+for user in results:
+    test = match_false_true(user['default'])
+    print(type(user['default']))
