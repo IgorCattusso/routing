@@ -41,6 +41,7 @@ def get_tickets():
 
 @app.route('/get-users')
 def get_users():
+    # TODO refactor for query using custom field
     for group in ZENDESK_GROUP_IDS:
         zendesk_endpoint_url = f'/api/v2/groups/{group}/users'
         api_url = API_BASE_URL + zendesk_endpoint_url
