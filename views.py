@@ -122,8 +122,4 @@ def get_group_memberships():
 
 @app.route('/')
 def home():
-    list = []
-
-    stmt = ZendeskGroupMemberships.query.filter_by(zendesk_user_id=11490525550747, default=1).first()
-
-    return str(stmt)
+    return generate_assign_tickets_json(11490525550747)
