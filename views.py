@@ -34,7 +34,7 @@ def get_tickets():
             db.session.commit()  # commit changes
 
     if inserted_tickets:
-        return f'Usuários inseridos: {str(inserted_tickets)}'
+        return f'Tickets inseridos: {str(inserted_tickets)}'
     else:
         return f'Nenhum ticket inserido!'
 
