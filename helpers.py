@@ -30,28 +30,20 @@ def match_false_true(value):
             return 0
 
 
-def zendesk_default_user_group(zendesk_user_id):
-    result = db.session.execute(select(ZendeskGroupMemberships.group_id).filter_by(
-        zendesk_user_id=zendesk_user_id, default=1)).scalar_one()
-
-    return result
-
-
 def generate_assign_tickets_json(zendesk_user_id):
     try:
         json = \
             {
                 "ticket": {
                     "status": "open",
-                    "assignee_id": zendesk_user_id,
-                    "group_id": zendesk_default_user_group(zendesk_user_id)
+                    "assignee_id": zendesk_user_id
                 }
             }
 
         return json
 
     except NoResultFound:
-        return 'Usuário não possui grupo padrão!'
+        return 'Usuário não possui grupo padrão ou não está cadastrado!'
 
     except MultipleResultsFound:
         return 'Usuário possui mais de um registro de grupo padrão!'
