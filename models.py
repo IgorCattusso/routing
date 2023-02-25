@@ -2,7 +2,7 @@ from app import db
 
 
 class ZendeskTickets(db.Model):
-    __tablename__ = "zendesk_users"
+    __tablename__ = "zendesk_tickets"
     __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     ticket_id = db.Column(db.Integer, nullable=False)
