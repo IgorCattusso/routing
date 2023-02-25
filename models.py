@@ -11,7 +11,7 @@ class ZendeskTickets(db.Model):
     created_at = db.Column(db.DateTime, nullable=False)
 
     def __repr__(self):
-        return '<ticket_id %r' % self.ticket_id
+        return '<ticket_id %r' % self.id
 
 
 class ZendeskUsers(db.Model):
@@ -24,7 +24,7 @@ class ZendeskUsers(db.Model):
     suspended = db.Column(db.Boolean, nullable=False)
 
     def __repr__(self):
-        return '<name %r' % self.name
+        return '<name %r' % self.id
 
 
 class ZendeskGroupMemberships(db.Model):
@@ -36,4 +36,16 @@ class ZendeskGroupMemberships(db.Model):
     default = db.Column(db.Boolean, nullable=False)
 
     def __repr__(self):
-        return '<user_id %r' % self.zendesk_user_id
+        return '<user_id %r' % self.id
+
+
+class AssignedTickets(db.Model):
+    __tablename__ = "assigned_tickets"
+    __table_args__ = {'extend_existing': True}
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    zendesk_tickets_id = db.Column(db.Integer, nullable=False)
+    zendesk_users_id = db.Column(db.Integer, nullable=False)
+    assigned_at = db.Column(db.DateTime, nullable=False)
+
+    def __repr__(self):
+        return '<user_id %r' % self.id
