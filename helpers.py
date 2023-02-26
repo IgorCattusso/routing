@@ -1,10 +1,6 @@
-from sqlalchemy import *
 from config import *
 import base64
-from models import *
-from app import db
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
-
 
 
 def generate_zendesk_headers():
