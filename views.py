@@ -1,10 +1,8 @@
-import json
 import requests
 from helpers import *
 from config import *
 from app import app, db
 from models import *
-from sqlalchemy import select
 
 
 @app.route('/get-tickets')
@@ -41,35 +39,34 @@ def get_tickets():
 
 @app.route('/get-users')
 def get_users():
-    # TODO refactor for query using custom field
-    for group in ZENDESK_GROUP_IDS:
-        zendesk_endpoint_url = f'/api/v2/groups/{group}/users'
-        api_url = API_BASE_URL + zendesk_endpoint_url
+    zendesk_endpoint_url = 'api/v2/search.json'
+    zendesk_search_query = 'query=type:user routing_user:true'
+    api_url = API_BASE_URL + zendesk_endpoint_url + '?' + zendesk_search_query
 
-        api_response = requests.get(api_url, headers=generate_zendesk_headers())
+    api_response = requests.get(api_url, headers=generate_zendesk_headers())
 
-        data = api_response.json()
+    data = api_response.json()
 
-        results = data['users']
+    results = data['results']
 
-        inserted_users = []
+    inserted_users = []
 
-        for user in results:
-            existing_user = ZendeskUsers.query.filter_by(zendesk_user_id=user['id']).first()
-            if not existing_user:
-                new_user = ZendeskUsers(zendesk_user_id=user['id'], name=user['name'],
-                                        email=user['email'], suspended=match_false_true(user['suspended'])
-                                        )
+    for user in results:
+        existing_user = ZendeskUsers.query.filter_by(zendesk_user_id=user['id']).first()
+        if not existing_user:
+            new_user = ZendeskUsers(zendesk_user_id=user['id'], name=user['name'],
+                                    email=user['email'], suspended=match_false_true(user['suspended'])
+                                    )
 
-                inserted_users.append(user['name'])
+            inserted_users.append(user['name'])
 
-                db.session.add(new_user)
-                db.session.commit()  # commit changes
+            db.session.add(new_user)
+            db.session.commit()  # commit changes
 
-        if inserted_users:
-            return f'Usuários inseridos: {str(inserted_users)}'
-        else:
-            return f'Nenhum usuário inserido!'
+    if inserted_users:
+        return f'Usuários inseridos: {str(inserted_users)}'
+    else:
+        return f'Nenhum usuário inserido!'
 
 
 @app.route('/assign-tickets')
