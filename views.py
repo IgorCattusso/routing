@@ -137,5 +137,5 @@ def get_group_memberships():
 
 @app.route('/')
 def home():
-    url = API_BASE_URL + '/api/v2/organizations.json'
+    url = API_BASE_URL + '/api/v2/group_memberships.json'
     return get_pages_urls(url)
