@@ -39,17 +39,37 @@ class ZendeskUsers(db.Model):
         return '<name %r' % self.id
 
 
+class ZendeskGroups(db.Model):
+    __tablename__ = "zendesk_groups"
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    zendesk_group_id = db.Column(db.BigInteger, nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+
+    def __init__(self, zendesk_group_id, name):
+        self.zendesk_group_id = zendesk_group_id
+        self.name = name
+
+    def __repr__(self):
+        return f'{self.zendesk_group_id}, {self.name}'
+
+
 class ZendeskGroupMemberships(db.Model):
     __tablename__ = "zendesk_group_memberships"
     __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    zendesk_user_id = db.Column(db.BigInteger, nullable=False)
+    zendesk_user_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.BigInteger, nullable=False)
+    zendesk_group_id = db.Column(db.Integer, nullable=False)
     group_id = db.Column(db.BigInteger, nullable=False)
     default = db.Column(db.Boolean, nullable=False)
 
-    def __init__(self, zendesk_user_id, group_id, default):
+    def __init__(self, zendesk_user_id, user_id, zendesk_group_id, group_id, default):
         self.zendesk_user_id = zendesk_user_id
+        self.user_id = user_id
+        self.zendesk_group_id = zendesk_group_id
         self.group_id = group_id
         self.default = default
 
