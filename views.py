@@ -127,7 +127,13 @@ def get_tickets():
 
 
 @app.route('/assign-tickets')
-def assign_tickets(ticket_id, zendesk_user_id):
+def assign_tickets():
+    pass
+
+
+
+@app.route('/update-ticket')
+def update_ticket(ticket_id, zendesk_user_id):
     zendesk_endpoint_url = f'/api/v2/tickets/{ticket_id}'
     api_url = API_BASE_URL + zendesk_endpoint_url
 
