@@ -1,6 +1,7 @@
 from config import *
 import base64
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
+import requests
 
 
 def generate_zendesk_headers():
@@ -43,3 +44,9 @@ def generate_assign_tickets_json(zendesk_user_id):
 
     except MultipleResultsFound:
         return 'Usuário possui mais de um registro de grupo padrão!'
+
+
+def get_paginated_endpoint_response(api_url, key):
+    api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
+
+    next_url = api_response['next_page']
