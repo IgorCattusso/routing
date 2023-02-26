@@ -46,7 +46,24 @@ def generate_assign_tickets_json(zendesk_user_id):
         return 'Usuário possui mais de um registro de grupo padrão!'
 
 
-def get_paginated_endpoint_response(api_url, key):
-    api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
+def get_pages_urls(api_url):
 
+    url_list = []
+
+    zendesk_search_query = 'page=1'
+
+    url = api_url + '?' + zendesk_search_query
+    url_list.append(url)
+
+    api_response = requests.get(url, headers=generate_zendesk_headers()).json()
     next_url = api_response['next_page']
+    url_list.append(next_url)
+
+    while next_url is not None:
+        new_api_response = requests.get(next_url, headers=generate_zendesk_headers()).json()
+        next_url = new_api_response['next_page']
+        url_list.append(next_url)
+
+    url_list.pop(-1)
+
+    return url_list
