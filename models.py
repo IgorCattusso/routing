@@ -10,8 +10,7 @@ class ZendeskTickets(db.Model):
     channel = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False)
 
-    def __init__(self, table_id, ticket_id, subject, channel, created_at):
-        self.id = table_id
+    def __init__(self, ticket_id, subject, channel, created_at):
         self.ticket_id = ticket_id
         self.subject = subject
         self.channel = channel
@@ -30,8 +29,7 @@ class ZendeskUsers(db.Model):
     email = db.Column(db.String(150), nullable=False)
     suspended = db.Column(db.Boolean, nullable=False)
 
-    def __init__(self, table_id, zendesk_user_id, name, email, suspended):
-        self.id = table_id
+    def __init__(self, zendesk_user_id, name, email, suspended):
         self.zendesk_user_id = zendesk_user_id
         self.name = name
         self.email = email
@@ -50,8 +48,7 @@ class ZendeskGroupMemberships(db.Model):
     group_id = db.Column(db.BigInteger, nullable=False)
     default = db.Column(db.Boolean, nullable=False)
 
-    def __init__(self, table_id, zendesk_user_id, group_id, default):
-        self.id = table_id
+    def __init__(self, zendesk_user_id, group_id, default):
         self.zendesk_user_id = zendesk_user_id
         self.group_id = group_id
         self.default = default
@@ -68,8 +65,7 @@ class AssignedTickets(db.Model):
     zendesk_users_id = db.Column(db.Integer, nullable=False)
     assigned_at = db.Column(db.DateTime, nullable=False)
 
-    def __init__(self, table_id, zendesk_tickets_id, zendesk_users_id, assigned_at):
-        self.id = table_id
+    def __init__(self, zendesk_tickets_id, zendesk_users_id, assigned_at):
         self.zendesk_tickets_id = zendesk_tickets_id
         self.zendesk_users_id = zendesk_users_id
         self.assigned_at = assigned_at
