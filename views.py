@@ -5,34 +5,6 @@ from app import app, db
 from models import *
 
 
-@app.route('/get-tickets')
-def get_tickets():
-    zendesk_endpoint_url = 'api/v2/search.json'
-    zendesk_search_query = 'query=type:ticket status:new'
-    api_url = API_BASE_URL + zendesk_endpoint_url + '?' + zendesk_search_query
-
-    api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
-
-    inserted_tickets = []
-
-    for ticket in api_response['results']:
-        existing_ticket = ZendeskTickets.query.filter_by(ticket_id=ticket['id']).first()
-        if not existing_ticket:
-            new_ticket = ZendeskTickets(ticket_id=ticket['id'], channel=ticket['via']['channel'],
-                                        subject=ticket['subject'],
-                                        created_at=ticket['created_at'].replace('T', ' ').replace('Z', ''))
-
-            inserted_tickets.append(ticket['id'])
-
-            db.session.add(new_ticket)
-            db.session.commit()  # commit changes
-
-    if inserted_tickets:
-        return f'Tickets inseridos: {str(inserted_tickets)}'
-    else:
-        return f'Nenhum ticket inserido!'
-
-
 @app.route('/get-users')
 def get_users():
     zendesk_endpoint_url = 'api/v2/search.json'
@@ -59,17 +31,6 @@ def get_users():
         return f'Usuários inseridos: {str(inserted_users)}'
     else:
         return f'Nenhum usuário inserido!'
-
-
-@app.route('/assign-tickets')
-def assign_tickets(ticket_id, zendesk_user_id):
-    zendesk_endpoint_url = f'/api/v2/tickets/{ticket_id}'
-    api_url = API_BASE_URL + zendesk_endpoint_url
-
-    request_json = generate_assign_tickets_json(zendesk_user_id)
-    api_response = requests.put(api_url, json=request_json, headers=generate_zendesk_headers()).json()
-
-    return api_response['ticket']['status']
 
 
 @app.route('/get-groups')
@@ -128,11 +89,52 @@ def get_group_memberships():
 
                     db.session.add(new_user_group)
                     db.session.commit()  # commit changes
+                else:
+                    return 'Usuário ou Grupo retornado pela API não cadastrado nos Usuários ou Grupos da aplicação!'
 
     if inserted_users_and_groups:
         return f'Relação de Usuários e Grupos inserida: {str(inserted_users_and_groups)}'
     else:
-        return f'Nenhuma relação inserida!'
+        return 'Nenhuma relação inserida!'
+
+
+@app.route('/get-tickets')
+def get_tickets():
+    zendesk_endpoint_url = 'api/v2/search.json'
+    zendesk_search_query = 'query=type:ticket status:new'
+    api_url = API_BASE_URL + zendesk_endpoint_url + '?' + zendesk_search_query
+
+    api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
+
+    inserted_tickets = []
+
+    for ticket in api_response['results']:
+        existing_ticket = ZendeskTickets.query.filter_by(ticket_id=ticket['id']).first()
+        if not existing_ticket:
+            new_ticket = ZendeskTickets(ticket_id=ticket['id'], channel=ticket['via']['channel'],
+                                        subject=ticket['subject'],
+                                        created_at=ticket['created_at'].replace('T', ' ').replace('Z', ''))
+
+            inserted_tickets.append(ticket['id'])
+
+            db.session.add(new_ticket)
+            db.session.commit()  # commit changes
+
+    if inserted_tickets:
+        return f'Tickets inseridos: {str(inserted_tickets)}'
+    else:
+        return f'Nenhum ticket inserido!'
+
+
+@app.route('/assign-tickets')
+def assign_tickets(ticket_id, zendesk_user_id):
+    zendesk_endpoint_url = f'/api/v2/tickets/{ticket_id}'
+    api_url = API_BASE_URL + zendesk_endpoint_url
+
+    request_json = generate_assign_tickets_json(zendesk_user_id)
+    api_response = requests.put(api_url, json=request_json, headers=generate_zendesk_headers()).json()
+
+    return api_response['ticket']['status']
 
 
 @app.route('/')
