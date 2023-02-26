@@ -11,15 +11,11 @@ def get_tickets():
     zendesk_search_query = 'query=type:ticket status:new'
     api_url = API_BASE_URL + zendesk_endpoint_url + '?' + zendesk_search_query
 
-    api_response = requests.get(api_url, headers=generate_zendesk_headers())
-
-    data = api_response.json()
-
-    results = data['results']
+    api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
 
     inserted_tickets = []
 
-    for ticket in results:
+    for ticket in api_response['results']:
         existing_ticket = ZendeskTickets.query.filter_by(ticket_id=ticket['id']).first()
         if not existing_ticket:
             new_ticket = ZendeskTickets(ticket_id=ticket['id'], channel=ticket['via']['channel'],
@@ -43,15 +39,11 @@ def get_users():
     zendesk_search_query = 'query=type:user routing_user:true'
     api_url = API_BASE_URL + zendesk_endpoint_url + '?' + zendesk_search_query
 
-    api_response = requests.get(api_url, headers=generate_zendesk_headers())
-
-    data = api_response.json()
-
-    results = data['results']
+    api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
 
     inserted_users = []
 
-    for user in results:
+    for user in api_response['results']:
         existing_user = ZendeskUsers.query.filter_by(zendesk_user_id=user['id']).first()
         if not existing_user:
             new_user = ZendeskUsers(zendesk_user_id=user['id'], name=user['name'],
@@ -75,13 +67,9 @@ def assign_tickets(ticket_id, zendesk_user_id):
     api_url = API_BASE_URL + zendesk_endpoint_url
 
     request_json = generate_assign_tickets_json(zendesk_user_id)
-    api_response = requests.put(api_url, json=request_json, headers=generate_zendesk_headers())
+    api_response = requests.put(api_url, json=request_json, headers=generate_zendesk_headers()).json()
 
-    data = api_response.json()
-
-    results = data['ticket']['status']
-
-    return results
+    return api_response['ticket']['status']
 
 
 @app.route('/get-groups')
@@ -89,15 +77,11 @@ def get_groups():
     zendesk_endpoint_url = '/api/v2/groups'
     api_url = API_BASE_URL + zendesk_endpoint_url
 
-    api_response = requests.get(api_url, headers=generate_zendesk_headers())
-
-    data = api_response.json()
-
-    results = data['groups']
+    api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
 
     inserted_groups = []
 
-    for group in results:
+    for group in api_response['groups']:
         existing_group = ZendeskGroups.query.filter_by(zendesk_group_id=group['id']).first()
         if not existing_group:
             new_group = ZendeskGroups(zendesk_group_id=group['id'], name=group['name'])
@@ -118,16 +102,12 @@ def get_group_memberships():
     zendesk_endpoint_url = f'/api/v2/group_memberships.json'
     api_url = API_BASE_URL + zendesk_endpoint_url
 
-    urls = get_pages_urls(api_url)
-
     inserted_users_and_groups = []
 
-    for page in urls:
+    for page in get_pages_urls(api_url):
         api_response = requests.get(page, headers=generate_zendesk_headers()).json()
 
-        results = api_response['group_memberships']
-
-        for user in results:
+        for user in api_response['group_memberships']:
             existing_user_and_group = \
                 ZendeskGroupMemberships.query.filter_by(
                     user_id=user['user_id']).filter_by(group_id=user['group_id']).first()
