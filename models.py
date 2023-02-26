@@ -17,7 +17,7 @@ class ZendeskTickets(db.Model):
         self.created_at = created_at
 
     def __repr__(self):
-        return '<ticket_id %r' % self.id
+        return f'{self.id}, {self.ticket_id}, {self.subject}, {self.channel}, {self.created_at}'
 
 
 class ZendeskUsers(db.Model):
@@ -36,7 +36,7 @@ class ZendeskUsers(db.Model):
         self.suspended = suspended
 
     def __repr__(self):
-        return '<name %r' % self.id
+        return f'{self.id}, {self.zendesk_user_id}, {self.name}, {self.email}, {self.suspended}'
 
 
 class ZendeskGroups(db.Model):
@@ -91,4 +91,4 @@ class AssignedTickets(db.Model):
         self.assigned_at = assigned_at
 
     def __repr__(self):
-        return '<user_id %r' % self.id
+        return f'{self.id}, {self.zendesk_tickets_id}, {self.zendesk_users_id}, {self.assigned_at}'
