@@ -3,6 +3,7 @@ from helpers import *
 from config import *
 from app import app, db
 from models import *
+from sqlalchemy import func
 
 
 @app.route('/get-users')
@@ -25,7 +26,7 @@ def get_users():
             inserted_users.append(user['name'])
 
             db.session.add(new_user)
-            db.session.commit()  # commit changes
+            db.session.commit()
 
     if inserted_users:
         return f'Usuários inseridos: {str(inserted_users)}'
@@ -128,8 +129,14 @@ def get_tickets():
 
 @app.route('/assign-tickets')
 def assign_tickets():
-    pass
+    tickets = ZendeskTickets.query \
+        .join(AssignedTickets, ZendeskTickets.id == AssignedTickets.zendesk_tickets_id) \
+        .filter(ZendeskTickets.id == AssignedTickets.zendesk_tickets_id).first()
 
+    q = AssignedTickets.query.with_entities(AssignedTickets.zendesk_users_id, func.count(AssignedTickets.id)) \
+        .group_by(AssignedTickets.zendesk_users_id).first()
+
+    return str(q)
 
 
 @app.route('/update-ticket')
