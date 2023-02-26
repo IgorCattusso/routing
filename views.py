@@ -84,9 +84,38 @@ def assign_tickets(ticket_id, zendesk_user_id):
     return results
 
 
+ @app.route('/get-groups')
+def get_groups():
+    zendesk_endpoint_url = '/api/v2/groups'
+    api_url = API_BASE_URL + zendesk_endpoint_url
+
+    api_response = requests.get(api_url, headers=generate_zendesk_headers())
+
+    data = api_response.json()
+
+    results = data['groups']
+
+    inserted_groups = []
+
+    for group in results:
+        existing_group = ZendeskGroups.query.filter_by(zendesk_group_id=group['id']).first()
+        if not existing_group:
+            new_group = ZendeskGroups(zendesk_group_id=group['id'], name=group['name'])
+
+            inserted_groups.append(group['name'])
+
+            db.session.add(new_group)
+            db.session.commit()  # commit changes
+
+    if inserted_groups:
+        return f'Grupos inseridos: {str(inserted_groups)}'
+    else:
+        return f'Nenhum grupo inserido!'
+
+
 @app.route('/get-group-memberships')
 def get_group_memberships():
-    zendesk_endpoint_url = '/api/v2/group_memberships'
+    zendesk_endpoint_url = f'/api/v2/group_memberships.json?page=1'
     api_url = API_BASE_URL + zendesk_endpoint_url
 
     api_response = requests.get(api_url, headers=generate_zendesk_headers())
@@ -103,14 +132,19 @@ def get_group_memberships():
                 zendesk_user_id=user['user_id'], group_id=user['group_id']).first()
 
         if not existing_user_and_group:
-            new_user_group = ZendeskGroupMemberships(zendesk_user_id=user['user_id'], group_id=user['group_id'],
-                                                     default=match_false_true(user['default']))
+            zendesk_user_id = ZendeskUsers.query.filter_by(zendesk_user_id=user['user_id']).first()
+            zendesk_group_id = ZendeskGroups.query.filter_by(zendesk_group_id=user['group_id']).first()
 
-            user_and_group_id = str(user['user_id']) + '|' + str(user['group_id']) + '|' + str(user['default'])
-            inserted_users_and_groups.append(user_and_group_id)
+            if zendesk_user_id and zendesk_group_id:
+                new_user_group = ZendeskGroupMemberships(zendesk_user_id=zendesk_user_id.id, user_id=user['user_id'],
+                                                         zendesk_group_id=zendesk_group_id.id, group_id=user['group_id'],
+                                                         default=match_false_true(user['default']))
 
-            db.session.add(new_user_group)
-            db.session.commit()  # commit changes
+                user_and_group_id = str(user['user_id']) + '|' + str(user['group_id']) + '|' + str(user['default'])
+                inserted_users_and_groups.append(user_and_group_id)
+
+                db.session.add(new_user_group)
+                db.session.commit()  # commit changes
 
     if inserted_users_and_groups:
         return f'Relação de Usuários e Grupos inserida: {str(inserted_users_and_groups)}'
