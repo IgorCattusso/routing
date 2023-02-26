@@ -130,7 +130,7 @@ def get_group_memberships():
         for user in results:
             existing_user_and_group = \
                 ZendeskGroupMemberships.query.filter_by(
-                    zendesk_user_id=user['user_id'], group_id=user['group_id']).first()
+                    user_id=user['user_id']).filter_by(group_id=user['group_id']).first()
 
             if not existing_user_and_group:
                 zendesk_user_id = ZendeskUsers.query.filter_by(zendesk_user_id=user['user_id']).first()
