@@ -84,7 +84,7 @@ def assign_tickets(ticket_id, zendesk_user_id):
     return results
 
 
- @app.route('/get-groups')
+@app.route('/get-groups')
 def get_groups():
     zendesk_endpoint_url = '/api/v2/groups'
     api_url = API_BASE_URL + zendesk_endpoint_url
@@ -115,36 +115,39 @@ def get_groups():
 
 @app.route('/get-group-memberships')
 def get_group_memberships():
-    zendesk_endpoint_url = f'/api/v2/group_memberships.json?page=1'
+    zendesk_endpoint_url = f'/api/v2/group_memberships.json'
     api_url = API_BASE_URL + zendesk_endpoint_url
 
-    api_response = requests.get(api_url, headers=generate_zendesk_headers())
-
-    data = api_response.json()
-
-    results = data['group_memberships']
+    urls = get_pages_urls(api_url)
 
     inserted_users_and_groups = []
 
-    for user in results:
-        existing_user_and_group = \
-            ZendeskGroupMemberships.query.filter_by(
-                zendesk_user_id=user['user_id'], group_id=user['group_id']).first()
+    for page in urls:
+        api_response = requests.get(page, headers=generate_zendesk_headers()).json()
 
-        if not existing_user_and_group:
-            zendesk_user_id = ZendeskUsers.query.filter_by(zendesk_user_id=user['user_id']).first()
-            zendesk_group_id = ZendeskGroups.query.filter_by(zendesk_group_id=user['group_id']).first()
+        results = api_response['group_memberships']
 
-            if zendesk_user_id and zendesk_group_id:
-                new_user_group = ZendeskGroupMemberships(zendesk_user_id=zendesk_user_id.id, user_id=user['user_id'],
-                                                         zendesk_group_id=zendesk_group_id.id, group_id=user['group_id'],
-                                                         default=match_false_true(user['default']))
+        for user in results:
+            existing_user_and_group = \
+                ZendeskGroupMemberships.query.filter_by(
+                    zendesk_user_id=user['user_id'], group_id=user['group_id']).first()
 
-                user_and_group_id = str(user['user_id']) + '|' + str(user['group_id']) + '|' + str(user['default'])
-                inserted_users_and_groups.append(user_and_group_id)
+            if not existing_user_and_group:
+                zendesk_user_id = ZendeskUsers.query.filter_by(zendesk_user_id=user['user_id']).first()
+                zendesk_group_id = ZendeskGroups.query.filter_by(zendesk_group_id=user['group_id']).first()
 
-                db.session.add(new_user_group)
-                db.session.commit()  # commit changes
+                if zendesk_user_id and zendesk_group_id:
+                    new_user_group = ZendeskGroupMemberships(zendesk_user_id=zendesk_user_id.id,
+                                                             user_id=user['user_id'],
+                                                             zendesk_group_id=zendesk_group_id.id,
+                                                             group_id=user['group_id'],
+                                                             default=match_false_true(user['default']))
+
+                    user_and_group_id = str(user['user_id']) + '|' + str(user['group_id']) + '|' + str(user['default'])
+                    inserted_users_and_groups.append(user_and_group_id)
+
+                    db.session.add(new_user_group)
+                    db.session.commit()  # commit changes
 
     if inserted_users_and_groups:
         return f'Relação de Usuários e Grupos inserida: {str(inserted_users_and_groups)}'
@@ -154,4 +157,5 @@ def get_group_memberships():
 
 @app.route('/')
 def home():
-    return generate_assign_tickets_json(11490525550747)
+    url = API_BASE_URL + '/api/v2/organizations.json'
+    return get_pages_urls(url)
