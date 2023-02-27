@@ -130,13 +130,12 @@ def get_new_tickets():
 @app.route('/assign-tickets')
 def assign_tickets():
     tickets = ZendeskTickets.query \
-        .join(AssignedTickets, ZendeskTickets.id == AssignedTickets.zendesk_tickets_id) \
-        .filter(ZendeskTickets.id == AssignedTickets.zendesk_tickets_id).first()
+        .join(AssignedTickets, ZendeskTickets.id == AssignedTickets.zendesk_tickets_id, isouter=True)
 
     q = AssignedTickets.query.with_entities(AssignedTickets.zendesk_users_id, func.count(AssignedTickets.id)) \
         .group_by(AssignedTickets.zendesk_users_id).first()
 
-    return str(q)
+    return str(tickets)
 
 
 @app.route('/update-ticket')
