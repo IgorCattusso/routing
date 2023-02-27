@@ -69,6 +69,8 @@ def get_group_memberships():
     for page in get_pages_urls(api_url):
         api_response = requests.get(page, headers=generate_zendesk_headers()).json()
 
+        # return api_response['group_memberships']
+
         for user in api_response['group_memberships']:
             existing_user_and_group = \
                 ZendeskGroupMemberships.query.filter_by(
@@ -90,8 +92,6 @@ def get_group_memberships():
 
                     db.session.add(new_user_group)
                     db.session.commit()  # commit changes
-                else:
-                    return 'Usuário ou Grupo retornado pela API não cadastrado nos Usuários ou Grupos da aplicação!'
 
     if inserted_users_and_groups:
         return f'Relação de Usuários e Grupos inserida: {str(inserted_users_and_groups)}'
