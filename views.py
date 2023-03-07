@@ -188,5 +188,4 @@ def update_ticket(ticket_id, zendesk_user_id):
 
 @app.route('/')
 def home():
-    url = API_BASE_URL + '/api/v2/group_memberships.json'
-    return get_pages_urls(url)
+    return 'Home'
