@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from sqlalchemy import URL
 
 load_dotenv()
 
@@ -19,3 +20,11 @@ SQLALCHEMY_DATABASE_URI = \
     )  # configurando conexão com o banco de dados
 
 ZENDESK_GROUP_IDS = [11490525550747]
+
+url_object = URL.create(  # Creating connection string
+    "mysql+pymysql",
+    username="igor",
+    password="igor",
+    host="localhost",
+    database="routing",
+)
