@@ -1,32 +1,46 @@
 import requests
 from helpers import *
 from config import *
-from app import app, db
+from app import *
 from models import *
-from sqlalchemy import func
+from sqlalchemy import URL, create_engine, String, ForeignKey, insert, Table, Column, MetaData, Integer, select, \
+    bindparam, func, cast, and_, or_, text
+from typing import List, Optional
+from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase, Session
+import pymysql
+
+engine = create_engine(url_object)
 
 
 @app.route('/get-users')
 def get_users():
-    zendesk_endpoint_url = 'api/v2/search.json'
+    zendesk_endpoint_url = 'api/v2/search.json?page=1'
     zendesk_search_query = 'query=type:user routing_user:true'
-    api_url = API_BASE_URL + zendesk_endpoint_url + '?' + zendesk_search_query
-
-    api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
+    api_url = API_BASE_URL + zendesk_endpoint_url + '&' + zendesk_search_query
 
     inserted_users = []
 
-    for user in api_response['results']:
-        existing_user = ZendeskUsers.query.filter_by(zendesk_user_id=user['id']).first()
-        if not existing_user:
-            new_user = ZendeskUsers(zendesk_user_id=user['id'], name=user['name'],
-                                    email=user['email'], suspended=match_false_true(user['suspended'])
-                                    )
+    api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
+    next_url = api_url
 
-            inserted_users.append(user['name'])
+    while next_url:
+        for user in api_response['results']:
+            stmt = select(ZendeskUsers).where(ZendeskUsers.zendesk_user_id == user['id'])
+            with Session(engine) as session:
+                query_result = session.execute(stmt).first()
+                if not query_result:
+                    new_user = ZendeskUsers(zendesk_user_id=user['id'],
+                                            name=user['name'],
+                                            email=user['email'],
+                                            suspended=match_false_true(user['suspended']))
+                    inserted_users.append(user['name'])
+                    session.add(new_user)
+                    session.commit()
 
-            db.session.add(new_user)
-            db.session.commit()
+        next_url = api_response['next_page']
+
+        if next_url:
+            api_response = requests.get(next_url, headers=generate_zendesk_headers()).json()
 
     if inserted_users:
         return f'Usuários inseridos: {str(inserted_users)}'
@@ -36,22 +50,30 @@ def get_users():
 
 @app.route('/get-groups')
 def get_groups():
-    zendesk_endpoint_url = '/api/v2/groups'
+    zendesk_endpoint_url = '/api/v2/groups.json?page=1'
     api_url = API_BASE_URL + zendesk_endpoint_url
-
-    api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
 
     inserted_groups = []
 
-    for group in api_response['groups']:
-        existing_group = ZendeskGroups.query.filter_by(zendesk_group_id=group['id']).first()
-        if not existing_group:
-            new_group = ZendeskGroups(zendesk_group_id=group['id'], name=group['name'])
+    api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
+    next_url = api_url
 
-            inserted_groups.append(group['name'])
+    while next_url:
+        for group in api_response['groups']:
+            stmt = select(ZendeskGroups).where(ZendeskGroups.zendesk_group_id == group['id'])
+            with Session(engine) as session:
+                query_result = session.execute(stmt).first()
+                if not query_result:
+                    new_group = ZendeskGroups(zendesk_group_id=group['id'],
+                                              name=group['name'])
+                    inserted_groups.append(group['name'])
+                    session.add(new_group)
+                    session.commit()
 
-            db.session.add(new_group)
-            db.session.commit()  # commit changes
+        next_url = api_response['next_page']
+
+        if next_url:
+            api_response = requests.get(next_url, headers=generate_zendesk_headers()).json()
 
     if inserted_groups:
         return f'Grupos inseridos: {str(inserted_groups)}'
@@ -61,37 +83,43 @@ def get_groups():
 
 @app.route('/get-group-memberships')
 def get_group_memberships():
-    zendesk_endpoint_url = f'/api/v2/group_memberships.json'
+    zendesk_endpoint_url = f'/api/v2/group_memberships.json?page=1'
     api_url = API_BASE_URL + zendesk_endpoint_url
 
     inserted_users_and_groups = []
 
-    for page in get_pages_urls(api_url):
-        api_response = requests.get(page, headers=generate_zendesk_headers()).json()
+    api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
+    next_url = api_url
 
-        # return api_response['group_memberships']
-
+    while next_url:
         for user in api_response['group_memberships']:
-            existing_user_and_group = \
-                ZendeskGroupMemberships.query.filter_by(
-                    user_id=user['user_id']).filter_by(group_id=user['group_id']).first()
+            stmt = select(ZendeskGroupMemberships) \
+                .where(ZendeskGroupMemberships.user_id == user['user_id']) \
+                .where(ZendeskGroupMemberships.group_id == user['group_id'])
+            with Session(engine) as session:
+                query_result = session.execute(stmt).first()
+                if not query_result:
+                    user_in_database = \
+                        session.execute(select(ZendeskUsers)
+                                        .where(ZendeskUsers.zendesk_user_id == str(user['user_id']))).scalar()
+                    group_in_database = \
+                        session.execute(select(ZendeskGroups)
+                                        .where(ZendeskGroups.zendesk_group_id == str(user['group_id']))).scalar()
+                    if user_in_database and group_in_database:
+                        new_user_group = ZendeskGroupMemberships(zendesk_user_id=user_in_database.id,
+                                                                 user_id=user['user_id'],
+                                                                 zendesk_group_id=group_in_database.id,
+                                                                 group_id=user['group_id'],
+                                                                 default=match_false_true(user['default'])
+                                                                 )
+                        session.add(new_user_group)
+                        session.commit()
+                        inserted_users_and_groups.append(user['user_id'])
 
-            if not existing_user_and_group:
-                zendesk_user_id = ZendeskUsers.query.filter_by(zendesk_user_id=user['user_id']).first()
-                zendesk_group_id = ZendeskGroups.query.filter_by(zendesk_group_id=user['group_id']).first()
+        next_url = api_response['next_page']
 
-                if zendesk_user_id and zendesk_group_id:
-                    new_user_group = ZendeskGroupMemberships(zendesk_user_id=zendesk_user_id.id,
-                                                             user_id=user['user_id'],
-                                                             zendesk_group_id=zendesk_group_id.id,
-                                                             group_id=user['group_id'],
-                                                             default=match_false_true(user['default']))
-
-                    user_and_group_id = str(user['user_id']) + '|' + str(user['group_id']) + '|' + str(user['default'])
-                    inserted_users_and_groups.append(user_and_group_id)
-
-                    db.session.add(new_user_group)
-                    db.session.commit()  # commit changes
+        if next_url:
+            api_response = requests.get(next_url, headers=generate_zendesk_headers()).json()
 
     if inserted_users_and_groups:
         return f'Relação de Usuários e Grupos inserida: {str(inserted_users_and_groups)}'
