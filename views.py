@@ -164,7 +164,7 @@ def get_new_tickets():
         return f'Nenhum ticket inserido!'
 
 
-@app.route('/assign-tickets')
+@app.route('/assign-tickets') #  TODO: refactor for sqlalchemy
 def assign_tickets():
     tickets = ZendeskTickets.query \
         .join(AssignedTickets, ZendeskTickets.id == AssignedTickets.zendesk_tickets_id, isouter=True)
