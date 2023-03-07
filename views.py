@@ -129,25 +129,34 @@ def get_group_memberships():
 
 @app.route('/get-new-tickets')
 def get_new_tickets():
-    zendesk_endpoint_url = 'api/v2/search.json'
+    zendesk_endpoint_url = 'api/v2/search.json?page=1'
     zendesk_search_query = 'query=type:ticket status:new'
-    api_url = API_BASE_URL + zendesk_endpoint_url + '?' + zendesk_search_query
-
-    api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
+    api_url = API_BASE_URL + zendesk_endpoint_url + '&' + zendesk_search_query
 
     inserted_tickets = []
 
-    for ticket in api_response['results']:
-        existing_ticket = ZendeskTickets.query.filter_by(ticket_id=ticket['id']).first()
-        if not existing_ticket:
-            new_ticket = ZendeskTickets(ticket_id=ticket['id'], channel=ticket['via']['channel'],
-                                        subject=ticket['subject'],
-                                        created_at=ticket['created_at'].replace('T', ' ').replace('Z', ''))
+    api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
+    next_url = api_url
 
-            inserted_tickets.append(ticket['id'])
+    while next_url:
+        for ticket in api_response['results']:
+            stmt = select(ZendeskTickets).where(ZendeskTickets.ticket_id == str(ticket['id']))
+            with Session(engine) as session:
+                existing_ticket = session.execute(stmt).first()
+                if not existing_ticket:
+                    new_ticket = ZendeskTickets(ticket_id=ticket['id'], channel=ticket['via']['channel'],
+                                                subject=ticket['subject'],
+                                                created_at=ticket['created_at'].replace('T', ' ').replace('Z', ''))
 
-            db.session.add(new_ticket)
-            db.session.commit()  # commit changes
+                    inserted_tickets.append(ticket['id'])
+
+                    session.add(new_ticket)
+                    session.commit()  # commit changes
+
+        next_url = api_response['next_page']
+
+        if next_url:
+            api_response = requests.get(next_url, headers=generate_zendesk_headers()).json()
 
     if inserted_tickets:
         return f'Tickets inseridos: {str(inserted_tickets)}'
