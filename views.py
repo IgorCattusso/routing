@@ -3,11 +3,8 @@ from helpers import *
 from config import *
 from app import *
 from models import *
-from sqlalchemy import URL, create_engine, String, ForeignKey, insert, Table, Column, MetaData, Integer, select, \
-    bindparam, func, cast, and_, or_, text
-from typing import List, Optional
-from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase, Session
-import pymysql
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import Session
 
 engine = create_engine(url_object)
 
@@ -164,15 +161,79 @@ def get_tickets_to_be_assigned():
         return f'Nenhum ticket inserido!'
 
 
-@app.route('/assign-tickets') #  TODO: refactor for sqlalchemy
+@app.route('/get-user-backlog')
+def get_user_backlog():
+    zendesk_endpoint_url = 'api/v2/search.json?page=1'
+    zendesk_search_query = 'query=type:ticket status:open status:pending status:hold'
+
+    api_url = API_BASE_URL + zendesk_endpoint_url + '&' + zendesk_search_query
+
+    inserted_backlog = []
+
+    api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
+    next_url = api_url
+
+    return api_response['results']
+
+    while next_url:
+        for ticket in api_response['results']:
+            stmt = select(ZendeskUserBacklog).where(ZendeskUserBacklog.zendesk_tickets_id ==
+                                                    (select(ZendeskTickets.id).
+                                                     where(ZendeskTickets.ticket_id == str(ticket['id'])))
+                                                    )
+
+            with Session(engine) as session:
+                existing_ticket = session.execute(stmt).first()
+                if not existing_ticket:
+                    user_in_database = \
+                        session.execute(select(ZendeskUsers.id)
+                                        .where(ZendeskUsers.zendesk_user_id == str(ticket['assignee_id']))).scalar()
+                    ticket_in_database = \
+                        session.execute(select(ZendeskTickets.id)
+                                        .where(ZendeskTickets.ticket_id == str(ticket['id']))).scalar()
+                    return str(ticket_in_database)
+                    # new_backlog = ZendeskUserBacklog(zendesk_users_id=user_in_database,
+                    #                                  zendesk_tickets_id=ticket_in_database
+                    #
+                    #
+                    # ticket_id=ticket['id'], channel=ticket['via']['channel'],
+                    #                         subject=ticket['subject'],
+                    #                         created_at=ticket['created_at'].replace('T', ' ').replace('Z', ''))
+
+                    inserted_backlog.append(ticket['id'])
+
+                    session.add(new_backlog)
+                    session.commit()  # commit changes
+
+        next_url = api_response['next_page']
+
+        if next_url:
+            api_response = requests.get(next_url, headers=generate_zendesk_headers()).json()
+
+    if inserted_backlog:
+        return f'Tickets inseridos: {str(inserted_backlog)}'
+    else:
+        return f'Nenhum ticket inserido!'
+
+
+@app.route('/assign-tickets')
 def assign_tickets():
-    tickets = ZendeskTickets.query \
-        .join(AssignedTickets, ZendeskTickets.id == AssignedTickets.zendesk_tickets_id, isouter=True)
 
-    q = AssignedTickets.query.with_entities(AssignedTickets.zendesk_users_id, func.count(AssignedTickets.id)) \
-        .group_by(AssignedTickets.zendesk_users_id).first()
+    # tickets que precisam ser distribuídos
+    tickets = select(ZendeskTickets).outerjoin(AssignedTickets).where(AssignedTickets.id == None)
+    backlog = select(UserBacklog)
 
-    return str(tickets)
+
+
+    # return str(tickets)
+    # >>> SELECT * FROM zendesk_tickets
+    # ... LEFT OUTER JOIN assigned_tickets
+    # ... ON zendesk_tickets.id = assigned_tickets.zendesk_tickets_id
+    # ... WHERE assigned_tickets.id IS NULL
+
+
+
+
 
 
 @app.route('/update-ticket')
