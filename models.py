@@ -75,3 +75,18 @@ class AssignedTickets(Base):
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.zendesk_tickets_id}, {self.zendesk_users_id}, {self.assigned_at}'
+
+
+class ZendeskUserBacklog(Base):
+    __tablename__ = "zendesk_user_backlog"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    zendesk_users_id: Mapped[int] = mapped_column(ForeignKey("zendesk_users.id"))
+    ticket_id: Mapped[int] = mapped_column(nullable=False)
+    ticket_status: Mapped[str] = mapped_column(String(100), nullable=False)
+    ticket_level: Mapped[str] = mapped_column(String(100), nullable=False)
+
+    def __repr__(self) -> str:
+        return f'{self.id}, {self.zendesk_users_id}, {self.ticket_id}, ' \
+               f'{self.ticket_status}, {self.ticket_level}'
