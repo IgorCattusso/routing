@@ -127,10 +127,10 @@ def get_group_memberships():
         return 'Nenhuma relação inserida!'
 
 
-@app.route('/get-new-tickets')
-def get_new_tickets():
+@app.route('/get-tickets-to-be-assigned')
+def get_tickets_to_be_assigned():
     zendesk_endpoint_url = 'api/v2/search.json?page=1'
-    zendesk_search_query = 'query=type:ticket status:new'
+    zendesk_search_query = 'query=type:ticket assignee:none'
     api_url = API_BASE_URL + zendesk_endpoint_url + '&' + zendesk_search_query
 
     inserted_tickets = []
