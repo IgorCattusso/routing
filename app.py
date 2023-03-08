@@ -6,8 +6,6 @@ from sqlalchemy import create_engine
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
 
-db = SQLAlchemy(app)  # Instanciando banco
-
 from views import *
 
 engine = create_engine(url_object)

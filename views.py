@@ -1,7 +1,7 @@
 import requests
 from helpers import *
 from config import *
-from app import *
+from app import app
 from models import *
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
