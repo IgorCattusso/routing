@@ -1,4 +1,3 @@
-from app import db
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import String, Boolean, ForeignKey, DateTime
 from sqlalchemy.sql import func
@@ -13,11 +12,11 @@ class ZendeskTickets(Base):
     __tablename__ = "zendesk_tickets"
     __table_args__ = {'extend_existing': True}
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    ticket_id = db.Column(db.Integer, nullable=False)
-    subject = db.Column(db.String(150), nullable=False)
-    channel = db.Column(db.String(50), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    ticket_id: Mapped[int] = mapped_column(nullable=False)
+    subject: Mapped[str] = mapped_column(String(150), nullable=False)
+    channel: Mapped[str] = mapped_column(String(150), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.ticket_id}, {self.subject}, {self.channel}, {self.created_at}'
