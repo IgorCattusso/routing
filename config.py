@@ -28,3 +28,5 @@ url_object = URL.create(  # Creating connection string
     host="localhost",
     database="routing",
 )
+
+ZENDESK_TICKET_LEVEL_ID = 11490675185819
