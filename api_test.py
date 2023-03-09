@@ -59,18 +59,27 @@ print("------------------")
 '''
 zendesk_default_user_group(11490525550747)
 '''
+#
+# zendesk_endpoint_url = '/api/v2/group_memberships'
+# api_url = API_BASE_URL + zendesk_endpoint_url
+#
+# api_response = requests.get(api_url, headers=generate_zendesk_headers())
+#
+# data = api_response.json()
+#
+# results = data['group_memberships']
+#
+# inserted_users_and_groups = []
+#
+# for user in results:
+#     test = match_false_true(user['default'])
+#     print(type(user['default']))
 
-zendesk_endpoint_url = '/api/v2/group_memberships'
-api_url = API_BASE_URL + zendesk_endpoint_url
+#get_zendesk_users_id('11490525550747')
 
-api_response = requests.get(api_url, headers=generate_zendesk_headers())
-
-data = api_response.json()
-
-results = data['group_memberships']
-
-inserted_users_and_groups = []
-
-for user in results:
-    test = match_false_true(user['default'])
-    print(type(user['default']))
+stmt = select(ZendeskUsers.id).where(ZendeskUsers.zendesk_user_id == 'null')
+print(str(stmt))
+with Session(engine) as session:
+    db_user_id = session.execute(stmt)
+    a = db_user_id.first()
+    print(a[0])
