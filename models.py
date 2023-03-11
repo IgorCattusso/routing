@@ -1,7 +1,10 @@
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import String, Boolean, ForeignKey, DateTime
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
+from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, engine, create_engine
 from sqlalchemy.sql import func
 import datetime
+from config import url_object
+
+engine = create_engine(url_object)
 
 
 class Base(DeclarativeBase):
@@ -34,6 +37,17 @@ class ZendeskUsers(Base):
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.zendesk_user_id}, {self.name}, {self.email}, {self.suspended}'
+
+    @staticmethod
+    def get_zendesk_users_id(user_id):
+        stmt = select(ZendeskUsers.id).where(ZendeskUsers.zendesk_user_id == user_id)
+        with Session(engine) as session:
+            result = session.execute(stmt)
+            for row in result:
+                zendesk_users_id = row[0]
+                if zendesk_users_id:
+                    return zendesk_users_id
+            return 'null'
 
 
 class ZendeskGroups(Base):
@@ -84,7 +98,7 @@ class ZendeskUserBacklog(Base):
     zendesk_users_id: Mapped[int] = mapped_column(ForeignKey("zendesk_users.id"))
     ticket_id: Mapped[int] = mapped_column(nullable=False)
     ticket_status: Mapped[str] = mapped_column(String(100), nullable=False)
-    ticket_level: Mapped[str] = mapped_column(String(100), nullable=False)
+    ticket_level: Mapped[str] = mapped_column(String(100))
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.zendesk_users_id}, {self.ticket_id}, ' \
