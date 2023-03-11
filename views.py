@@ -201,12 +201,6 @@ def get_user_backlog():
                             ticket_level=ticket_level
                         )
 
-                        # Se existe exatamente igual não fazer nada → é só não criar condição pra isso
-                        # Se existe, mas tem coisa diferente, atualizar
-                        # Se não existe, inserir
-                        # No final, verificar se tem ticket no banco mas não na API
-                        # Se existe, deletar do banco
-
                         '''
                         Verificando se o ticket existe exatamente igual
                         '''
