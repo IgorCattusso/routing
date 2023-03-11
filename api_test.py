@@ -1,8 +1,11 @@
-import requests
-import base64
-from config import *
-from models import *
-from helpers import *
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
+from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, engine, create_engine
+from sqlalchemy.sql import func
+import datetime
+from config import url_object
+from views import *
+
+engine = create_engine(url_object)
 
 
 '''
@@ -36,7 +39,6 @@ created_at_formatted = results[1]['created_at'].replace('T', ' ').replace('Z', '
 print(created_at_formatted)
 '''
 
-
 '''
 api_response_as_str = str(api_response['results']) + ","
 api_response_as_str = api_response_as_str[:-1]
@@ -59,6 +61,8 @@ print("------------------")
 '''
 zendesk_default_user_group(11490525550747)
 '''
+
+
 #
 # zendesk_endpoint_url = '/api/v2/group_memberships'
 # api_url = API_BASE_URL + zendesk_endpoint_url
@@ -75,11 +79,37 @@ zendesk_default_user_group(11490525550747)
 #     test = match_false_true(user['default'])
 #     print(type(user['default']))
 
-#get_zendesk_users_id('11490525550747')
+# get_zendesk_users_id('11490525550747')
 
-stmt = select(ZendeskUsers.id).where(ZendeskUsers.zendesk_user_id == 'null')
-print(str(stmt))
+# stmt = select(ZendeskUsers.id).where(ZendeskUsers.zendesk_user_id == 'null')
+# print(str(stmt))
+# with Session(engine) as session:
+#     db_user_id = session.execute(stmt)
+#     a = db_user_id.first()
+#     print(a[0])
+
+#
+
+# from models import ZendeskUsers
+
+# def get_zendesk_users_id(user_id):
+#     stmt = select(ZendeskUsers.id).where(ZendeskUsers.zendesk_user_id == user_id)
+#     with Session(engine) as session:
+#         result = session.execute(stmt)
+#         for row in result:
+#             zendesk_users_id = row
+#             # return zendesk_users_id
+#             if zendesk_users_id:
+#                 return zendesk_users_id[0]
+#             else:
+#                 return 'null'
+#
+# print(str(get_zendesk_users_id(11490551144219)))
+
+list = []
+stmt = select(ZendeskUserBacklog.ticket_id)
 with Session(engine) as session:
-    db_user_id = session.execute(stmt)
-    a = db_user_id.first()
-    print(a[0])
+    a = session.execute(stmt).all()
+    for row in a:
+        list.append(row[0])
+    print(list)
