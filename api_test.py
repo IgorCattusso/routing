@@ -1,4 +1,4 @@
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session, aliased
 from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, engine, create_engine
 from sqlalchemy.sql import func
 import datetime
@@ -6,7 +6,6 @@ from config import url_object
 from views import *
 
 engine = create_engine(url_object)
-
 
 '''
 zendesk_endpoint_url = 'api/v2/search.json'
@@ -62,7 +61,6 @@ print("------------------")
 zendesk_default_user_group(11490525550747)
 '''
 
-
 #
 # zendesk_endpoint_url = '/api/v2/group_memberships'
 # api_url = API_BASE_URL + zendesk_endpoint_url
@@ -114,5 +112,17 @@ zendesk_default_user_group(11490525550747)
 #         list.append(row[0])
 #     print(list)
 
-a = get_ticket_requester_locale(11490553014427)
-print(str(a))
+# a = get_ticket_requester_locale(11490553014427)
+# print(str(a))
+
+# ,
+#
+
+with Session(engine) as session:
+    stmt = select(ZendeskGroups.id, ZendeskGroups.name, func.count(ZendeskGroupMemberships.zendesk_user_id)
+                  .label('count')).join(ZendeskGroupMemberships, isouter=True).group_by(ZendeskGroups.id, ZendeskGroups.name)
+    print(str(stmt))
+    groups = session.execute(stmt).all()
+    for row in groups:
+        print(f'{str(row.id)}, {str(row.name)}, {str(row.count)}')
+
