@@ -59,7 +59,7 @@ class ZendeskGroups(Base):
     name: Mapped[str] = mapped_column(String(100), nullable=False)
 
     def __repr__(self) -> str:
-        return f'{self.zendesk_group_id}, {self.name}'
+        return f'{self.id}, {self.zendesk_group_id}, {self.name}'
 
 
 class ZendeskGroupMemberships(Base):
