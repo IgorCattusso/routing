@@ -1,0 +1,23 @@
+{% extends "template.html" %}
+{% block conteudo %}
+<div class="page-content">
+    <h1 class="page-title">Usuários</h1>
+    <table class="std-table">
+        <thead class="std-thead">
+            <tr class="std-tr">
+                <th class="std-th">ID</th>
+                <th class="std-th">Name</th>
+            </tr>
+        </thead>
+        <tbody  class="std-tbody">
+            {% for user in users %}
+            <tr class="std-tr">
+                <td class="std-td">{{ user.ZendeskUsers.id }}</td>
+                <td class="std-td">{{ user.ZendeskUsers.name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="/get-users"><button class="action-button" >Atualizar Usuários</button></a>
+</div>
+{% endblock %}

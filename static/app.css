@@ -1,0 +1,142 @@
+.fa-2x {
+    font-size: 2em;
+}
+
+.fa {
+    position: relative;
+    display: table-cell;
+    width: 60px;
+    height: 36px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 20px;
+}
+
+.main-menu:hover, nav.main-menu.expanded {
+    width: 300px;
+    overflow: visible;
+}
+
+.main-menu {
+    background: #212121;
+    border-right: 1px solid #e5e5e5;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    left: 0;
+    width: 60px;
+    overflow: hidden;
+    -webkit-transition: width .05s linear;
+    transition: width .05s linear;
+    z-index: 1000;
+}
+
+.main-menu > ul {
+    margin: 7px 0;
+    overflow: hidden;
+}
+
+.main-menu li {
+    position: relative;
+    display: block;
+    width: 250px;
+}
+
+.main-menu li > a {
+    position: relative;
+    display: table;
+    border-collapse: collapse;
+    border-spacing: 0;
+    color: #999;
+    font-size: 18px;
+    text-decoration: none;
+    -webkit-transition: all .1s linear;
+    transition: all .1s linear;
+}
+
+.main-menu .nav-icon {
+    position: relative;
+    display: table-cell;
+    height: 24px;
+    margin-left: 18px;
+    text-align: center;
+    vertical-align: center;
+}
+
+.main-menu .nav-text {
+    position: relative;
+    display: table-cell;
+    vertical-align: middle;
+    width: 190px;
+    font-family: 'Roboto', sans-serif;
+}
+
+.main-menu > ul.logout {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+
+.no-touch .scrollable.hover {
+    overflow-y: hidden;
+}
+
+a:hover, a:focus {
+    text-decoration: none;
+}
+
+nav ul, nav li {
+    outline: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.main-menu li:hover > a, nav.main-menu li.active > a, .dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus, .dropdown-menu > .active > a, .dropdown-menu > .active > a:hover, .dropdown-menu > .active > a:focus, .no-touch .dashboard-page nav.dashboard-menu ul li:hover a, .dashboard-page nav.dashboard-menu ul li.active a {
+    color: #fff;
+    background-color: #000000;
+    width: 300px;
+}
+
+.page-content{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    left: 120px;
+}
+
+.nav-level-2 {
+    margin-left: 25px;
+    display: none;
+}
+
+.has-subnav:hover .nav-level-2 {
+    display: block;
+}
+
+.scrollable{
+    height: 50vh;
+    width: 100vh;
+    overflow: auto;
+}
+
+.action-button{
+    position: absolute;
+    bottom: 20px;
+    margin-top: 30px;
+}
+
+.action-button-2{
+    position: absolute;
+    bottom: 20px;
+    left: 130px;
+    margin-top: 30px;
+}
+
+#messages{
+    position: absolute;
+    right: 10px;
+    width: 200px;
+    list-style-type: none;
+}

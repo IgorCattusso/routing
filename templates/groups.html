@@ -1,0 +1,32 @@
+{% extends "template.html" %}
+{% block conteudo %}
+<div class="page-content">
+    <h1 class="page-title">Grupos</h1>
+    <div class="scrollable">
+        <table class="std-table">
+            <thead class="std-thead">
+                <tr class="std-tr">
+                    <th class="std-th">ID</th>
+                    <th class="std-th">Nome</th>
+                </tr>
+            </thead>
+            <tbody  class="std-tbody">
+                {% for group in groups %}
+                <tr class="std-tr">
+                    <td class="std-td">{{ group.ZendeskGroups.id }}</td>
+                    <td class="std-td">{{ group.ZendeskGroups.name }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <div>
+            <a href="/get-groups"><button class="action-button" >Atualizar Grupos</button></a>
+        </div>
+        <div>
+            <a href="/get-group-memberships"><button class="action-button-2" >Atualizar relação de Grupos e Usuários</button></a>
+        </div>
+    </div>
+</div>
+{% endblock %}
