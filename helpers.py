@@ -3,6 +3,7 @@ from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from config import *
 from models import *
 from sqlalchemy import create_engine
+import requests
 
 engine = create_engine(url_object)
 
@@ -49,7 +50,10 @@ def generate_assign_tickets_json(zendesk_user_id):
         return 'Usuário possui mais de um registro de grupo padrão!'
 
 
-class CustomFields:
-    def __init__(self, field_id, value):
-        self.field_id = field_id
-        self.value = value
+def get_ticket_requester_locale(requester_id):
+    zendesk_endpoint_url = f'/api/v2/users/{requester_id}'
+    api_url = API_BASE_URL + zendesk_endpoint_url
+
+    api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
+
+    return str(api_response['user']['locale'])
