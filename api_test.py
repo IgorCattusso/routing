@@ -106,10 +106,13 @@ zendesk_default_user_group(11490525550747)
 #
 # print(str(get_zendesk_users_id(11490551144219)))
 
-list = []
-stmt = select(ZendeskUserBacklog.ticket_id)
-with Session(engine) as session:
-    a = session.execute(stmt).all()
-    for row in a:
-        list.append(row[0])
-    print(list)
+# list = []
+# stmt = select(ZendeskUserBacklog.ticket_id)
+# with Session(engine) as session:
+#     a = session.execute(stmt).all()
+#     for row in a:
+#         list.append(row[0])
+#     print(list)
+
+a = get_ticket_requester_locale(11490553014427)
+print(str(a))
