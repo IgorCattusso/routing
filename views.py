@@ -7,6 +7,7 @@ from sqlalchemy import create_engine, select, update, and_, or_, delete
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
+from flask import render_template, flash, redirect, url_for
 
 engine = create_engine(url_object)
 
@@ -42,9 +43,11 @@ def get_users():
             api_response = requests.get(next_url, headers=generate_zendesk_headers()).json()
 
     if inserted_users:
-        return f'Usuários inseridos: {str(inserted_users)}'
+        flash(f'Usuários inseridos: {str(inserted_users)}')
+        return redirect(url_for('users'))
     else:
-        return f'Nenhum usuário inserido!'
+        flash(f'Nenhum usuário inserido!')
+        return redirect(url_for('users'))
 
 
 @app.route('/get-groups')
@@ -75,9 +78,11 @@ def get_groups():
             api_response = requests.get(next_url, headers=generate_zendesk_headers()).json()
 
     if inserted_groups:
-        return f'Grupos inseridos: {str(inserted_groups)}'
+        flash(f'Grupos inseridos: {str(inserted_groups)}')
+        return redirect(url_for('groups'))
     else:
-        return f'Nenhum grupo inserido!'
+        flash(f'Nenhum grupo inserido!')
+        return redirect(url_for('groups'))
 
 
 @app.route('/get-group-memberships')
@@ -121,9 +126,11 @@ def get_group_memberships():
             api_response = requests.get(next_url, headers=generate_zendesk_headers()).json()
 
     if inserted_users_and_groups:
-        return f'Relação de Usuários e Grupos inserida: {str(inserted_users_and_groups)}'
+        flash(f'Relação inserida: {str(inserted_users_and_groups)}')
+        return redirect(url_for('groups'))
     else:
-        return 'Nenhuma relação inserida!'
+        flash(f'Nenhuma relação inserida!')
+        return redirect(url_for('groups'))
 
 
 @app.route('/get-tickets-to-be-assigned')
@@ -295,4 +302,32 @@ def update_ticket(ticket_id, zendesk_user_id):
 
 @app.route('/')
 def home():
-    return 'Home'
+    return render_template('home.html', titulo='Routing home')
+
+
+@app.route('/settings')
+def configuration():
+    return render_template('settings.html', titulo='Routing home')
+
+
+@app.route('/users')
+def users():
+    stmt = select(ZendeskUsers).order_by(ZendeskUsers.name)
+    with Session(engine) as session:
+        user_list = session.execute(stmt).all()
+    return render_template('users.html', titulo='Users', users=user_list)
+
+
+@app.route('/groups')
+def groups():
+    stmt = select(ZendeskGroups).order_by(ZendeskGroups.name)
+    with Session(engine) as session:
+        group_list = session.execute(stmt).all()
+    return render_template('groups.html', titulo='Groups', groups=group_list)
+
+
+@app.route('/reports')
+def reports():
+    return render_template('reports.html', titulo='Routing home')
+
+
