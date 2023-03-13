@@ -322,9 +322,9 @@ def users():
 def groups():
     stmt = select(ZendeskGroups.id, ZendeskGroups.name,
                   func.count(ZendeskGroupMemberships.zendesk_user_id).label('count')) \
-                  .join(ZendeskGroupMemberships, isouter=True) \
-                  .group_by(ZendeskGroups.id, ZendeskGroups.name) \
-                  .order_by(ZendeskGroups.name)
+        .join(ZendeskGroupMemberships, isouter=True) \
+        .group_by(ZendeskGroups.id, ZendeskGroups.name) \
+        .order_by(ZendeskGroups.name)
     with Session(engine) as session:
         group_list = session.execute(stmt).all()
     return render_template('groups.html', titulo='Groups', groups=group_list)
@@ -333,5 +333,3 @@ def groups():
 @app.route('/reports')
 def reports():
     return render_template('reports.html', titulo='Routing home')
-
-

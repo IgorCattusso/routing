@@ -140,3 +140,11 @@ nav ul, nav li {
     width: 200px;
     list-style-type: none;
 }
+
+.check-mark-header{
+    height: 20px;
+}
+
+.selected {
+    background-color: yellow;
+}
