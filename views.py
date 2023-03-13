@@ -1,12 +1,9 @@
-import requests
 from helpers import *
 from config import *
 from app import app
 from models import *
-from sqlalchemy import create_engine, select, update, and_, or_, delete
+from sqlalchemy import create_engine, select, update, and_, or_, delete, case
 from sqlalchemy.orm import Session
-from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.exc import IntegrityError
 from flask import render_template, flash, redirect, url_for
 
 engine = create_engine(url_object)
@@ -275,18 +272,25 @@ def get_user_backlog():
         return f'Nenhum backlog alterado!'
 
 
+@app.route('/users-in-group/<int:group_id>')
+def get_group_users(group_id):
+    stmt = select(ZendeskGroupMemberships.id, ZendeskGroupMemberships.zendesk_group_id, ZendeskUsers.name,
+                  case(
+                      (ZendeskGroupMemberships.default == 1, 'Sim'),
+                      (ZendeskGroupMemberships.default == 0, 'Não'),
+                      else_=''
+                  ).label('default')
+                  ).join(ZendeskUsers)\
+                   .where(ZendeskGroupMemberships.zendesk_group_id == group_id)
+
+    with Session(engine) as session:
+        groups_list = session.execute(stmt).all()
+    return render_template('users-in-groups.html', titulo='Groups', groups=groups_list)
+
+
 @app.route('/assign-tickets')
 def assign_tickets():
     pass
-    # tickets que precisam ser distribuídos
-    # tickets = select(ZendeskTickets).outerjoin(AssignedTickets).where(AssignedTickets.id == None)
-    # backlog = select(UserBacklog)
-
-    # return str(tickets)
-    # >>> SELECT * FROM zendesk_tickets
-    # ... LEFT OUTER JOIN assigned_tickets
-    # ... ON zendesk_tickets.id = assigned_tickets.zendesk_tickets_id
-    # ... WHERE assigned_tickets.id IS NULL
 
 
 @app.route('/update-ticket')

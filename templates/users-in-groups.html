@@ -1,0 +1,27 @@
+{% extends "template.html" %}
+{% block conteudo %}
+<div class="page-content">
+    <h1 class="page-title">Grupos</h1>
+    <div class="scrollable">
+        <table class="std-table" id="groupsTable">
+            <thead class="std-thead">
+                <tr class="std-tr">
+                    <th class="std-th">ID da relação</th>
+                    <th class="std-th">Nome do usuário</th>
+                    <th class="std-th">Padrão?</th>
+                </tr>
+            </thead>
+            <tbody  class="std-tbody">
+                {% for group in groups %}
+                <tr class="std-tr" data-id="{{ group.id }}">
+                    <td class="std-td">{{ group.id }}</td>
+                    <td class="std-td">{{ group.name }}</td>
+                    <td class="std-td">{{ group.default }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<script src="../static/js/app.js"></script>
+{% endblock %}
