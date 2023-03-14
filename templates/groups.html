@@ -1,36 +1,39 @@
 {% extends "template.html" %}
 {% block conteudo %}
 <div class="page-content">
-    <h1 class="page-title">Grupos</h1>
-    <div class="scrollable">
-        <table class="std-table" id="groupsTable">
-            <thead class="std-thead">
-                <tr class="std-tr">
-                    <th class="std-th">ID</th>
-                    <th class="std-th">Nome</th>
-                    <th class="std-th"># Usuários</th>
-                </tr>
-            </thead>
-            <tbody  class="std-tbody">
-                {% for group in groups %}
-                <tr class="std-tr" data-id="{{ group.id }}">
-                    <td class="std-td">{{ group.id }}</td>
-                    <td class="std-td">{{ group.name }}</td>
-                    <td class="std-td">{{ group.count }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="main-content">
+        <h1 class="page-title">Grupos</h1>
+        <div class="scrollable">
+            <table class="std-table" id="contentTable">
+                <thead class="std-thead">
+                    <tr class="std-tr">
+                        <th class="std-th">ID</th>
+                        <th class="std-th">Nome</th>
+                        <th class="std-th"># Usuários</th>
+                    </tr>
+                </thead>
+                <tbody  class="std-tbody">
+                    {% for group in groups %}
+                    <tr class="std-tr" data-id="{{ group.id }}">
+                        <td class="std-td">{{ group.id }}</td>
+                        <td class="std-td">{{ group.name }}</td>
+                        <td class="std-td">{{ group.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-    <div style="margin-top: 10px">
-        <button id="seeUser" disabled>Ver integrantes</button>
-    </div>
-    <div>
-        <div>
-            <a href="/get-groups"><button class="action-button">Atualizar Grupos</button></a>
+    <div class="footer-container">
+        <div class="options-container">
+            <ul class="options-list" id="options" style="display:none">
+                <li><a href="/get-groups">Atualizar Grupos</a></li>
+                <li><a href="/get-group-memberships">Atualizar relação de Grupos e Usuários</a></li>
+            </ul>
+            <button onclick="toggleOptions()">Opções</button>
         </div>
         <div>
-            <a href="/get-group-memberships"><button class="action-button-2" >Atualizar relação de Grupos e Usuários</button></a>
+            <button id="edit" disabled>Ver integrantes</button>
         </div>
     </div>
 </div>

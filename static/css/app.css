@@ -98,12 +98,10 @@ nav ul, nav li {
     width: 300px;
 }
 
-.page-content{
+#options {
     position: absolute;
-    top: 0;
-    bottom: 0;
-    height: 100%;
-    left: 120px;
+    bottom: 25px;
+    display: none;
 }
 
 .nav-level-2 {
@@ -121,19 +119,6 @@ nav ul, nav li {
     overflow: auto;
 }
 
-.action-button{
-    position: absolute;
-    bottom: 20px;
-    margin-top: 30px;
-}
-
-.action-button-2{
-    position: absolute;
-    bottom: 20px;
-    left: 130px;
-    margin-top: 30px;
-}
-
 #messages{
     position: absolute;
     right: 10px;
@@ -141,10 +126,77 @@ nav ul, nav li {
     list-style-type: none;
 }
 
-.check-mark-header{
-    height: 20px;
-}
 
 .selected {
-    background-color: yellow;
+    background-color: #e8f6ff;
+    font-weight: bold;
 }
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-family: 'Open Sans', 'sans-serif';
+}
+
+h1 {
+  font-family: 'Arvo', serif;
+  font-weight: bold;
+  font-size: 2.5em;
+  line-height: 1.7em;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.std-table {
+    font-size: 1.2em;
+    width: 100%;
+    margin: 0 0 15px;
+}
+
+.std-table thead {
+  cursor: pointer;
+  background: #c9dff0;
+}
+
+.std-table thead tr th {
+  font-weight: bold;
+  padding: 12px 30px 12px 42px;
+  user-select: none;
+}
+
+.std-thead {
+    user-select: none;
+}
+
+.std-table thead tr th span {
+  padding-right: 20px;
+  background-repeat: no-repeat;
+  background-position: 100% 100%;
+}
+
+.std-table thead tr th.headerSortUp, #keywords thead tr th.headerSortDown {
+  background: #acc8dd;
+}
+
+.std-table tbody tr {
+  color: #555;
+}
+
+.std-table tbody tr td {
+  text-align: center;
+  padding: 15px 10px;
+}
+
+.std-table tbody tr td.lalign {
+  text-align: left;
+}
+
+.options-list {
+  width: 100vh;
+}
+
+.body-container{
+    display: flex;
+    justify-content: space-around;
+}
+
