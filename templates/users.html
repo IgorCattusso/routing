@@ -1,23 +1,40 @@
 {% extends "template.html" %}
 {% block conteudo %}
-<div class="page-content">
-    <h1 class="page-title">Usuários</h1>
-    <table class="std-table" id="contentTable">
-        <thead class="std-thead">
-            <tr class="std-tr">
-                <th class="std-th">ID</th>
-                <th class="std-th">Name</th>
-            </tr>
-        </thead>
-        <tbody  class="std-tbody">
-            {% for user in users %}
-            <tr class="std-tr">
-                <td class="std-td">{{ user.ZendeskUsers.id }}</td>
-                <td class="std-td">{{ user.ZendeskUsers.name }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <a href="/get-users"><button class="action-button" >Atualizar Usuários</button></a>
+
+<div class="container">
+    <div class="main-content">
+        <h1>Grupos</h1>
+            <table class="std-table" id="contentTable">
+                <thead class="std-thead">
+                    <tr class="std-tr">
+                        <th class="std-th">ID</th>
+                        <th class="std-th">Name</th>
+                    </tr>
+                </thead>
+                <tbody  class="std-tbody">
+                    {% for user in users %}
+                    <tr class="std-tr">
+                        <td class="std-td">{{ user.ZendeskUsers.id }}</td>
+                        <td class="std-td">{{ user.ZendeskUsers.name }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+    </div>
+
+    <div class="footer">
+        <div class="footer-items">
+            <div class="options">
+                <ul class="options-list" id="options" style="display:none">
+                    <li><a href="/get-users">Atualizar Usuários</a></li>
+                </ul>
+                <button onclick="toggleOptions()">Opções</button>
+            </div>
+            <div class="page-actions">
+                <button id="edit" disabled>Ver Usuário</button>
+            </div>
+        </div>
+    </div>
 </div>
+
 {% endblock %}

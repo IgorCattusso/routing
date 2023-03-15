@@ -15,6 +15,7 @@ time, mark, audio, video {
 	padding: 0;
 	border: 0;
 	vertical-align: baseline;
+	text-align: left;
 }
 
 article, aside, details, figcaption, figure,
@@ -37,4 +38,8 @@ blockquote, q {
 table {
 	border-collapse: collapse;
 	border-spacing: 0;
+}
+
+a {
+	text-decoration: none;
 }

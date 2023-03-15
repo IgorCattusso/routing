@@ -1,96 +1,66 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <title>Test</title>
     <link rel="stylesheet" href="../static/css/app.css">
     <link rel="stylesheet" href="../static/css/reset.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Arvo&display=swap" rel="stylesheet">
-    <title>test</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arvo&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+    <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css'>
+    <link rel='stylesheet prefetch' href='https://fonts.googleapis.com/css?family=Montserrat'>
 </head>
-    <body>
-        <div class="body-container">
-            <div class="container nav-bar-div">
-                <nav class="main-menu">
-                    <ul>
-                        <li>
-                            <a href="/">
-                                <i class="fa fa-home fa-2x"><img class="nav-icon" src="../static/img/home.png" alt="Home Button"></i>
-                                <span class="nav-text">
-                                    Home
-                                </span>
-                            </a>
-                        </li>
+<body>
+<div class="wrapper">
+    <div class="nav-bar">
+        <ul class="accordion-menu">
+            <li onclick="window.location.href='/'">
+                <div class="no-dropdown-link">
+                    <div><img src="../static/img/home.png" alt="Home" class="menu-img"></div>
+                    <div><span class="no-dropdown-link-text">Home</span></div>
+                </div>
+            </li>
+            <li>
+                <div class="dropdown-link">
+                    <div><img src="../static/img/person.png" alt="Home" class="menu-img"></div>
+                    <div><span class="dropdown-link-text">Usuários</span></div>
+                </div>
+                <ul class="submenu-Items">
+                    <li><a href="/users">Usuários</a></li>
+                    <li><a href="/groups">Grupos</a></li>
+                </ul>
+            </li>
+            <li>
+                <div class="dropdown-link">
+                    <div><img src="../static/img/settings.png" alt="Home" class="menu-img"></div>
+                    <div><span class="dropdown-link-text">Configurações</span></div>
+                </div>
+                <ul class="submenu-Items">
+                    <li><a href="#">Rotas</a></li>
+                    <li><a href="#">Outras configs</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
 
-                        <li class="has-subnav">
-                            <a>
-                                <i class="fa fa-users fa-2x"><img class="nav-icon" src="../static/img/person.png" alt="Users"></i>
-                                <span class="nav-text">
-                                    Usuários
-                                </span>
-                            </a>
-                            <ul class="nav-level-2">
-                                <li class="nav-level-2-1">
-                                    <a href="/users">
-                                        <i class="fa fa-users-register fa-2x"><img class="nav-icon" src="../static/img/category.png" alt="Users"></i>
-                                        <span class="nav-text">
-                                            Cadastro de usuários
-                                        </span>
-                                    </a>
-                                </li>
-                                <li class="nav-level-2-2">
-                                    <a href="/groups">
-                                        <i class="fa fa-users-register fa-2x"><img class="nav-icon" src="../static/img/category.png" alt="Users"></i>
-                                        <span class="nav-text">
-                                            Cadastro de Grupos
-                                        </span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="has-subnav">
-                            <a href="/settings">
-                                <i class="fa fa-users fa-2x"><img class="nav-icon" src="../static/img/settings.png" alt="Settings"></i>
-                                <span class="nav-text">
-                                    Configurações
-                                </span>
-                            </a>
-                        </li>
-                        <li class="has-subnav">
-                            <a href="/reports">
-                                <i class="fa fa-users fa-2x"><img class="nav-icon" src="../static/img/chart-pie.png" alt="Reports"></i>
-                                <span class="nav-text">
-                                    Relatórios
-                                </span>
-                            </a>
-                        </li>
-                    </ul>
 
-                    <ul class="logout">
-                        <li>
-                            <a href="#">
-                                <i class="fa fa-logout fa-2x"><img src="../static/img/key.png" alt="Logout" class="nav-icon"></i>
-                                <span class="nav-text">
-                                    Logout
-                                </span>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul id="messages" class="list-unstyled">
+                {% for message in messages %}
+                    <li class="alert alert-success">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
 
-                {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                        <ul id="messages" class="list-unstyled">
-                        {% for message in messages %}
-                            <li class="alert alert-success">{{ message }}</li>
-                        {% endfor %}
-                        </ul>
-                    {% endif %}
-                {% endwith %}
-            </div>
+    {% block conteudo %}{% endblock %}
 
-            {% block conteudo %}{% endblock %}
+    <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
+    <script src="../static/js/app.js"></script>
 
-            <div class="right-spacer"></div>
-        </div>
-    </body>
+</div>
+</body>
 </html>
