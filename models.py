@@ -67,14 +67,14 @@ class ZendeskGroupMemberships(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    zendesk_user_id: Mapped[int] = mapped_column(ForeignKey("zendesk_users.id"))
+    zendesk_users_id: Mapped[int] = mapped_column(ForeignKey("zendesk_users.id"))
     user_id: Mapped[int] = mapped_column(nullable=False)
-    zendesk_group_id: Mapped[int] = mapped_column(ForeignKey("zendesk_groups.id"))
+    zendesk_groups_id: Mapped[int] = mapped_column(ForeignKey("zendesk_groups.id"))
     group_id: Mapped[int] = mapped_column(nullable=False)
     default: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
     def __repr__(self) -> str:
-        return f'{self.id}, {self.zendesk_user_id}, {self.group_id}, {self.default}'
+        return f'{self.id}, {self.zendesk_users_id}, {self.group_id}, {self.default}'
 
 
 class AssignedTickets(Base):

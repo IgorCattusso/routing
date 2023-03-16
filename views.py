@@ -2,7 +2,7 @@ from helpers import *
 from config import *
 from app import app
 from models import *
-from sqlalchemy import create_engine, select, update, and_, or_, delete, case
+from sqlalchemy import create_engine, select, update, and_, or_, delete, case, desc
 from sqlalchemy.orm import Session
 from flask import render_template, flash, redirect, url_for
 
@@ -274,18 +274,24 @@ def get_user_backlog():
 
 @app.route('/users-in-group/<int:group_id>')
 def get_group_users(group_id):
-    stmt = select(ZendeskGroupMemberships.id, ZendeskGroupMemberships.zendesk_group_id, ZendeskUsers.name,
-                  case(
-                      (ZendeskGroupMemberships.default == 1, 'Sim'),
-                      (ZendeskGroupMemberships.default == 0, 'Não'),
-                      else_=''
-                  ).label('default')
-                  ).join(ZendeskUsers)\
-                   .where(ZendeskGroupMemberships.zendesk_group_id == group_id)
+    stmt = select(
+            ZendeskGroupMemberships.id,
+            ZendeskGroupMemberships.user_id,
+            ZendeskUsers.name.label('user_name'),
+            ZendeskGroupMemberships.group_id,
+            ZendeskGroups.name.label('group_name'),
+            case(
+                (ZendeskGroupMemberships.default == 1, 'Sim'),
+                (ZendeskGroupMemberships.default == 0, 'Não'),
+                else_='')
+            .label('default')) \
+            .join(ZendeskUsers) \
+            .join(ZendeskGroups) \
+            .where(ZendeskGroupMemberships.zendesk_groups_id == group_id)
 
     with Session(engine) as session:
-        groups_list = session.execute(stmt).all()
-    return render_template('users-in-groups.html', titulo='Groups', groups=groups_list)
+        group_memberships = session.execute(stmt).all()
+    return render_template('users-in-groups.html', titulo='Groups', group_memberships=group_memberships)
 
 
 @app.route('/assign-tickets')
@@ -324,11 +330,11 @@ def users():
 
 @app.route('/groups')
 def groups():
-    stmt = select(ZendeskGroups.id, ZendeskGroups.name,
-                  func.count(ZendeskGroupMemberships.zendesk_user_id).label('count')) \
+    stmt = select(ZendeskGroups.id, ZendeskGroups.zendesk_group_id, ZendeskGroups.name,
+                  func.count(ZendeskGroupMemberships.zendesk_users_id).label('count')) \
         .join(ZendeskGroupMemberships, isouter=True) \
         .group_by(ZendeskGroups.id, ZendeskGroups.name) \
-        .order_by(ZendeskGroups.name)
+        .order_by(desc('count'))
     with Session(engine) as session:
         group_list = session.execute(stmt).all()
     return render_template('groups.html', titulo='Groups', groups=group_list)

@@ -1,43 +1,45 @@
 {% extends "template.html" %}
 {% block conteudo %}
 
-<div class="container">
-    <div class="main-content">
-        <h1>Grupos</h1>
-        <table class="std-table" id="contentTable">
-            <thead class="std-thead">
-                <tr class="std-tr">
-                    <th class="std-th">ID</th>
-                    <th class="std-th">Nome</th>
-                    <th class="std-th"># Usuários</th>
-                </tr>
-            </thead>
-            <tbody class="std-tbody">
-                {% for group in groups %}
-                <tr class="std-tr" data-id="{{ group.id }}">
-                    <td class="std-td">{{ group.id }}</td>
-                    <td class="std-td">{{ group.name }}</td>
-                    <td class="std-td">{{ group.count }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <div class="footer">
-        <div class="footer-items">
-            <div class="options">
-                <ul class="options-list" id="options" style="display:none">
-                    <li><a href="/get-groups">Atualizar Grupos</a></li>
-                    <li><a href="/get-group-memberships">Atualizar relação de Grupos e Usuários</a></li>
-                </ul>
-                <button onclick="toggleOptions()">Opções</button>
+    <div class="container">
+        <div class="main-content">
+            <h1>Grupos</h1>
+            <div id="contentTable" class="content-table">
+                <div class="std-table" id="std-table">
+                    <div class="std-thead" id="thead">
+                        <span class="std-th th-id" data-sortby="id">ID</span>
+                        <span class="std-th th-zendesk-group-id" data-sortby="zendesk_group_id">ID do Grupo no Zendesk</span>
+                        <span class="std-th th-name" data-sortby="name">Nome</span>
+                        <span class="std-th th-count" data-sortby="count"># Usuários</span>
+                    </div>
+                    <div class="std-body scrollable" id="tbody">
+                        {% for group in groups %}
+                            <div class="std-tr" data-id="{{ group.id }}">
+                                <span class="std-td std-td-id">{{ group.id }}</span>
+                                <span class="std-td std-td-zendesk-group-id">{{ group.zendesk_group_id }}</span>
+                                <span class="std-td std-td-name">{{ group.name }}</span>
+                                <span class="std-td std-td-count">{{ group.count }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
-            <div class="page-actions">
-                <button id="edit" disabled>Ver integrantes</button>
+        </div>
+
+        <div class="footer">
+            <div class="footer-items">
+                <div class="options">
+                    <ul class="options-list" id="options-list" style="display:none">
+                        <li id="updateGroups"><a href="/get-groups">Atualizar Grupos</a></li>
+                        <li id="updateGroupMemberships"><a href="/get-group-memberships">Atualizar relação de Grupos e Usuários</a></li>
+                    </ul>
+                    <button onclick="toggleOptions()">Opções</button>
+                </div>
+                <div class="page-actions">
+                    <div><button id="edit" disabled="disabled">Ver integrantes</button></div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 {% endblock %}

@@ -1,8 +1,8 @@
 const button = document.getElementById("edit");
 button.addEventListener("click", function() {
   // get selected row IDs
-  const table = document.getElementById("contentTable");
-  const rows = table.getElementsByTagName("tr");
+  const table = document.getElementById("std-table");
+  const rows = table.getElementsByClassName("std-tr");
   const selectedRowIDs = [];
   for (let i = 0; i < rows.length; i++) {
     if (rows[i].classList.contains("selected")) {
@@ -19,9 +19,9 @@ button.addEventListener("click", function() {
 });
 
 
-const table = document.getElementById("contentTable");
-const header = table.querySelector("thead");
-const rows = table.querySelectorAll("tbody tr");
+const table = document.getElementById("std-table");
+const header = document.getElementById("thead");
+const rows = document.getElementsByClassName("std-tr");
 for (let i = 0; i < rows.length; i++) {
   rows[i].addEventListener("click", function() {
     // toggle "selected" class on clicked row
@@ -37,57 +37,14 @@ for (let i = 0; i < rows.length; i++) {
 }
 
 
-// Add click event listener to each table header
-header.querySelectorAll("th").forEach((th, i) => {
-  th.addEventListener("click", () => {
-    // Sort table rows based on the clicked header
-    const sortedRows = Array.from(rows);
-    const order = (th.dataset.order || "asc") === "asc" ? "desc" : "asc";
-    const sortFunction = getSortFunction(i, order);
-    sortedRows.sort(sortFunction);
-
-    // Reorder the table rows
-    const tbody = table.querySelector("tbody");
-    tbody.innerHTML = "";
-    sortedRows.forEach((row) => {
-      tbody.appendChild(row);
-    });
-
-    // Update the header to reflect the sort order
-    header.querySelectorAll("th").forEach((th2) => {
-      th2.dataset.order = "";
-    });
-    th.dataset.order = order;
-  });
-});
-
-
-// Helper function to get the sort function for a specific column and order
-function getSortFunction(column, order) {
-  return (a, b) => {
-    const aVal = a.querySelectorAll("td")[column].textContent.trim();
-    const bVal = b.querySelectorAll("td")[column].textContent.trim();
-    if (aVal === bVal) {
-      return 0;
-    }
-    if (order === "asc") {
-      return aVal < bVal ? -1 : 1;
-    } else {
-      return aVal > bVal ? -1 : 1;
-    }
-  };
-}
-
-
 function toggleOptions() {
-  var options = document.getElementById("options");
+  var options = document.getElementById("options-list");
   if (options.style.display === "none") {
     options.style.display = "block";
   } else {
     options.style.display = "none";
   }
 }
-
 
 
 $(function() {
@@ -116,6 +73,51 @@ $(function() {
       $el.find('.submenu-Items').not($next).slideUp().parent().removeClass('open');
     }
   }
-
   var accordion = new Accordion($('.accordion-menu'), false);
 })
+
+
+// Store the original rows in an array
+var originalRows = $('#tbody .std-tr').toArray();
+
+// Bind a click event handler to all .std-th elements
+$('.std-th').on('click', function() {
+  var column = $(this).index();
+  var $tbody = $('#tbody');
+  var $rows = originalRows.slice(0); // Make a copy of the original rows
+
+  // Sort the rows based on the clicked column
+  $rows.sort(function(a, b) {
+    var aVal = $(a).find('.std-td').eq(column).text();
+    var bVal = $(b).find('.std-td').eq(column).text();
+    if (column === -1 || column === 3) {
+      return parseInt(aVal) - parseInt(bVal);
+    } else {
+      return aVal.localeCompare(bVal);
+    }
+  });
+
+  // Reverse the order of the rows if the column was already sorted in ascending order
+  if ($(this).hasClass('asc')) {
+    $rows.reverse();
+    $(this).removeClass('asc').addClass('desc');
+  } else {
+    $(this).removeClass('desc').addClass('asc');
+  }
+
+  // Replace the contents of the tbody with the sorted rows
+  $tbody.empty().append($rows);
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  const updateGroups = document.getElementById('updateGroups');
+  updateGroups.addEventListener('click', function() {
+    window.location.href = '/get-groups';
+  });
+
+  const updateGroupMemberships = document.getElementById('updateGroupMemberships');
+  updateGroupMemberships.addEventListener('click', function() {
+    window.location.href = '/get-group-memberships';
+  });
+});
