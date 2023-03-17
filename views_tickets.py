@@ -4,6 +4,7 @@ from app import app
 from models import *
 from sqlalchemy import create_engine, select, update, and_, or_, delete
 from sqlalchemy.orm import Session
+import time
 
 engine = create_engine(url_object)
 
@@ -38,6 +39,8 @@ def get_tickets_to_be_assigned():
 
         if next_url:
             api_response = requests.get(next_url, headers=generate_zendesk_headers()).json()
+
+    time.sleep(.35)
 
     if inserted_tickets:
         return f'Tickets inseridos: {str(inserted_tickets)}'
@@ -141,6 +144,8 @@ def get_user_backlog():
 
         if next_url:
             api_response = requests.get(next_url, headers=generate_zendesk_headers()).json()
+
+    time.sleep(.35)
 
     if inserted_backlog or updated_backlog or deleted_backlog:
         return f'Tickets inseridos: {str(inserted_backlog)}<br>' \

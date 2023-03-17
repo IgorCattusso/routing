@@ -5,6 +5,7 @@ from models import *
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 from flask import flash, redirect, url_for
+import time
 
 engine = create_engine(url_object)
 
@@ -38,6 +39,8 @@ def get_users():
 
         if next_url:
             api_response = requests.get(next_url, headers=generate_zendesk_headers()).json()
+
+    time.sleep(.35)
 
     if inserted_users:
         flash(f'Usuários inseridos: {str(inserted_users)}')

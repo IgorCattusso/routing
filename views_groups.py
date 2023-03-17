@@ -6,6 +6,7 @@ from models import *
 from sqlalchemy import create_engine, select, case, desc
 from sqlalchemy.orm import Session
 from flask import render_template, flash, redirect, url_for
+import time
 
 engine = create_engine(url_object)
 
@@ -38,6 +39,7 @@ def get_groups():
             api_response = requests.get(next_url, headers=generate_zendesk_headers()).json()
 
     if inserted_groups:
+        time.sleep(.35)
         flash(f'Grupos inseridos: {str(inserted_groups)}')
         return redirect(url_for('groups'))
     else:
@@ -84,6 +86,8 @@ def get_all_group_memberships():
 
         if next_url:
             api_response = requests.get(next_url, headers=generate_zendesk_headers()).json()
+
+    time.sleep(.35)
 
     if inserted_users_and_groups:
         flash(f'Relação de usuários inseridos: {str(inserted_users_and_groups)}')
@@ -138,6 +142,8 @@ def get_group_memberships(group_id):
         if next_url:
             api_response = requests.get(next_url, headers=generate_zendesk_headers()).json()
 
+    time.sleep(.35)
+
     if inserted_users_and_groups:
         flash(f'Usuários inseridos: {str(inserted_users_and_groups)}')
         return redirect(url_for('get_users_in_group', group_id=group_id))
@@ -166,6 +172,8 @@ def get_users_in_group(group_id):
     with Session(engine) as session:
         group_memberships = session.execute(stmt).all()
         group = session.execute(stmt).first()
+
+    time.sleep(.35)
 
     if group:
         return render_template('users-in-group.html', titulo='Groups',

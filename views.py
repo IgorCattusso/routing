@@ -5,17 +5,20 @@ from models import *
 from sqlalchemy import create_engine, select, desc
 from sqlalchemy.orm import Session
 from flask import render_template
+import time
 
 engine = create_engine(url_object)
 
 
 @app.route('/')
 def home():
+    time.sleep(.35)
     return render_template('home.html', titulo='Routing home')
 
 
 @app.route('/settings')
 def configuration():
+    time.sleep(.35)
     return render_template('settings.html', titulo='Routing home')
 
 
@@ -24,6 +27,8 @@ def users():
     stmt = select(ZendeskUsers).order_by(ZendeskUsers.name)
     with Session(engine) as session:
         user_list = session.execute(stmt).all()
+
+    time.sleep(.35)
     return render_template('users.html', titulo='Users', users=user_list)
 
 
@@ -36,9 +41,12 @@ def groups():
         .order_by(desc('count'))
     with Session(engine) as session:
         group_list = session.execute(stmt).all()
+
+    time.sleep(.35)
     return render_template('groups.html', titulo='Groups', groups=group_list)
 
 
 @app.route('/reports')
 def reports():
+    time.sleep(.35)
     return render_template('reports.html', titulo='Routing home')
