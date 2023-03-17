@@ -3,25 +3,23 @@
 
     <div class="container">
         <div class="main-content">
-            <h1>Usuários</h1>
+            <h1>{{ group_name }}</h1>
             <div id="contentTable" class="content-table">
                 <div class="std-table" id="std-table">
                     <div class="std-thead" id="thead">
                         <span class="std-th th-id" data-sortby="id">ID</span>
+                        <span class="std-th th-zendesk-group-id" data-sortby="zendesk_group_id">ID do Grupo no Zendesk</span>
                         <span class="std-th th-zendesk-user-id" data-sortby="zendesk_user_id">ID do Usuário no Zendesk</span>
                         <span class="std-th th-user-name" data-sortby="user-name">Nome do usuário</span>
-                        <span class="std-th th-zendesk-group-id" data-sortby="zendesk_group_id">ID do Grupo no Zendesk</span>
-                        <span class="std-th th-group-name" data-sortby="user-name">Nome do grupo</span>
                         <span class="std-th th-default-group" data-sortby="default-group">Grupo padrão</span>
                     </div>
                     <div class="std-body scrollable" id="tbody">
                         {% for user in group_memberships %}
                             <div class="std-tr" data-id="{{ user.id }}">
                                 <span class="std-td std-td-id">{{ user.id }}</span>
-                                <span class="std-td std-td-zendesk-user-id">{{ user.user_id }}</span>
+                                <span class="std-td std-td-zendesk-group-id">{{ user.group_id_on_zendesk }}</span>
+                                <span class="std-td std-td-zendesk-user-id">{{ user.user_id_on_zendesk }}</span>
                                 <span class="std-td std-td-user-name">{{ user.user_name }}</span>
-                                <span class="std-td std-td-zendesk-group-id">{{ user.group_id }}</span>
-                                <span class="std-td std-td-group-name">{{ user.group_name }}</span>
                             <span class="std-td std-td-default-group">{{ user.default }}</span>
                             </div>
                         {% endfor %}
@@ -33,8 +31,8 @@
         <div class="footer">
             <div class="footer-items">
                 <div class="options">
-                    <ul class="options-list" id="options-list" style="display:none">
-                        <li><a href="/get-users">Atualizar Usuários</a></li>
+                    <ul class="options-list" id="options-list">
+                        <li><a href="/get-group-memberships/{{ group_id }}">Atualizar usuários deste grupo</a></li>
                     </ul>
                     <button onclick="toggleOptions()">Opções</button>
                 </div>

@@ -2,6 +2,10 @@ html {
     font-size: 16px;
 }
 
+a {
+    color: black;
+}
+
 #options-list {
     position: absolute;
     bottom: 60px;
@@ -86,7 +90,7 @@ html {
     width: 200px;
     list-style-type: none;
     line-height: 3rem;
-    background-color: #5cb85c;
+    background-color: #8ada8a;
     color: green;
     padding-left: 20px;
     border: 1px solid green;
