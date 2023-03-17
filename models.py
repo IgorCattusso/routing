@@ -68,13 +68,13 @@ class ZendeskGroupMemberships(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     zendesk_users_id: Mapped[int] = mapped_column(ForeignKey("zendesk_users.id"))
-    user_id: Mapped[int] = mapped_column(nullable=False)
+    user_id_on_zendesk: Mapped[int] = mapped_column(nullable=False)
     zendesk_groups_id: Mapped[int] = mapped_column(ForeignKey("zendesk_groups.id"))
-    group_id: Mapped[int] = mapped_column(nullable=False)
+    group_id_on_zendesk: Mapped[int] = mapped_column(nullable=False)
     default: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
     def __repr__(self) -> str:
-        return f'{self.id}, {self.zendesk_users_id}, {self.group_id}, {self.default}'
+        return f'{self.id}, {self.zendesk_users_id}, {self.zendesk_groups_id}, {self.default}'
 
 
 class AssignedTickets(Base):
