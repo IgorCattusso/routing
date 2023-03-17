@@ -1,24 +1,6 @@
-const button = document.getElementById("edit");
-button.addEventListener("click", function() {
-  // get selected row IDs
-  const table = document.getElementById("std-table");
-  const rows = table.getElementsByClassName("std-tr");
-  const selectedRowIDs = [];
-  for (let i = 0; i < rows.length; i++) {
-    if (rows[i].classList.contains("selected")) {
-      selectedRowIDs.push(rows[i].getAttribute("data-id"));
-    }
-  }
-  // redirect to new page with row IDs in URL if only one row is selected
-  if (selectedRowIDs.length === 1) {
-    window.location.href = `/users-in-group/${selectedRowIDs[0]}`;
-  } else {
-    // disable button if more than one row is selected
-    button.setAttribute("disabled", true);
-  }
-});
-
-
+//-----------------------//
+// Select rows of tables //
+//-----------------------//
 const table = document.getElementById("std-table");
 const header = document.getElementById("thead");
 const rows = document.getElementsByClassName("std-tr");
@@ -37,6 +19,9 @@ for (let i = 0; i < rows.length; i++) {
 }
 
 
+//-------------------------//
+// Pop-up the Options menu //
+//-------------------------//
 function toggleOptions() {
   var options = document.getElementById("options-list");
   if (options.style.display === "none") {
@@ -47,6 +32,9 @@ function toggleOptions() {
 }
 
 
+//--------------------------//
+// Accordion menu navigator //
+//------------------------- //
 $(function() {
   var Accordion = function(el, multiple) {
     this.el = el || {};
@@ -69,7 +57,6 @@ $(function() {
     $this.parent().toggleClass('open');
 
     if(!e.data.multiple) {
-      //show only one menu at the same time
       $el.find('.submenu-Items').not($next).slideUp().parent().removeClass('open');
     }
   }
@@ -77,16 +64,14 @@ $(function() {
 })
 
 
-// Store the original rows in an array
+//--------------------//
+// Sort table content //
+//--------------------//
 var originalRows = $('#tbody .std-tr').toArray();
-
-// Bind a click event handler to all .std-th elements
 $('.std-th').on('click', function() {
   var column = $(this).index();
   var $tbody = $('#tbody');
-  var $rows = originalRows.slice(0); // Make a copy of the original rows
-
-  // Sort the rows based on the clicked column
+  var $rows = originalRows.slice(0);
   $rows.sort(function(a, b) {
     var aVal = $(a).find('.std-td').eq(column).text();
     var bVal = $(b).find('.std-td').eq(column).text();
@@ -96,28 +81,12 @@ $('.std-th').on('click', function() {
       return aVal.localeCompare(bVal);
     }
   });
-
-  // Reverse the order of the rows if the column was already sorted in ascending order
   if ($(this).hasClass('asc')) {
     $rows.reverse();
     $(this).removeClass('asc').addClass('desc');
   } else {
     $(this).removeClass('desc').addClass('asc');
   }
-
-  // Replace the contents of the tbody with the sorted rows
   $tbody.empty().append($rows);
 });
 
-
-document.addEventListener('DOMContentLoaded', function() {
-  const updateGroups = document.getElementById('updateGroups');
-  updateGroups.addEventListener('click', function() {
-    window.location.href = '/get-groups';
-  });
-
-  const updateGroupMemberships = document.getElementById('updateGroupMemberships');
-  updateGroupMemberships.addEventListener('click', function() {
-    window.location.href = '/get-group-memberships';
-  });
-});
