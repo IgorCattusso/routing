@@ -1,0 +1,43 @@
+{% extends "template.html" %}
+{% block conteudo %}
+
+    <div class="container">
+        <div class="main-content">
+            <h1>Localidades</h1>
+            <div id="contentTable" class="content-table">
+                <div class="std-table" id="std-table">
+                    <div class="std-thead" id="thead">
+                        <span class="std-th th-id" data-sortby="id">ID</span>
+                        <span class="std-th th-zendesk-user-id" data-sortby="zendesk_user_id">ID no Zendesk</span>
+                        <span class="std-th th-name" data-sortby="name">Identificador</span>
+                        <span class="std-th th-email" data-sortby="name">Nome da localidade</span>
+                        <span class="std-th th-email" data-sortby="name">Padrão</span>
+                    </div>
+                    <div class="std-body scrollable" id="tbody">
+                        {% for locale in locales %}
+                            <div class="std-tr" data-id="{{ locale.id }}">
+                                <span class="std-td std-td-id">{{ locale.id }}</span>
+                                <span class="std-td std-td-zendesk-user-id">{{ locale.zendesk_locale_id }}</span>
+                                <span class="std-td std-td-zendesk-user-id">{{ locale.locale }}</span>
+                                <span class="std-td std-td-name">{{ locale.name }}</span>
+                                <span class="std-td std-td-name">{{ locale.default }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-items">
+                <div class="options">
+                    <ul class="options-list" id="options-list">
+                        <li><a href="/get-locales">Atualizar localidades</a></li>
+                    </ul>
+                    <button onclick="toggleOptions()">Opções</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -38,8 +38,9 @@ def get_groups():
         if next_url:
             api_response = requests.get(next_url, headers=generate_zendesk_headers()).json()
 
+    time.sleep(.35)
+
     if inserted_groups:
-        time.sleep(.35)
         flash(f'Grupos inseridos: {str(inserted_groups)}')
         return redirect(url_for('groups'))
     else:

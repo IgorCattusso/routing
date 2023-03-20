@@ -103,3 +103,87 @@ class ZendeskUserBacklog(Base):
     def __repr__(self) -> str:
         return f'{self.id}, {self.zendesk_users_id}, {self.ticket_id}, ' \
                f'{self.ticket_status}, {self.ticket_level}'
+
+
+class ZendeskLocales(Base):
+    __tablename__ = "zendesk_locales"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    zendesk_locale_id: Mapped[int] = mapped_column(nullable=False)
+    locale: Mapped[str] = mapped_column(String(10), nullable=False)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    presentation_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    default: Mapped[bool] = mapped_column(Boolean, nullable=False)
+
+    def __repr__(self) -> str:
+        return f'{self.id}, {self.zendesk_locale_id}, {self.locale}, ' \
+               f'{self.name}, {self.presentation_name}, {self.default}'
+
+
+class ZendeskTicketForms(Base):
+    __tablename__ = "zendesk_ticket_forms"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    zendesk_ticket_form_id: Mapped[int] = mapped_column(nullable=False)
+    name: Mapped[str] = mapped_column(String(10), nullable=False)
+    display_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    default: Mapped[bool] = mapped_column(Boolean, nullable=False)
+
+    def __repr__(self) -> str:
+        return f'{self.id}, {self.zendesk_ticket_form_id}, {self.name}, ' \
+               f'{self.display_name}, {self.default}'
+
+
+class ZendeskTicketFields(Base):
+    __tablename__ = "zendesk_ticket_fields"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    zendesk_ticket_field_id: Mapped[int] = mapped_column(nullable=False)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    type: Mapped[str] = mapped_column(String(100), nullable=False)
+
+    def __repr__(self) -> str:
+        return f'{self.id}, {self.zendesk_ticket_field_id}, {self.title}, {self.type}'
+
+
+class ZendeskTicketFieldsInForms(Base):
+    __tablename__ = "zendesk_ticket_fields_in_forms"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    zendesk_ticket_forms_id: Mapped[int] = mapped_column(ForeignKey("zendesk_ticket_forms.id"))
+    zendesk_ticket_fields_id: Mapped[int] = mapped_column(ForeignKey("zendesk_ticket_fields.id"))
+
+    def __repr__(self) -> str:
+        return f'{self.id}, {self.zendesk_ticket_forms_id}, {self.zendesk_ticket_fields_id}'
+
+
+class ZendeskTicketFieldOptions(Base):
+    __tablename__ = "zendesk_ticket_field_options"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    zendesk_ticket_fields_id: Mapped[int] = mapped_column(ForeignKey("zendesk_ticket_fields.id"))
+    zendesk_ticket_field_option_id: Mapped[int] = mapped_column(nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    value: Mapped[str] = mapped_column(String(255), nullable=False)
+    position: Mapped[int] = mapped_column(nullable=False)
+
+    def __repr__(self) -> str:
+        return f'{self.id}, {self.zendesk_ticket_fields_id}, {self.name}, {self.position}'
+
+
+class Routes(Base):
+    __tablename__ = "routes"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    deleted: Mapped[bool] = mapped_column(Boolean, nullable=False)
+
+    def __repr__(self) -> str:
+        return f'{self.id}, {self.name}, {self.active}, {self.deleted}'

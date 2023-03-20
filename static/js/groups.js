@@ -1,6 +1,23 @@
 //---------------------------------//
 // See users in the selected group //
 //---------------------------------//
+const table = document.getElementById("std-table");
+const rows = document.getElementsByClassName("std-tr");
+for (let i = 0; i < rows.length; i++) {
+  rows[i].addEventListener("click", function() {
+    // toggle "selected" class on clicked row
+    this.classList.toggle("selected");
+    // enable/disable button based on selected rows
+    const selectedRows = table.querySelectorAll(".selected");
+    if (selectedRows.length === 1) {
+      button.removeAttribute("disabled");
+    } else {
+      button.setAttribute("disabled", true);
+    }
+  });
+}
+
+
 const button = document.getElementById("seeUsers");
 button.addEventListener("click", function() {
   const table = document.getElementById("std-table");

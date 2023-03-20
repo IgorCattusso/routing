@@ -47,6 +47,7 @@ a {
 
 .page-actions {
     display: flex;
+    gap: .75em;
 }
 
 .options button, .page-actions button {
@@ -312,4 +313,18 @@ a {
     width: 25px;
 }
 
+#deactivate:disabled, #delete:disabled {
+    background-color: gray;
+}
 
+#delete {
+    background-color: #bb3838;
+}
+
+#deactivate {
+    background-color: #917233;
+}
+
+#new {
+    background-color: #38853d;
+}

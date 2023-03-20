@@ -10,6 +10,7 @@ from views import *
 from views_users import *
 from views_groups import *
 from views_tickets import *
+from views_settings import *
 
 engine = create_engine(url_object)
 

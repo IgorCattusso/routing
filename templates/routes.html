@@ -1,0 +1,44 @@
+{% extends "template.html" %}
+{% block conteudo %}
+
+    <div class="container">
+        <div class="main-content">
+            <h1>Rotas</h1>
+            <div id="contentTable" class="content-table">
+                <div class="std-table" id="std-table">
+                    <div class="std-thead" id="thead">
+                        <span class="std-th th-id" data-sortby="id">ID</span>
+                        <span class="std-th th-name" data-sortby="name">Nome</span>
+                        <span class="std-th th-email" data-sortby="name">Ativa</span>
+                    </div>
+                    <div class="std-body scrollable" id="tbody">
+                        {% for route in routes %}
+                            <div class="std-tr" data-id="{{ route.id }}">
+                                <span class="std-td std-td-id">{{ route.id }}</span>
+                                <span class="std-td std-td-name">{{ route.name }}</span>
+                                <span class="std-td std-td-name">{{ route.active }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-items">
+                <div class="options">
+                    <button onclick="toggleOptions()" style="display: none">Opções</button>
+                </div>
+                <div class="page-actions">
+                    <div><button id="delete" disabled="disabled" class="action-buttons">Excluir</button></div>
+                    <div><button id="deactivate" disabled="disabled">Inativar</button></div>
+                    <div><button id="edit" disabled="disabled">Editar</button></div>
+                    <div><a href="/routes/new"><button id="new">+ Nova</button></a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/js/routes.js"></script>
+
+{% endblock %}
