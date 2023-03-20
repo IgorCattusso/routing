@@ -117,12 +117,18 @@ zendesk_default_user_group(11490525550747)
 
 # ,
 #
+#
+# with Session(engine) as session:
+#     stmt = select(ZendeskGroups.id, ZendeskGroups.name, func.count(ZendeskGroupMemberships.zendesk_user_id)
+#                   .label('count')).join(ZendeskGroupMemberships, isouter=True).group_by(ZendeskGroups.id, ZendeskGroups.name)
+#     print(str(stmt))
+#     groups = session.execute(stmt).all()
+#     for row in groups:
+#         print(f'{str(row.id)}, {str(row.name)}, {str(row.count)}')
+#
 
-with Session(engine) as session:
-    stmt = select(ZendeskGroups.id, ZendeskGroups.name, func.count(ZendeskGroupMemberships.zendesk_user_id)
-                  .label('count')).join(ZendeskGroupMemberships, isouter=True).group_by(ZendeskGroups.id, ZendeskGroups.name)
-    print(str(stmt))
-    groups = session.execute(stmt).all()
-    for row in groups:
-        print(f'{str(row.id)}, {str(row.name)}, {str(row.count)}')
-
+zendesk_endpoint_url = '/api/v2/ticket_fields/11490658989083/options'
+api_url = API_BASE_URL + zendesk_endpoint_url
+api_response = requests.get(api_url, headers=generate_zendesk_headers())
+if api_response.status_code == 404:
+    print('test')
