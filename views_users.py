@@ -30,7 +30,8 @@ def get_users():
                     new_user = ZendeskUsers(zendesk_user_id=user['id'],
                                             name=user['name'],
                                             email=user['email'],
-                                            suspended=match_false_true(user['suspended']))
+                                            suspended=match_false_true(user['suspended']),
+                                            )
                     inserted_users.append(user['name'])
                     session.add(new_user)
                     session.commit()

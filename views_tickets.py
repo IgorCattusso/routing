@@ -28,7 +28,8 @@ def get_tickets_to_be_assigned():
                 if not existing_ticket:
                     new_ticket = ZendeskTickets(ticket_id=ticket['id'], channel=ticket['via']['channel'],
                                                 subject=ticket['subject'],
-                                                created_at=ticket['created_at'].replace('T', ' ').replace('Z', ''))
+                                                created_at=ticket['created_at'].replace('T', ' ').replace('Z', ''),
+                                                )
 
                     inserted_tickets.append(ticket['id'])
 
@@ -83,7 +84,7 @@ def get_user_backlog():
                             zendesk_users_id=zendesk_users_id,
                             ticket_id=ticket_id,
                             ticket_status=ticket_status,
-                            ticket_level=ticket_level
+                            ticket_level=ticket_level,
                         )
 
                         '''
@@ -116,7 +117,8 @@ def get_user_backlog():
                                     update(ZendeskUserBacklog).where(ZendeskUserBacklog.id == existing_ticket_id)
                                     .values(zendesk_users_id=new_user_backlog.zendesk_users_id,
                                             ticket_status=new_user_backlog.ticket_status,
-                                            ticket_level=new_user_backlog.ticket_level)
+                                            ticket_level=new_user_backlog.ticket_level,
+                                            )
                                 )
                                 session.commit()
                                 updated_backlog.append(new_user_backlog.ticket_id)

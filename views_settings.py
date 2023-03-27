@@ -31,7 +31,8 @@ def get_locales():
                                                 locale=locale['locale'],
                                                 name=locale['name'],
                                                 presentation_name=locale['presentation_name'],
-                                                default=match_false_true(locale['default']))
+                                                default=match_false_true(locale['default']),
+                                                )
                     inserted_locales.append(locale['locale'])
                     session.add(new_locale)
                     session.commit()
@@ -80,7 +81,8 @@ def get_ticket_forms():
                 if not query_result:
                     new_ticket_field = ZendeskTicketFields(zendesk_ticket_field_id=field['id'],
                                                            title=field['title'],
-                                                           type=field['type'])
+                                                           type=field['type'],
+                                                           )
                     inserted_ticket_fields.append(field['id'])
                     session.add(new_ticket_field)
                     session.commit()
@@ -110,7 +112,8 @@ def get_ticket_forms():
                     new_ticket_form = ZendeskTicketForms(zendesk_ticket_form_id=form['id'],
                                                          name=form['name'],
                                                          display_name=form['display_name'],
-                                                         default=match_false_true(form['default']))
+                                                         default=match_false_true(form['default']),
+                                                         )
                     inserted_ticket_forms.append(form['id'])
                     session.add(new_ticket_form)
                     session.commit()
@@ -156,7 +159,8 @@ def get_ticket_forms():
 
                         new_ticket_field_in_form = \
                             ZendeskTicketFieldsInForms(zendesk_ticket_forms_id=zendesk_ticket_forms_id,
-                                                       zendesk_ticket_fields_id=zendesk_ticket_fields_id)
+                                                       zendesk_ticket_fields_id=zendesk_ticket_fields_id,
+                                                       )
 
                         inserted_ticket_fields_in_forms.append(ticket_fields_in_form)
                         session.add(new_ticket_field_in_form)

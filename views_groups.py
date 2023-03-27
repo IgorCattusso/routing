@@ -28,7 +28,8 @@ def get_groups():
                 query_result = session.execute(stmt).first()
                 if not query_result:
                     new_group = ZendeskGroups(zendesk_group_id=group['id'],
-                                              name=group['name'])
+                                              name=group['name'],
+                                              )
                     inserted_groups.append(group['name'])
                     session.add(new_group)
                     session.commit()
@@ -77,7 +78,7 @@ def get_all_group_memberships():
                                                                  user_id_on_zendesk=user['user_id'],
                                                                  zendesk_groups_id=group_in_database.id,
                                                                  group_id_on_zendesk=user['group_id'],
-                                                                 default=match_false_true(user['default'])
+                                                                 default=match_false_true(user['default']),
                                                                  )
                         session.add(new_user_group)
                         session.commit()
@@ -132,7 +133,7 @@ def get_group_memberships(group_id):
                                                                  user_id_on_zendesk=user['user_id'],
                                                                  zendesk_groups_id=group_in_database.id,
                                                                  group_id_on_zendesk=user['group_id'],
-                                                                 default=match_false_true(user['default'])
+                                                                 default=match_false_true(user['default']),
                                                                  )
                         session.add(new_user_group)
                         session.commit()
@@ -177,11 +178,19 @@ def get_users_in_group(group_id):
     time.sleep(.35)
 
     if group:
-        return render_template('users-in-group.html', titulo='Groups',
-                               group_memberships=group_memberships, group_name=group.group_name, group_id=group_id)
+        return render_template('users-in-group.html',
+                               titulo='Groups',
+                               group_memberships=group_memberships,
+                               group_name=group.group_name,
+                               group_id=group_id,
+                               )
     else:
         with Session(engine) as session:
             stmt = select(ZendeskGroups.name).where(ZendeskGroups.id == group_id)
             group_name = session.execute(stmt).scalar()
-        return render_template('users-in-group.html', titulo='Groups',
-                               group_memberships=group_memberships, group_name=group_name, group_id=group_id)
+        return render_template('users-in-group.html',
+                               titulo='Groups',
+                               group_memberships=group_memberships,
+                               group_name=group_name,
+                               group_id=group_id,
+                               )
