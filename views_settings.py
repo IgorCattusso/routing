@@ -222,11 +222,44 @@ def get_ticket_forms():
               f'Ticket Forms inseridos: {str(inserted_ticket_forms)};'
               f'Ticket Fields in Forms inseridos: {str(inserted_ticket_fields_in_forms)};'
               f'Ticket Fields in Forms inseridos: {str(inserted_ticket_field_options)}')
-        return f'Ticket Fields inseridos: {str(inserted_ticket_fields)}<br>' \
-               f'Ticket Forms inseridos: {str(inserted_ticket_forms)}<br>' \
-               f'Ticket Fields in forms inseridos: {str(inserted_ticket_fields_in_forms)}<br>' \
-               f'Ticket Fields options inseridos: {str(inserted_ticket_field_options)}'  # redirect(url_for('settings'))
+        redirect(url_for('ticket-forms'))
     else:
-        flash(f'Nenhum inserido!')
-        return f'Nenhum inserido!'  # redirect(url_for('settings'))
+        flash(f'Nenhuma nova relação inserida!')
+        redirect(url_for('ticket-forms'))
 
+
+@app.route('/get-tags')
+def get_tags():
+    zendesk_endpoint_url = '/api/v2/tags.json?page=1'
+    api_url = API_BASE_URL + zendesk_endpoint_url
+
+    inserted_tags = []
+
+    api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
+    next_url = api_url
+
+    while next_url:
+        for tag in api_response['tags']:
+            stmt = select(ZendeskTags).where(ZendeskTags.tag == tag['name'])
+            with Session(engine) as session:
+                query_result = session.execute(stmt).first()
+                if not query_result:
+                    new_tag = ZendeskTags(tag=tag['name'],
+                                          )
+                    inserted_tags.append(tag['name'])
+                    session.add(new_tag)
+                    session.commit()
+
+        next_url = api_response['next_page']
+
+        if next_url:
+            api_response = requests.get(next_url, headers=generate_zendesk_headers()).json()
+
+    time.sleep(.35)
+
+    if inserted_tags:
+        flash(f'Tags inseridas: {str(inserted_tags)}')
+        return redirect(url_for('tags'))
+    else:
+        flash(f'Nenhuma tag inserida!')
+        return redirect(url_for('tags'))

@@ -8,19 +8,19 @@
                 <div class="std-table" id="std-table">
                     <div class="std-thead" id="thead">
                         <span class="std-th th-id" data-sortby="id">ID</span>
-                        <span class="std-th th-zendesk-user-id" data-sortby="zendesk_user_id">ID no Zendesk</span>
-                        <span class="std-th th-name" data-sortby="name">Identificador</span>
+                        <span class="std-th th-zendesk-locale-id" data-sortby="zendesk_locale_id">ID no Zendesk</span>
+                        <span class="std-th th-name" data-sortby="identifier">Identificador</span>
                         <span class="std-th th-email" data-sortby="name">Nome da localidade</span>
-                        <span class="std-th th-email" data-sortby="name">Padrão</span>
+                        <span class="std-th th-email" data-sortby="default">Padrão</span>
                     </div>
                     <div class="std-body scrollable" id="tbody">
                         {% for locale in locales %}
                             <div class="std-tr" data-id="{{ locale.id }}">
                                 <span class="std-td std-td-id">{{ locale.id }}</span>
-                                <span class="std-td std-td-zendesk-user-id">{{ locale.zendesk_locale_id }}</span>
-                                <span class="std-td std-td-zendesk-user-id">{{ locale.locale }}</span>
+                                <span class="std-td std-td-zendesk-locale-id">{{ locale.zendesk_locale_id }}</span>
+                                <span class="std-td std-td-zendesk-locale">{{ locale.locale }}</span>
                                 <span class="std-td std-td-name">{{ locale.name }}</span>
-                                <span class="std-td std-td-name">{{ locale.default }}</span>
+                                <span class="std-td std-td-default">{{ locale.default }}</span>
                             </div>
                         {% endfor %}
                     </div>

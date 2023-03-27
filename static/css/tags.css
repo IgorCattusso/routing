@@ -1,0 +1,14 @@
+.header-wrapper {
+    display: flex;
+}
+
+.header-note-container {
+    display: flex;
+    padding-left: 2em;
+    align-items: flex-end;
+}
+
+.note-span {
+    font-style: italic;
+    font-size: .85rem;
+}

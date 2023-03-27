@@ -1,0 +1,48 @@
+{% extends "template.html" %}
+{% block conteudo %}
+
+    <link rel="stylesheet" href="../static/css/forms.css">
+
+    <div class="container">
+        <div class="main-content">
+            <h1>Grupos</h1>
+            <div id="contentTable" class="content-table">
+                <div class="std-table" id="std-table">
+                    <div class="std-thead" id="thead">
+                        <span class="std-th th-id" data-sortby="id">ID</span>
+                        <span class="std-th th-zendesk-ticket-form-id" data-sortby="zendesk_ticket_form_id">ID no Zendesk</span>
+                        <span class="std-th th-name" data-sortby="name">Nome</span>
+                        <span class="std-th th-count" data-sortby="count">Padrão</span>
+                    </div>
+                    <div class="std-body scrollable" id="tbody">
+                        {% for form in ticket_forms %}
+                            <div class="std-tr" data-id="{{ form.id }}">
+                                <span class="std-td std-td-id">{{ form.id }}</span>
+                                <span class="std-td std-td-zendesk-ticket-form-id">{{ form.zendesk_ticket_form_id }}</span>
+                                <span class="std-td std-td-name">{{ form.name }}</span>
+                                <span class="std-td std-td-default">{{ form.default }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-items">
+                <div class="options">
+                    <ul class="options-list" id="options-list">
+                        <li class="tooltip" id="updateForms" aria-label="Atenção! Esta operação poderá decorrer por vários minutos até ser concluída!"><a href="/get-ticket-forms">Atualizar formulários e sua estrutura</a></li>
+                    </ul>
+                    <button onclick="toggleOptions()">Opções</button>
+                </div>
+                <div class="page-actions">
+                    <div><button id="seeFormStructure" disabled="disabled">Ver formulário</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/js/forms.js"></script>
+
+{% endblock %}

@@ -176,6 +176,17 @@ class ZendeskTicketFieldOptions(Base):
         return f'{self.id}, {self.zendesk_ticket_fields_id}, {self.name}, {self.position}'
 
 
+class ZendeskTags(Base):
+    __tablename__ = "zendesk_tags"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    tag: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    def __repr__(self) -> str:
+        return f'{self.id}, {self.tag}'
+
+
 class Routes(Base):
     __tablename__ = "routes"
     __table_args__ = {'extend_existing': True}

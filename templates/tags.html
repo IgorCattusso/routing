@@ -1,0 +1,44 @@
+{% extends "template.html" %}
+{% block conteudo %}
+
+    <link rel="stylesheet" href="../static/css/tags.css">
+
+    <div class="container">
+        <div class="main-content">
+            <div class="header-wrapper">
+                <h1>Tags</h1>
+                <div class="header-note-container">
+                    <span class="note-span">O Zendesk disponibiliza apenas as 20 mil tags utilizadas nos últimos 60 dias, por este motivo, elas precisarão ser utilizadas em tickets antes de poderem ser utilizadas no Routing.</span>
+                </div>
+            </div>
+            <div id="contentTable" class="content-table">
+                <div class="std-table" id="std-table">
+                    <div class="std-thead" id="thead">
+                        <span class="std-th th-id" data-sortby="id">ID</span>
+                        <span class="std-th th-zendesk-tag-id" data-sortby="zendesk_tag_id">Tag</span>
+                    </div>
+                    <div class="std-body scrollable" id="tbody">
+                        {% for tag in tags %}
+                            <div class="std-tr" data-id="{{ tag.id }}">
+                                <span class="std-td std-td-id">{{ tag.id }}</span>
+                                <span class="std-td std-td-zendesk-tag-id">{{ tag.tag }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-items">
+                <div class="options">
+                    <ul class="options-list" id="options-list">
+                        <li><a href="/get-tags">Atualizar Tags</a></li>
+                    </ul>
+                    <button onclick="toggleOptions()">Opções</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
