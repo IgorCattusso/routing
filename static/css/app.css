@@ -193,6 +193,7 @@ a {
     max-height: 25rem;
     display: block;
     overflow: auto;
+    width: 99.99%;
 }
 
 .th-id, .std-td-id {

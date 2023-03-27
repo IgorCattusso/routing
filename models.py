@@ -180,10 +180,46 @@ class Routes(Base):
     __tablename__ = "routes"
     __table_args__ = {'extend_existing': True}
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     active: Mapped[bool] = mapped_column(Boolean, nullable=False)
     deleted: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.name}, {self.active}, {self.deleted}'
+
+
+class RouteRecipientType(Base):
+    __tablename__ = "route_recipient_type"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"))
+    recipient_type: Mapped[int] = mapped_column(nullable=False)  # 0 = user | 1 = group
+
+    def __repr__(self) -> str:
+        return f'{self.id}, {self.routes_id}, {self.recipient_type}'
+
+
+class RouteRecipientUsers(Base):
+    __tablename__ = "route_recipent_users"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"))
+    zendesk_users_id: Mapped[int] = mapped_column(ForeignKey("zendesk_users.id"))
+
+    def __repr__(self) -> str:
+        return f'{self.id}, {self.routes_id}, {self.zendesk_users_id}'
+
+
+class RouteRecipientGroups(Base):
+    __tablename__ = "route_recipent_groups"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"))
+    zendesk_groups_id: Mapped[int] = mapped_column(ForeignKey("zendesk_groups.id"))
+
+    def __repr__(self) -> str:
+        return f'{self.id}, {self.routes_id}, {self.zendesk_groups_id}'

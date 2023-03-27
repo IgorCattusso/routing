@@ -13,12 +13,18 @@
                     <h2>Dados da rota</h2>
                     <div id="routeData" class="content-form-header">
                         <div class="form-item form-item-status">
-                            <div class="form-item-label">{{ form.status.label(class="form-item-label") }}</div>
-                            <div class="form-item-field" id="formStatus">{{ form.status(class="form-item-field-status") }}</div>
+                            <h3 class="route-status-title">Status da rota</h3>
+                                <div onclick="toggleCheckbox()" class="status-container" id="routeStatusWrapper">
+                                    <input type="checkbox" id="routeStatus" class="active-input" checked="checked"/>
+                                    <label id="active-label" class="active-label" for="routeStatus"></label>
+                                </div>
                         </div>
-                        <div class="form-item form-item-name">
-                            <div class="form-item-label">{{ form.name.label(class="form-item-label") }}</div>
-                            <div class="form-item-field">{{ form.name(class="form-item-input-text",id="form-item-name") }}</div>
+
+                        <div class="form-item form-item-status">
+                            <h3 class="route-name-title">Nome da rota</h3>
+                            <div class="name-container" id="routeNameWrapper">
+                                <input type="text" id="routeName" class="form-item-input-text"/><label class="route-name-input" for="routeName"></label>
+                            </div>
                         </div>
                     </div>
 
@@ -39,7 +45,7 @@
                                 </div>
                             </div>
 
-                            <div id="usersListContainer" class="options-container-wrapper users-container" hidden="hidden">
+                            <div id="recipientsUsersListContainer" class="options-container-wrapper users-container" hidden="hidden">
                                 <h4>Selecione quais usuários receberão os tickets</h4>
                                 <div class="options-container">
                                     <div class="options-title-container">
@@ -127,15 +133,8 @@
                                     </div>
                                 </div>
                             </div>
-
-
                         </div>
                     </div>
-
-
-
-
-
                 </div>
             </div>
         </div>
@@ -151,15 +150,19 @@
                             <button id="goBackToRoutes">Voltar</button>
                         </div>
                     </a>
-                    <div>
-                        <button id="save">Salvar</button>
+                    <div id="save2">
+                        <button id="save" type="submit">Salvar</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+
+
     <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
     <script src="../static/js/routes_new.js"></script>
+    <script src="../static/js/routes_new_send.js"></script>
+
 
 {% endblock %}

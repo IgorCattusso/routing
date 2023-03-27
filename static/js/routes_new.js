@@ -1,4 +1,5 @@
-const userList = document.getElementById("usersListContainer");
+// This functions will show or hide the recipients acording to wich one was selected
+const userList = document.getElementById("recipientsUsersListContainer");
 const groupList = document.getElementById("recipientsGroupsListContainer");
 const userRadio = document.getElementById("recipient-users");
 const groupRadio = document.getElementById("recipient-groups");
@@ -17,15 +18,33 @@ groupRadio.addEventListener("click", () => {
 });
 
 
+// On Recipients, when selecting Users, this function it will deselect all Groups and vice-versa
+// On Tickets, when deselecting the groups of rules (locales, groups, organizations, etc.), this will deselect the options selected in that group
+$(document).ready(function() {
+  $('#recipient-users').click(function() {
+    $('.js-group-option-container').removeClass('selected');
+  });
+  $('#recipient-groups').click(function() {
+    $('.js-user-option-container').removeClass('selected');
+  });
+
+
+  $('#tickets-locales').click(function() {
+    $('.js-locale-option-container').removeClass('selected');
+  });
+  $('#tickets-groups').click(function() {
+    $('.js-group-option-container').removeClass('selected');
+  });
+});
 
 
 
-// Get the checkbox and the container
+
+
+// When selecting a type on Tickets, these functions will show that type options
 const localesCheckbox = document.querySelector('#tickets-locales');
 const localesContainer = document.querySelector('#localesListContainer');
-// Add an event listener to the checkbox
 localesCheckbox.addEventListener('change', function() {
-  // If the checkbox is checked, show the container; otherwise, hide it
   if (localesCheckbox.checked) {
     localesContainer.removeAttribute('hidden');
   } else {
@@ -33,15 +52,9 @@ localesCheckbox.addEventListener('change', function() {
   }
 });
 
-
-
-
-// Get the checkbox and the container
 const groupsCheckbox = document.querySelector('#tickets-groups');
 const groupsContainer = document.querySelector('#ticketsGroupsListContainer');
-// Add an event listener to the checkbox
 groupsCheckbox.addEventListener('change', function() {
-  // If the checkbox is checked, show the container; otherwise, hide it
   if (groupsCheckbox.checked) {
     groupsContainer.removeAttribute('hidden');
   } else {
@@ -53,16 +66,7 @@ groupsCheckbox.addEventListener('change', function() {
 
 
 
-$(document).ready(function() {
-    $('#status').hide();
-    var slider = $('<label class="switch"><input class="form-item-field-status" id="status-slider" name="status-slider" type="checkbox" value="y"><span class="slider"></span></label>');
-    $('#status').after(slider);
-});
-
-
-
-
-
+// Select items on any list of options
 const optionContainers = document.querySelectorAll('.option-container');
 optionContainers.forEach((optionContainer) => {
   optionContainer.addEventListener('click', () => {
@@ -74,22 +78,13 @@ optionContainers.forEach((optionContainer) => {
 
 
 
-// Deselect GROUPS when USER is selected as the recipient and deselect USERS when GROUP is selected as recipient.
-$(document).ready(function() {
-  $('#recipient-users').click(function() {
-    $('.js-group-option-container').removeClass('selected');
-  });
 
-  $('#recipient-groups').click(function() {
-    $('.js-user-option-container').removeClass('selected');
-  });
 
-  $('#tickets-locales').click(function() {
-    $('.js-locale-option-container').removeClass('selected');
-  });
+function toggleCheckbox() {
+  var checkbox = document.getElementById("routeStatus");
+  checkbox.checked = checkbox.checked !== true;
+}
 
-  $('#tickets-groups').click(function() {
-    $('.js-group-option-container').removeClass('selected');
-  });
 
-});
+
+
