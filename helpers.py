@@ -59,8 +59,3 @@ def get_ticket_requester_locale(requester_id):
     api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
 
     return str(api_response['user']['locale'])
-
-
-class RouteForm(FlaskForm):
-    status = BooleanField('Status da rota', [validators.DataRequired()])
-    name = StringField('Nome da rota', [validators.DataRequired(), validators.Length(min=1, max=100)])
