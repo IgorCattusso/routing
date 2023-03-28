@@ -1,12 +1,11 @@
 {% extends "template.html" %}
 {% block conteudo %}
 
-    <link rel="stylesheet" href="../static/css/routes_new.css">
+    <link rel="stylesheet" href="/static/css/routes_new.css">
 
     <div class="container">
         <div class="main-content">
             <h1>Nova Rota</h1>
-            {{ form.csrf_token }} <!-- Cross Site Request Forgery prevention -->
             <div class="content-form scrollable">
                 <div class="content-form-container">
 
@@ -161,8 +160,8 @@
 
 
     <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
-    <script src="../static/js/routes_new.js"></script>
-    <script src="../static/js/routes_new_send.js"></script>
+    <script src="/static/js/routes_new.js"></script>
+    <script src="/static/js/routes_new_send.js"></script>
 
 
 {% endblock %}
