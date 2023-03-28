@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Test</title>
-    <link rel="stylesheet" href="../static/css/app.css">
-    <link rel="stylesheet" href="../static/css/reset.css">
+    <title>Zendesk Routing</title>
+    <link rel="icon" type="image/png" href="/static/img/favicon.png">
+    <link rel="stylesheet" href="/static/css/app.css">
+    <link rel="stylesheet" href="/static/css/reset.css">
 </head>
 <body>
 <div class="wrapper">
@@ -12,19 +13,19 @@
         <ul class="accordion-menu">
             <li onclick="window.location.href='/'">
                 <div class="no-dropdown-link">
-                    <div><img src="../static/img/home.png" alt="Home" class="menu-img"></div>
+                    <div><img src="/static/img/home.png" alt="Home" class="menu-img"></div>
                     <div><span class="no-dropdown-link-text">Home</span></div>
                 </div>
             </li>
             <li onclick="window.location.href='/routes'">
                 <div class="no-dropdown-link">
-                    <div><img src="../static/img/star.png" alt="Home" class="menu-img"></div>
+                    <div><img src="/static/img/star.png" alt="Home" class="menu-img"></div>
                     <div><span class="no-dropdown-link-text">Rotas</span></div>
                 </div>
             </li>
             <li>
                 <div class="dropdown-link">
-                    <div><img src="../static/img/person.png" alt="Home" class="menu-img"></div>
+                    <div><img src="/static/img/person.png" alt="Home" class="menu-img"></div>
                     <div><span class="dropdown-link-text">Usuários</span></div>
                 </div>
                 <ul class="submenu-Items">
@@ -34,7 +35,7 @@
             </li>
             <li>
                 <div class="dropdown-link">
-                    <div><img src="../static/img/settings.png" alt="Home" class="menu-img"></div>
+                    <div><img src="/static/img/settings.png" alt="Home" class="menu-img"></div>
                     <div><span class="dropdown-link-text">Configurações</span></div>
                 </div>
                 <ul class="submenu-Items">
@@ -59,7 +60,7 @@
     {% block conteudo %}{% endblock %}
 
     <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
-    <script src="../static/js/app.js"></script>
+    <script src="/static/js/app.js"></script>
 
 </div>
 </body>
