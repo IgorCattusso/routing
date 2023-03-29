@@ -9,136 +9,135 @@
 
     <div class="container">
         <div class="main-content">
-            <h1>Nova Rota</h1>
+            <h1>{{ route_name }}</h1>
+            <table class="wizard">
+                <tr>
+                    <th class="wizard-header wizard-step clickable selected" rowspan="2" id="routeInfoAndRecipients">Dados e destinatários da rota</th>
+                    <th class="wizard-header wizard-step" colspan="2" id="routeTicketHeader">Tickets da rota</th>
+                </tr>
+                <tr>
+                    <td class="wizard-step clickable" id="routeTicketLocales">Localidades</td>
+                    <td class="wizard-step clickable" id="routeTicketGroups">Grupos</td>
+                </tr>
+            </table>
             <div class="content-form scrollable">
                 <div class="content-form-container">
+                    <div id="routeInfoAndRecipientsContainer">
+                        <h2>Dados da rota</h2>
+                        <div id="routeData" class="content-form-header">
+                            <div class="form-item form-item-status">
+                                <h3 class="route-status-title">Status da rota</h3>
+                                    <div onclick="toggleCheckbox()" class="status-container" id="routeStatusWrapper">
+                                        {% if route_status == 1 %}
+                                            <input type="checkbox" id="routeStatus" class="active-input" checked="checked"/>
+                                            <label id="active-label" class="active-label" for="routeStatus"></label>
+                                        {% elif route_status == 0 %}
+                                            <input type="checkbox" id="routeStatus" class="active-input"/>
+                                            <label id="active-label" class="active-label" for="routeStatus"></label>
+                                        {% endif %}
+                                    </div>
+                            </div>
 
-                    <h2>Dados da rota</h2>
-                    <div id="routeData" class="content-form-header">
-                        <div class="form-item form-item-status">
-                            <h3 class="route-status-title">Status da rota</h3>
-                                <div onclick="toggleCheckbox()" class="status-container" id="routeStatusWrapper">
-                                    {% if route_status == 1 %}
-                                        <input type="checkbox" id="routeStatus" class="active-input" checked="checked"/>
-                                        <label id="active-label" class="active-label" for="routeStatus"></label>
-                                    {% elif route_status == 0 %}
-                                        <input type="checkbox" id="routeStatus" class="active-input"/>
-                                        <label id="active-label" class="active-label" for="routeStatus"></label>
-                                    {% endif %}
+                            <div class="form-item form-item-status">
+                                <h3 class="route-name-title">Nome da rota</h3>
+                                <div class="name-container" id="routeNameWrapper">
+                                    <input type="text" id="routeName" class="form-item-input-text" value="{{ route_name }}"/><label class="route-name-input" for="routeName"></label>
                                 </div>
+                            </div>
                         </div>
 
-                        <div class="form-item form-item-status">
-                            <h3 class="route-name-title">Nome da rota</h3>
-                            <div class="name-container" id="routeNameWrapper">
-                                <input type="text" id="routeName" class="form-item-input-text" value="{{ route_name }}"/><label class="route-name-input" for="routeName"></label>
+
+
+                        <h2>Destinatários da rota</h2>
+                        <div id="routeUsers" class="content-form-body">
+                            <div class="content-container">
+                                <h3>Selecione o tipo de destinatário</h3>
+                                <div class="selector-container">
+                                    <div class="selector-option-container">
+                                        <input class="radio-selector" type="radio" id="recipient-users" name="ticket-recipient-type" value="recipient-users" {{ 'checked="checked"' if selected_route_recipient_type == 0 else '' }}>
+                                        <label class="radio-selector-label" for="recipient-users">Usuários</label>
+                                    </div>
+                                    <div class="selector-option-container">
+                                        <input class="radio-selector" type="radio" id="recipient-groups" name="ticket-recipient-type" value="recipient-groups" {{ 'checked="checked"' if selected_route_recipient_type == 1 else '' }}>
+                                        <label class="radio-selector-label" for="recipient-groups">Grupos</label>
+                                    </div>
+                                </div>
+
+                                <div id="recipientsUsersListContainer" class="options-container-wrapper recipient-users-container recipients-container" {{ '' if selected_route_recipient_type == 0 else 'hidden="hidden"' }}>
+                                    <h4>Selecione quais usuários receberão os tickets</h4>
+                                    <div class="options-container">
+                                        <div class="options-title-container">
+                                            <div class="options-title">Nome do Usuário</div>
+                                        </div>
+                                        <div class="option-wrapper">
+                                            {% for user in all_recipient_users %}
+                                                <div class="option-container js-user-option-container {{ 'selected' if user.zendesk_users_id in selected_route_recuipient_users else '' }}">
+                                                    <option class="option list-option" id={{ user.zendesk_users_id }} value={{ user.zendesk_users_id }}>{{ user.name }}</option>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="recipientsGroupsListContainer" class="options-container-wrapper recipient-groups-container recipients-container" {{ '' if selected_route_recipient_type == 1 else 'hidden="hidden"' }}>
+                                    <h4>Selecione os grupos cujos membros receberão os tickets</h4>
+                                    <div class="options-container">
+                                        <div class="options-title-container">
+                                            <div class="options-title">Nome do Grupo</div>
+                                            <div class="options-title">Usuários no Grupo</div>
+                                        </div>
+                                        <div class="option-wrapper">
+                                            {% for group in all_recipient_groups %}
+                                                <div class="option-container js-group-option-container {{ 'selected' if group.id in selected_route_recipient_groups else '' }}">
+                                                    <option class="option list-option" id={{ group.id }} value={{ group.id }}>{{ group.name }}</option>
+                                                    <div class="option list-option">{{ group.users }}</div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-
-
-                    <h2>Destinatários da rota</h2>
-                    <div id="routeUsers" class="content-form-body">
-                        <div class="content-container">
-                            <h3>Selecione o tipo de destinatário</h3>
-                            <div class="selector-container">
-                                <div class="selector-option-container">
-                                    <input class="radio-selector" type="radio" id="recipient-users" name="ticket-recipient-type" value="recipient-users" {{ 'checked="checked"' if selected_route_recipient_type == 0 else '' }}>
-                                    <label class="radio-selector-label" for="recipient-users">Usuários</label>
-                                </div>
-                                <div class="selector-option-container">
-                                    <input class="radio-selector" type="radio" id="recipient-groups" name="ticket-recipient-type" value="recipient-groups" {{ 'checked="checked"' if selected_route_recipient_type == 1 else '' }}>
-                                    <label class="radio-selector-label" for="recipient-groups">Grupos</label>
-                                </div>
-                            </div>
-
-
-                            <div id="recipientsUsersListContainer" class="options-container-wrapper users-container" {{ '' if selected_route_recipient_type == 0 else 'hidden="hidden"' }}>
-                                <h4>Selecione quais usuários receberão os tickets</h4>
-                                <div class="options-container">
-                                    <div class="options-title-container">
-                                        <div class="options-title">Nome do Usuário</div>
-                                    </div>
-                                    <div class="option-wrapper">
-                                        {% for user in all_recipient_users %}
-                                            <div class="option-container js-user-option-container {{ 'selected' if user.zendesk_users_id in selected_route_recuipient_users else '' }}">
-                                                <option class="option list-option" id={{ user.zendesk_users_id }} value={{ user.zendesk_users_id }}>{{ user.name }}</option>
+                    <div id="routeTicketsContainer" hidden="hidden">
+                        <div id="routetickets" class="content-form-body">
+                            <div class="content-container">
+                                <div id="ticketLocalesListContainer" class="options-container-wrapper ticket-locales-container tickets-container">
+                                    <h2 class="route-tickets-tab-title">Selecione as localidades da rota</h2>
+                                    <div class="ticket-options-wrapper">
+                                        <div class="options-container">
+                                            <div class="options-title-container">
+                                                <div class="options-title">Código da localidade</div>
+                                                <div class="options-title">Descrição da localidade</div>
                                             </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div id="recipientsGroupsListContainer" class="options-container-wrapper groups-container recipients-container" {{ '' if selected_route_recipient_type == 1 else 'hidden="hidden"' }}>
-                                <h4>Selecione os grupos cujos membros receberão os tickets</h4>
-                                <div class="options-container">
-                                    <div class="options-title-container">
-                                        <div class="options-title">Nome do Grupo</div>
-                                        <div class="options-title">Usuários no Grupo</div>
-                                    </div>
-                                    <div class="option-wrapper">
-                                        {% for group in all_recipient_groups %}
-                                            <div class="option-container js-group-option-container {{ 'selected' if group.id in selected_route_recipient_groups else '' }}">
-                                                <option class="option list-option" id={{ group.id }} value={{ group.id }}>{{ group.name }}</option>
-                                                <div class="option list-option">{{ group.users }}</div>
+                                            <div class="option-wrapper">
+                                                {% for locale in tickets_locales %}
+                                                    <div class="option-container js-locale-option-container">
+                                                        <option class="option list-option" id={{ locale.id }} value={{ locale.id }}>{{ locale.locale }}</option>
+                                                        <div class="option list-option">{{ locale.presentation_name }}</div>
+                                                    </div>
+                                                {% endfor %}
                                             </div>
-                                        {% endfor %}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
 
-
-
-                    <h2>Tickets da rota</h2>
-                    <div id="routetickets" class="content-form-body">
-                        <div class="content-container">
-                            <h3>Selecione os campos que serão utilizados nas regras</h3>
-                            <div class="selector-container">
-                                <div class="selector-option-container">
-                                    <input class="radio-selector" type="checkbox" id="tickets-locales" name="ticket-locales" value="ticket-locales">
-                                    <label class="radio-selector-label" for="tickets-locales">Localidade</label>
-                                </div>
-                                <div class="selector-option-container">
-                                    <input class="radio-selector" type="checkbox" id="tickets-groups" name="ticket-groups" value="ticket-groups">
-                                    <label class="radio-selector-label" for="tickets-groups">Grupos</label>
-                                </div>
-                            </div>
-
-
-
-                            <div id="localesListContainer" class="options-container-wrapper locales-container" hidden="hidden">
-                                <h4>Selecione as localidades da rota</h4>
-                                <div class="options-container">
-                                    <div class="options-title-container">
-                                        <div class="options-title">Código da localidade</div>
-                                        <div class="options-title">Descrição da localidade</div>
-                                    </div>
-                                    <div class="option-wrapper">
-                                        {% for locale in tickets_locales %}
-                                            <div class="option-container js-locale-option-container">
-                                                <option class="option list-option" id={{ locale.id }} value={{ locale.id }}>{{ locale.locale }}</option>
-                                                <div class="option list-option">{{ locale.presentation_name }}</div>
+                                <div id="ticketGroupsListContainer" class="options-container-wrapper ticket-groups-container tickets-container">
+                                    <h2 class="route-tickets-tab-title">Selecione os grupos da rota</h2>
+                                    <div class="ticket-options-wrapper">
+                                        <div class="options-container">
+                                            <div class="options-title-container">
+                                                <div class="options-title">Nome do grupo</div>
                                             </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div id="ticketsGroupsListContainer" class="options-container-wrapper locales-container" hidden="hidden">
-                                <h4>Selecione os grupos da rota</h4>
-                                <div class="options-container">
-                                    <div class="options-title-container">
-                                        <div class="options-title">Nome do grupo</div>
-                                    </div>
-                                    <div class="option-wrapper">
-                                        {% for group in tickets_groups %}
-                                            <div class="option-container js-group-option-container">
-                                                <option class="option list-option" id={{ group.id }} value={{ group.id }}>{{ group.name }}</option>
+                                            <div class="option-wrapper">
+                                                {% for group in tickets_groups %}
+                                                    <div class="option-container js-group-option-container">
+                                                        <option class="option list-option" id={{ group.id }} value={{ group.id }}>{{ group.name }}</option>
+                                                    </div>
+                                                {% endfor %}
                                             </div>
-                                        {% endfor %}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
