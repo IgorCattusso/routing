@@ -132,3 +132,6 @@ api_url = API_BASE_URL + zendesk_endpoint_url
 api_response = requests.get(api_url, headers=generate_zendesk_headers())
 if api_response.status_code == 404:
     print('test')
+    
+print('test')
+
