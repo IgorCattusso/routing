@@ -234,3 +234,15 @@ class RouteRecipientGroups(Base):
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.routes_id}, {self.zendesk_groups_id}'
+
+
+class RouteTicketsTags(Base):
+    __tablename__ = "route_tickets_tags"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"))
+    zendesk_tags_id: Mapped[int] = mapped_column(ForeignKey("zendesk_tags.id"))
+
+    def __repr__(self) -> str:
+        return f'{self.id}, {self.routes_id}, {self.zendesk_tags_id}'

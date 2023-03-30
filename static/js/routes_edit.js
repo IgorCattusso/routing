@@ -28,7 +28,6 @@ $(document).ready(function() {
     $('.js-user-option-container').removeClass('selected');
   });
 
-
   $('#tickets-locales').click(function() {
     $('.js-locale-option-container').removeClass('selected');
   });
@@ -61,6 +60,7 @@ function toggleCheckbox() {
 const routeInfoAndRecipientsButton = document.getElementById('routeInfoAndRecipients')
 const routeTicketLocalesButton = document.getElementById('routeTicketLocales')
 const routeTicketGroupsButton = document.getElementById('routeTicketGroups')
+const routeTicketTagsButton = document.getElementById('routeTicketTags')
 
 
 const routeInfoAndRecipientsContainer = document.getElementById('routeInfoAndRecipientsContainer');
@@ -69,6 +69,7 @@ const routeTicketsContainer = document.getElementById('routeTicketsContainer');
 
 const routeTicketsLocales = document.getElementById('ticketLocalesListContainer');
 const routeTicketsGroups = document.getElementById('ticketGroupsListContainer');
+const routeTicketsTags = document.getElementById('ticketTagsListContainer');
 
 routeInfoAndRecipientsButton.addEventListener('click', () => {
   routeInfoAndRecipientsContainer.removeAttribute('hidden');
@@ -76,6 +77,7 @@ routeInfoAndRecipientsButton.addEventListener('click', () => {
 
   routeTicketLocalesButton.classList.remove('selected');
   routeTicketGroupsButton.classList.remove('selected');
+  routeTicketTagsButton.classList.remove('selected');
 
   routeTicketsContainer.setAttribute('hidden', 'hidden');
 });
@@ -85,9 +87,11 @@ routeTicketLocalesButton.addEventListener('click', () => {
   routeTicketLocalesButton.classList.add('selected');
   routeInfoAndRecipientsButton.classList.remove('selected');
   routeTicketGroupsButton.classList.remove('selected');
+  routeTicketTagsButton.classList.remove('selected');
 
   routeInfoAndRecipientsContainer.setAttribute('hidden', 'hidden');
   routeTicketsGroups.setAttribute('hidden', 'hidden');
+  routeTicketsTags.setAttribute('hidden', 'hidden');
 
   routeTicketsContainer.removeAttribute('hidden');
   routeTicketsLocales.removeAttribute('hidden');
@@ -98,10 +102,27 @@ routeTicketGroupsButton.addEventListener('click', () => {
   routeTicketGroupsButton.classList.add('selected');
   routeInfoAndRecipientsButton.classList.remove('selected');
   routeTicketLocalesButton.classList.remove('selected');
+  routeTicketTagsButton.classList.remove('selected');
 
   routeInfoAndRecipientsContainer.setAttribute('hidden', 'hidden');
   routeTicketsLocales.setAttribute('hidden', 'hidden');
+  routeTicketsTags.setAttribute('hidden', 'hidden');
 
   routeTicketsContainer.removeAttribute('hidden');
   routeTicketsGroups.removeAttribute('hidden');
+});
+
+
+routeTicketTagsButton.addEventListener('click', () => {
+  routeTicketTagsButton.classList.add('selected');
+  routeInfoAndRecipientsButton.classList.remove('selected');
+  routeTicketLocalesButton.classList.remove('selected');
+  routeTicketGroupsButton.classList.remove('selected');
+
+  routeInfoAndRecipientsContainer.setAttribute('hidden', 'hidden');
+  routeTicketsLocales.setAttribute('hidden', 'hidden');
+  routeTicketsGroups.setAttribute('hidden', 'hidden');
+
+  routeTicketsContainer.removeAttribute('hidden');
+  routeTicketsTags.removeAttribute('hidden');
 });

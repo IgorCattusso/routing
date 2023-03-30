@@ -309,9 +309,10 @@ input[type="checkbox"]:checked + .slider:before {
 }
 
 #routeInfoAndRecipients {
-    max-width: 3em;
+    max-width: 2em;
     padding: 0 .5em;
     border-top-left-radius: 6px;
+    font-size: 1.25em;
 }
 
 #routeTicketHeader {
@@ -343,4 +344,8 @@ input[type="checkbox"]:checked + .slider:before {
 .content-form {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
+}
+
+.ticket-step {
+    max-width: 1em;
 }

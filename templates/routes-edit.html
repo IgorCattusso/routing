@@ -12,12 +12,21 @@
             <h1>{{ route_name }}</h1>
             <table class="wizard">
                 <tr>
-                    <th class="wizard-header wizard-step clickable selected" rowspan="2" id="routeInfoAndRecipients">Dados e destinatários da rota</th>
-                    <th class="wizard-header wizard-step" colspan="2" id="routeTicketHeader">Tickets da rota</th>
+                    <th class="wizard-header wizard-step clickable selected" rowspan="3" id="routeInfoAndRecipients">Dados e destinatários da rota</th>
+                    <th class="wizard-header wizard-step" colspan="8" id="routeTicketHeader">Tickets da rota</th>
                 </tr>
                 <tr>
-                    <td class="wizard-step clickable" id="routeTicketLocales">Localidades</td>
-                    <td class="wizard-step clickable" id="routeTicketGroups">Grupos</td>
+                    <td class="wizard-step clickable ticket-step" id="routeTicketLocales">Localidades</td>
+                    <td class="wizard-step clickable ticket-step" id="routeTicketGroups">Grupos</td>
+                    <td class="wizard-step clickable ticket-step" id="routeTicketFields" style="cursor: not-allowed">Campos de tickets</td>
+                    <td class="wizard-step clickable ticket-step" id="routeTicketTags">Tags de tickets</td>
+
+                </tr>
+                <tr>
+                    <td class="wizard-step clickable ticket-step" id="routeTicketOrganizations" style="cursor: not-allowed">Organizações</td>
+                    <td class="wizard-step clickable ticket-step" id="routeTicketOrganizationFields" style="cursor: not-allowed">Campos de organizações</td>
+                    <td class="wizard-step clickable ticket-step" id="routeTicketEndUsers" style="cursor: not-allowed">Usuários</td>
+                    <td class="wizard-step clickable ticket-step" id="routeTicketUserFields" style="cursor: not-allowed">Campos de usuários</td>
                 </tr>
             </table>
             <div class="content-form scrollable">
@@ -71,8 +80,8 @@
                                         </div>
                                         <div class="option-wrapper">
                                             {% for user in all_recipient_users %}
-                                                <div class="option-container js-user-option-container {{ 'selected' if user.zendesk_users_id in selected_route_recuipient_users else '' }}">
-                                                    <option class="option list-option" id={{ user.zendesk_users_id }} value={{ user.zendesk_users_id }}>{{ user.name }}</option>
+                                                <div class="option-container js-user-option-container {{ 'selected' if user.zendesk_users_id in selected_route_recipient_users else '' }}">
+                                                    <option class="option list-option recipient-user-option" id={{ user.zendesk_users_id }} value={{ user.zendesk_users_id }}>{{ user.name }}</option>
                                                 </div>
                                             {% endfor %}
                                         </div>
@@ -89,7 +98,7 @@
                                         <div class="option-wrapper">
                                             {% for group in all_recipient_groups %}
                                                 <div class="option-container js-group-option-container {{ 'selected' if group.id in selected_route_recipient_groups else '' }}">
-                                                    <option class="option list-option" id={{ group.id }} value={{ group.id }}>{{ group.name }}</option>
+                                                    <option class="option list-option recipient-group-option" id={{ group.id }} value={{ group.id }}>{{ group.name }}</option>
                                                     <div class="option list-option">{{ group.users }}</div>
                                                 </div>
                                             {% endfor %}
@@ -112,7 +121,7 @@
                                                 <div class="options-title">Descrição da localidade</div>
                                             </div>
                                             <div class="option-wrapper">
-                                                {% for locale in tickets_locales %}
+                                                {% for locale in all_tickets_locales %}
                                                     <div class="option-container js-locale-option-container">
                                                         <option class="option list-option" id={{ locale.id }} value={{ locale.id }}>{{ locale.locale }}</option>
                                                         <div class="option list-option">{{ locale.presentation_name }}</div>
@@ -131,7 +140,7 @@
                                                 <div class="options-title">Nome do grupo</div>
                                             </div>
                                             <div class="option-wrapper">
-                                                {% for group in tickets_groups %}
+                                                {% for group in all_tickets_groups %}
                                                     <div class="option-container js-group-option-container">
                                                         <option class="option list-option" id={{ group.id }} value={{ group.id }}>{{ group.name }}</option>
                                                     </div>
@@ -140,6 +149,25 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <div id="ticketTagsListContainer" class="options-container-wrapper ticket-tags-container tickets-container">
+                                    <h2 class="route-tickets-tab-title">Selecione as tags da rota</h2>
+                                    <div class="ticket-options-wrapper">
+                                        <div class="options-container">
+                                            <div class="options-title-container">
+                                                <div class="options-title">Tag</div>
+                                            </div>
+                                            <div class="option-wrapper">
+                                                {% for tag in all_tickets_tags %}
+                                                    <div class="option-container js-tag-option-container {{ 'selected' if tag.id in selected_route_recipient_tags else '' }}">
+                                                        <option class="option list-option ticket-tag-option" id={{ tag.id }} value={{ tag.id }}>{{ tag.tag }}</option>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -169,8 +197,8 @@
 
 
     <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
-    <script src="/static/js/routes_new.js"></script>
-    <script src="/static/js/route_edit_send.js"></script>
+    <script src="/static/js/routes_edit.js"></script>
+    <script src="/static/js/routes_save.js"></script>
 
 
 {% endblock %}
