@@ -112,7 +112,7 @@
                     <div id="routeTicketsContainer" hidden="hidden">
                         <div id="routetickets" class="content-form-body">
                             <div class="content-container">
-                                <div id="ticketLocalesListContainer" class="options-container-wrapper ticket-locales-container tickets-container">
+                                <div id="ticketLocalesListContainer" class="options-container-wrapper ticket-locales-container ticket-container">
                                     <h2 class="route-tickets-tab-title">Selecione as localidades da rota</h2>
                                     <div class="ticket-options-wrapper">
                                         <div class="options-container">
@@ -122,8 +122,8 @@
                                             </div>
                                             <div class="option-wrapper">
                                                 {% for locale in all_tickets_locales %}
-                                                    <div class="option-container js-locale-option-container">
-                                                        <option class="option list-option" id={{ locale.id }} value={{ locale.id }}>{{ locale.locale }}</option>
+                                                    <div class="option-container js-locale-option-container  {{ 'selected' if locale.id in selected_route_ticket_locales else '' }}">
+                                                        <option class="option list-option ticket-locale-option" id={{ locale.id }} value={{ locale.id }}>{{ locale.locale }}</option>
                                                         <div class="option list-option">{{ locale.presentation_name }}</div>
                                                     </div>
                                                 {% endfor %}
@@ -141,8 +141,8 @@
                                             </div>
                                             <div class="option-wrapper">
                                                 {% for group in all_tickets_groups %}
-                                                    <div class="option-container js-group-option-container">
-                                                        <option class="option list-option" id={{ group.id }} value={{ group.id }}>{{ group.name }}</option>
+                                                    <div class="option-container js-ticket-group-option-container  {{ 'selected' if group.id in selected_route_ticket_groups else '' }}">
+                                                        <option class="option list-option ticket-group-option" id={{ group.id }} value={{ group.id }}>{{ group.name }}</option>
                                                     </div>
                                                 {% endfor %}
                                             </div>
@@ -151,7 +151,13 @@
                                 </div>
 
                                 <div id="ticketTagsListContainer" class="options-container-wrapper ticket-tags-container tickets-container">
-                                    <h2 class="route-tickets-tab-title">Selecione as tags da rota</h2>
+                                    <div class="header-with-search">
+                                        <h2 class="route-tickets-tab-title">Selecione as tags da rota</h2>
+                                        <div>
+                                            <label for="tagSearchInput"></label>
+                                            <input class="form-item-input-text" type="text" id="tagSearchInput" placeholder="Pesquisa">
+                                        </div>
+                                    </div>
                                     <div class="ticket-options-wrapper">
                                         <div class="options-container">
                                             <div class="options-title-container">
@@ -159,7 +165,7 @@
                                             </div>
                                             <div class="option-wrapper">
                                                 {% for tag in all_tickets_tags %}
-                                                    <div class="option-container js-tag-option-container {{ 'selected' if tag.id in selected_route_recipient_tags else '' }}">
+                                                    <div class="option-container js-tag-option-container {{ 'selected' if tag.id in selected_route_ticket_tags else '' }}">
                                                         <option class="option list-option ticket-tag-option" id={{ tag.id }} value={{ tag.id }}>{{ tag.tag }}</option>
                                                     </div>
                                                 {% endfor %}

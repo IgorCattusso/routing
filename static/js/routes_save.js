@@ -20,6 +20,8 @@ saveButton.addEventListener('click', () => {
   const routeName = document.getElementById('routeName');
   const selectedUsers = document.querySelectorAll('.js-user-option-container.selected');
   const selectedGroups = document.querySelectorAll('.js-group-option-container.selected');
+  const selectedLocales = document.querySelectorAll('.js-locale-option-container.selected');
+  const selectedTicketGroups = document.querySelectorAll('.js-ticket-group-option-container.selected');
   const selectedTags = document.querySelectorAll('.js-tag-option-container.selected');
 
   // If there are no selected option containers, do nothing
@@ -61,7 +63,29 @@ saveButton.addEventListener('click', () => {
     }
   });
 
-  // Initialize an array to hold the selected recipient groups
+  // Initialize an array to hold the selected locales
+  const selectedLocalesValues = [];
+  // Loop through each selected option container and extract the value of its selected option
+  selectedLocales.forEach((selectedOptionContainer) => {
+    const selectedOption = selectedOptionContainer.querySelector('.ticket-locale-option');
+    if (selectedOption.value !== null) {
+      const selectedValue = selectedOption.value;
+      selectedLocalesValues.push(selectedValue);
+    }
+  });
+
+  // Initialize an array to hold the selected locales
+  const selectedTicketGroupsValues = [];
+  // Loop through each selected option container and extract the value of its selected option
+  selectedTicketGroups.forEach((selectedOptionContainer) => {
+    const selectedOption = selectedOptionContainer.querySelector('.ticket-group-option');
+    if (selectedOption.value !== null) {
+      const selectedValue = selectedOption.value;
+      selectedTicketGroupsValues.push(selectedValue);
+    }
+  });
+
+  // Initialize an array to hold the selected tags
   const selectedTagsValues = [];
   // Loop through each selected option container and extract the value of its selected option
   selectedTags.forEach((selectedOptionContainer) => {
@@ -71,6 +95,7 @@ saveButton.addEventListener('click', () => {
       selectedTagsValues.push(selectedValue);
     }
   });
+
 
   // If the ID of the route is empty, that means we're on the NEW page, if it has a value, that means we're on the EDIT page
   if (routeId.value === '') {
@@ -83,6 +108,8 @@ saveButton.addEventListener('click', () => {
         route_name: routeName.value,
         recipient_users: selectedUsersValues,
         recipient_groups: selectedGroupsValues,
+        ticket_locales: selectedLocalesValues,
+        ticket_groups: selectedTicketGroupsValues,
         ticket_tags: selectedTagsValues,
       }),
       contentType: 'application/json',
@@ -110,6 +137,8 @@ saveButton.addEventListener('click', () => {
         route_name: routeName.value,
         recipient_users: selectedUsersValues,
         recipient_groups: selectedGroupsValues,
+        ticket_locales: selectedLocalesValues,
+        ticket_groups: selectedTicketGroupsValues,
         ticket_tags: selectedTagsValues,
       }),
       contentType: 'application/json',

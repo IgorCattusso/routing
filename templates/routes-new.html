@@ -18,7 +18,7 @@
                 <tr>
                     <td class="wizard-step clickable ticket-step" id="routeTicketLocales">Localidades</td>
                     <td class="wizard-step clickable ticket-step" id="routeTicketGroups">Grupos</td>
-                    <td class="wizard-step clickable ticket-step" id="routeTicketFields" style="cursor: not-allowed">Campos de tickets</td>
+                    <td class="wizard-step clickable ticket-step" id="routeTicketFields">Campos de tickets</td>
                     <td class="wizard-step clickable ticket-step" id="routeTicketTags">Tags de tickets</td>
 
                 </tr>
@@ -115,7 +115,7 @@
                                                 <div class="options-title">Descrição da localidade</div>
                                             </div>
                                             <div class="option-wrapper">
-                                                {% for locale in tickets_locales %}
+                                                {% for locale in ticket_locales %}
                                                     <div class="option-container js-locale-option-container">
                                                         <option class="option list-option ticket-locale-option" id={{ locale.id }} value={{ locale.id }}>{{ locale.locale }}</option>
                                                         <div class="option list-option">{{ locale.presentation_name }}</div>
@@ -134,8 +134,8 @@
                                                 <div class="options-title">Nome do grupo</div>
                                             </div>
                                             <div class="option-wrapper">
-                                                {% for group in tickets_groups %}
-                                                    <div class="option-container js-group-option-container">
+                                                {% for group in ticket_groups %}
+                                                    <div class="option-container js-ticket-group-option-container">
                                                         <option class="option list-option ticket-group-option" id={{ group.id }} value={{ group.id }}>{{ group.name }}</option>
                                                     </div>
                                                 {% endfor %}
@@ -144,15 +144,62 @@
                                     </div>
                                 </div>
 
+
+
+                                <div id="ticketFormsAndFieldsContainer" class="options-container-wrapper ticket-fields-container tickets-container">
+                                    <h2 class="route-tickets-tab-title">Campos de tickets da rota</h2>
+
+                                    <div id="ticketFormsWrapper" class="ticket-form-filter-container filter-container">
+                                        <h3 style="margin-top: 1.5em">Selecione um formulário</h3>
+                                        <div class="dropdown-menu-button-container">
+                                            <form>
+                                                <label aria-label="Selecione">
+                                                    <input class="chosen-value chosen-form-value" type="text" value="" placeholder="Selecione">
+                                                </label>
+                                                <ul id="forms" class="form-values-list values-list">
+                                                    {% for form in ticket_forms %}
+                                                        <li class="form-dropdown-menu-option dropdown-menu-option" id={{ form.id }} value={{ form.id }}>{{ form.name }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <div id="ticketFieldsWrapper" class="ticket-field-filter-container filter-container">
+                                        <h3 style="margin-top: 1.5em">Selecione um Campo</h3>
+                                        <div class="dropdown-menu-button-container">
+                                            <form>
+                                                <label aria-label="Selecione">
+                                                    <input class="chosen-value chosen-field-value" type="text" value="" placeholder="Selecione">
+                                                </label>
+                                                <ul id="formFields" class="field-values-list values-list">
+                                                </ul>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+
+
+
+
                                 <div id="ticketTagsListContainer" class="options-container-wrapper ticket-tags-container tickets-container">
-                                    <h2 class="route-tickets-tab-title">Selecione as tags da rota</h2>
+                                    <div class="header-with-search">
+                                        <h2 class="route-tickets-tab-title">Selecione as tags da rota</h2>
+                                        <div>
+                                            <label for="tagSearchInput"></label>
+                                            <input class="form-item-input-text" type="text" id="tagSearchInput" placeholder="Pesquisa">
+                                        </div>
+                                    </div>
                                     <div class="ticket-options-wrapper">
                                         <div class="options-container">
                                             <div class="options-title-container">
                                                 <div class="options-title">Tag</div>
                                             </div>
                                             <div class="option-wrapper">
-                                                {% for tag in tickets_tags %}
+                                                {% for tag in ticket_tags %}
                                                     <div class="option-container js-tag-option-container">
                                                         <option class="option list-option ticket-tag-option" id={{ tag.id }} value={{ tag.id }}>{{ tag.tag }}</option>
                                                     </div>
@@ -161,6 +208,10 @@
                                         </div>
                                     </div>
                                 </div>
+
+
+
+
 
                             </div>
                         </div>

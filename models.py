@@ -1,6 +1,8 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
-from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, engine, create_engine
+from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, engine, create_engine, delete, update, insert
 from sqlalchemy.sql import func
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import FlushError
 import datetime
 from config import url_object
 
@@ -160,6 +162,21 @@ class ZendeskTicketFieldsInForms(Base):
     def __repr__(self) -> str:
         return f'{self.id}, {self.zendesk_ticket_forms_id}, {self.zendesk_ticket_fields_id}'
 
+    @staticmethod
+    def get_form_fields(session, form_id):
+        all_fields = session.execute(
+            select(
+                ZendeskTicketFieldsInForms.id,
+                ZendeskTicketFields.title
+            ).where(ZendeskTicketFieldsInForms.zendesk_ticket_forms_id == form_id)
+            .join(ZendeskTicketFields)
+        ).all()
+
+        if all_fields:
+            return all_fields
+        else:
+            return None
+
 
 class ZendeskTicketFieldOptions(Base):
     __tablename__ = "zendesk_ticket_field_options"
@@ -236,8 +253,176 @@ class RouteRecipientGroups(Base):
         return f'{self.id}, {self.routes_id}, {self.zendesk_groups_id}'
 
 
-class RouteTicketsTags(Base):
-    __tablename__ = "route_tickets_tags"
+class RouteTicketLocales(Base):
+    __tablename__ = "route_ticket_locales"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"))
+    zendesk_locales_id: Mapped[int] = mapped_column(ForeignKey("zendesk_locales.id"))
+
+    def __repr__(self) -> str:
+        return f'{self.id}, {self.routes_id}, {self.zendesk_locales_id}'
+
+    @staticmethod
+    def insert_one_locale(session, routes_id, zendesk_locales_id):
+        new_ticket_locale = RouteTicketLocales(
+            routes_id=int(routes_id),
+            zendesk_locales_id=int(zendesk_locales_id),
+        )
+        try:
+            session.add(new_ticket_locale)
+            return True
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def select_all_locales_in_a_route(session, routes_id):
+        existing_record = session.execute(
+            select(RouteTicketLocales.zendesk_locales_id)
+            .where(RouteTicketLocales.routes_id == routes_id)
+        ).all()
+        if existing_record:
+            return existing_record
+        else:
+            return None
+
+    @staticmethod
+    def check_existing_locale_in_route(session, routes_id, zendesk_locales_id):
+        existing_record = session.execute(
+            select(RouteTicketLocales)
+            .where(RouteTicketLocales.routes_id == routes_id)
+            .where(RouteTicketLocales.zendesk_locales_id == zendesk_locales_id)
+        ).first()
+        if existing_record:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def delete_list_of_locales_in_route(session, routes_id, list_of_zendesk_locales_ids):
+        try:
+            session.execute(
+                delete(RouteTicketLocales)
+                .where(RouteTicketLocales.routes_id == routes_id)
+                .where(RouteTicketLocales.zendesk_locales_id.in_(list_of_zendesk_locales_ids))
+            )
+            return True
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def delete_all_locales_in_route(session, routes_id):
+        try:
+            session.execute(
+                delete(RouteTicketLocales)
+                .where(RouteTicketLocales.routes_id == routes_id)
+            )
+            return True
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+
+
+
+
+class RouteTicketGroups(Base):
+    __tablename__ = "route_ticket_groups"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"))
+    zendesk_groups_id: Mapped[int] = mapped_column(ForeignKey("zendesk_groups.id"))
+
+    def __repr__(self) -> str:
+        return f'{self.id}, {self.routes_id}, {self.zendesk_groups_id}'
+
+    @staticmethod
+    def insert_one_group(session, routes_id, zendesk_groups_id):
+        new_ticket_group = RouteTicketGroups(
+            routes_id=int(routes_id),
+            zendesk_groups_id=int(zendesk_groups_id),
+        )
+        try:
+            session.add(new_ticket_group)
+            return True
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def insert_list_of_groups(session, routes_id, list_of_zendesk_groups_ids):
+        try:
+            for group in list_of_zendesk_groups_ids:
+                session.execute(
+                    insert(RouteTicketGroups), [
+                        {'routes_id': routes_id, 'zendesk_groups_id': group}
+                    ]
+                )
+            return True
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def select_all_groups_in_a_route(session, routes_id):
+        existing_record = session.execute(
+            select(RouteTicketGroups.zendesk_groups_id)
+            .where(RouteTicketGroups.routes_id == routes_id)
+        ).all()
+        if existing_record:
+            return existing_record
+        else:
+            return None
+
+    @staticmethod
+    def check_existing_group_in_route(session, routes_id, zendesk_groups_id):
+        existing_record = session.execute(
+            select(RouteTicketGroups)
+            .where(RouteTicketGroups.routes_id == routes_id)
+            .where(RouteTicketGroups.zendesk_groups_id == zendesk_groups_id)
+        ).first()
+        if existing_record:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def delete_list_of_groups_in_route(session, routes_id, list_of_zendesk_groups_ids):
+        try:
+            session.execute(
+                delete(RouteTicketGroups)
+                .where(RouteTicketGroups.routes_id == routes_id)
+                .where(RouteTicketGroups.zendesk_groups_id.in_(list_of_zendesk_groups_ids))
+            )
+            return True
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def delete_all_groups_in_route(session, routes_id):
+        try:
+            session.execute(
+                delete(RouteTicketGroups)
+                .where(RouteTicketGroups.routes_id == routes_id)
+            )
+            return True
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+
+
+
+
+
+
+class RouteTicketTags(Base):
+    __tablename__ = "route_ticket_tags"
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -246,3 +431,66 @@ class RouteTicketsTags(Base):
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.routes_id}, {self.zendesk_tags_id}'
+
+    @staticmethod
+    def insert_one_tag(session, routes_id, zendesk_tags_id):
+        new_ticket_tag = RouteTicketTags(
+            routes_id=int(routes_id),
+            zendesk_tags_id=int(zendesk_tags_id),
+        )
+        try:
+            session.add(new_ticket_tag)
+            return True
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def select_all_tags_in_a_route(session, routes_id):
+        existing_record = session.execute(
+            select(RouteTicketTags.zendesk_tags_id)
+            .where(RouteTicketTags.routes_id == routes_id)
+        ).all()
+        if existing_record:
+            return existing_record
+        else:
+            return None
+
+    @staticmethod
+    def check_existing_tag_in_route(session, routes_id, zendesk_tags_id):
+        existing_record = session.execute(
+            select(RouteTicketTags)
+            .where(RouteTicketTags.routes_id == routes_id)
+            .where(RouteTicketTags.zendesk_tags_id == zendesk_tags_id)
+        ).first()
+        if existing_record:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def delete_list_of_tags_in_route(session, routes_id, list_of_zendesk_tags_ids):
+        try:
+            session.execute(
+                delete(RouteTicketTags)
+                .where(RouteTicketTags.routes_id == routes_id)
+                .where(RouteTicketTags.zendesk_tags_id.in_(list_of_zendesk_tags_ids))
+            )
+            return True
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def delete_all_tags_in_route(session, routes_id):
+        try:
+            session.execute(
+                delete(RouteTicketTags)
+                .where(RouteTicketTags.routes_id == routes_id)
+            )
+            return True
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+

@@ -8,7 +8,7 @@ h2 {
     padding-top: .75em;
 }
 
-h2:first-child{
+h2:first-child {
     border-top: none;
     margin-top: 0;
 }
@@ -32,7 +32,7 @@ h5 {
     margin-bottom: .5em;
 }
 
-.form-item-input-text {
+.form-item-input-text, .dropdown-menu-button {
     background-color: #e5e8eb;
     -webkit-box-flex: 1;
     -ms-flex: 1 1 auto;
@@ -202,7 +202,7 @@ input[type="checkbox"]:checked + .slider:before {
     width: calc(100% - 20em);
 }
 
-.list-option{
+.list-option {
     line-height: 2em;
     font-weight: inherit;
     width: 20em;
@@ -226,9 +226,6 @@ input[type="checkbox"]:checked + .slider:before {
 }
 
 
-
-
-
 .status-container {
     display: flex;
     margin-top: .5em;
@@ -236,7 +233,7 @@ input[type="checkbox"]:checked + .slider:before {
     align-items: center;
 }
 
-.active-input[type=checkbox]{
+.active-input[type=checkbox] {
     height: 0;
     width: 0;
     display: none;
@@ -335,6 +332,7 @@ input[type="checkbox"]:checked + .slider:before {
 .route-tickets-tab-title {
     padding-top: 0;
     padding-left: 0;
+    vertical-align: center;
 }
 
 .ticket-options-wrapper {
@@ -348,4 +346,107 @@ input[type="checkbox"]:checked + .slider:before {
 
 .ticket-step {
     max-width: 1em;
+}
+
+.header-with-search {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.not-in-filter {
+    display: none;
+}
+
+.filter-container, .dropdown-menu {
+    display: flex;
+    flex-direction: column;
+}
+
+.ticket-form-filter-container {
+    margin-left: 1em;
+}
+
+.dropdown-menu-button-container {
+    margin-top: 1em;
+}
+
+
+
+
+
+
+
+.chosen-value, .values-list {
+    width: 30rem;
+    overflow: auto;
+}
+
+.chosen-value {
+    background-color: #e5e8eb;
+    -webkit-box-flex: 1;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    border-radius: 4px;
+    min-height: 3em;
+    min-width: 30em;
+    outline: none;
+    padding: 0 16px;
+    line-height: normal;
+    -webkit-transition: background-color 0.1s ease-in-out;
+    transition: background-color 0.1s ease-in-out;
+    box-sizing: border-box;
+    border: 2px solid transparent;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.chosen-value:focus, .chosen-form-value--focused {
+    background-color: #ffffff;
+    -webkit-appearance: none;
+    -webkit-box-shadow: #4693f8;
+    box-shadow: #4693f8;
+    box-sizing: border-box;
+    border: 2px solid #4693f8;
+}
+
+.chosen-value:hover {
+    cursor: pointer;
+}
+
+.values-list {
+    list-style: none;
+    box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2);
+    max-height: 0;
+    transition: .3s ease-in-out;
+}
+
+.values-list.open {
+    max-height: 60em;
+    overflow: auto;
+}
+
+.dropdown-menu-option {
+    background-color: #fafcfd;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color .3s;
+    opacity: 1;
+}
+
+.dropdown-menu-option:hover {
+    background-color: #e5e8eb;
+}
+
+.dropdown-menu-option.closed {
+    max-height: 0;
+    overflow: hidden;
+    padding: 0;
+    opacity: 0;
+}
+
+.ticket-field-filter-container {
+    display: none;
 }
