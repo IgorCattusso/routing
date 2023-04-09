@@ -127,9 +127,38 @@ zendesk_default_user_group(11490525550747)
 #         print(f'{str(row.id)}, {str(row.name)}, {str(row.count)}')
 #
 
-zendesk_endpoint_url = '/api/v2/ticket_fields/11490658989083/options'
-api_url = API_BASE_URL + zendesk_endpoint_url
-api_response = requests.get(api_url, headers=generate_zendesk_headers())
-if api_response.status_code == 404:
-    print('test')
 
+#
+# with Session(engine) as session:
+#     with session.begin():
+#         test = RouteTicketLocales.check_existing(session, 64, 1)
+#
+# print(test)
+
+# list = [1, 2, 3]
+#
+# with Session(engine) as session:
+#     with session.begin():
+#         test = delete(RouteTicketLocales).where(RouteTicketLocales.routes_id == 64).where(RouteTicketLocales.zendesk_locales_id.in_(list))
+#         session.execute(test)
+
+routes_id = 64
+list_of_zendesk_groups_ids = [557, 558, 559, 560]
+
+for group in list_of_zendesk_groups_ids:
+    insert_dict = {'routes_id': routes_id, 'zendesk_groups_id': group}
+
+print(insert_dict)
+
+with Session(engine) as session:
+    try:
+        session.execute(
+            insert(RouteTicketGroups), [
+                insert_dict
+            ]
+        )
+        session.commit()
+        print('yay')
+    except (IntegrityError, FlushError) as error:
+        error_info = error.orig.args
+        print(f'There was an error: {error_info}')
