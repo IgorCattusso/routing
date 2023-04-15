@@ -1,5 +1,5 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
-from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, engine, create_engine, delete, update, insert
+from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, create_engine, delete, update, insert
 from sqlalchemy.sql import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import FlushError
