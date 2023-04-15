@@ -21,8 +21,6 @@ SQLALCHEMY_DATABASE_URI = \
         database='routing'
     )  # configurando conexão com o banco de dados
 
-ZENDESK_GROUP_IDS = [11490525550747]
-
 url_object = URL.create(  # Creating connection string
     "mysql+pymysql",
     username="igor",
