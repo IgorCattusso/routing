@@ -326,9 +326,6 @@ class RouteTicketLocales(Base):
             return f'There was an error: {error_info}'
 
 
-
-
-
 class RouteTicketGroups(Base):
     __tablename__ = "route_ticket_groups"
     __table_args__ = {'extend_existing': True}
@@ -414,11 +411,6 @@ class RouteTicketGroups(Base):
         except (IntegrityError, FlushError) as error:
             error_info = error.orig.args
             return f'There was an error: {error_info}'
-
-
-
-
-
 
 
 class RouteTicketTags(Base):
