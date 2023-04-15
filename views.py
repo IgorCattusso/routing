@@ -107,3 +107,29 @@ def routes():
 
     time.sleep(.35)
     return render_template('routes.html', routes=app_routes)
+
+
+@app.route('/routing-settings')
+def routing_settings():
+    with Session(engine) as session:
+        all_settings = GeneralSettings.get_settings(session)
+
+    time.sleep(.35)
+    for row in all_settings:
+        return render_template(
+            'routing-settings.html',
+            use_routes=row.use_routes,
+            routing_model=row.routing_model,
+            agent_backlog_limit=row.agent_backlog_limit,
+            daily_assignment_limit=row.daily_assignment_limit,
+            hourly_assignment_limit=row.hourly_assignment_limit,
+        )
+
+
+@app.route('/schedules')
+def schedules():
+    with Session(engine) as session:
+        all_schedules = ZendeskSchedules.get_schedules(session)
+
+    time.sleep(.35)
+    return render_template('schedules.html', schedules=all_schedules)

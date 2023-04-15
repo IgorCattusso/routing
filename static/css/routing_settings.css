@@ -1,0 +1,140 @@
+h1 {
+    font-size: 2rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin-top: .75em;
+    padding-top: .75em;
+}
+
+h2:first-child {
+    border-top: none;
+    margin-top: 0;
+}
+
+h3, h4 {
+    font-size: 1rem;
+    border-bottom: 1px solid lightgray;
+    padding-bottom: .25em;
+}
+
+h5 {
+    font-size: 1rem;
+}
+
+.content-table {
+    max-height: calc(100vh - 100px);
+    overflow: auto;
+}
+
+.selector-option-container {
+    margin-top: .75em;
+
+}
+
+.content-form-header, .content-form-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    box-sizing: border-box;
+    padding: 1em;
+    border-bottom: 1px solid lightgray;
+    margin-top: 0;
+}
+
+.content-table, .content-form {
+    margin-top: 2em;
+}
+
+.selector-container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+.radio-selector {
+    display: none;
+}
+
+.radio-selector-label {
+    display: inline-block;
+    padding: 1em 2em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.use-routes-radio-selector-label {
+    padding: 1em 3em;
+}
+
+.radio-selector:checked + .radio-selector-label {
+    background-color: #4693f8;
+    color: #fff;
+    border-color: #4693f8;
+}
+
+.content-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.radio-selector-label {
+    position: relative; /* Make the label container relative */
+    display: flex; /* Make the container inline-block */
+    align-items: center;
+}
+
+.radio-selector-label .information-icon {
+    position: absolute; /* Position the SVG absolutely within the label container */
+    top: 0; /* Align the SVG to the top of the label container */
+    right: 0; /* Align the SVG to the right of the label container */
+}
+
+.checkmark {
+    margin-left: 1em;
+}
+
+.subtitle-container h3 {
+    border-bottom: 0;
+}
+
+.subtitle-container {
+    display: flex;
+    font-size: 1rem;
+    border-bottom: 1px solid lightgray;
+}
+
+.use-routes-subtitle-icon-container {
+    display: flex;
+    line-height: 2em;
+}
+
+#useRoutesInformationIcon {
+    margin-left: .1em;
+}
+
+.rule-input {
+    background-color: #e5e8eb;
+    -webkit-box-flex: 1;
+    flex: 1 1 auto;
+    font-size: 14px;
+    border-radius: 4px;
+    min-height: 3em;
+    min-width: 30em;
+    outline: none;
+    padding: 0 16px;
+    line-height: normal;
+    transition: background-color 0.1s ease-in-out;
+    box-sizing: border-box;
+    border: 2px solid transparent;
+    margin-top: 10px;
+}
+
+.rule-wrapper:nth-child(2), .rule-wrapper:nth-child(n+3) {
+    margin-top: 1em;
+}
+

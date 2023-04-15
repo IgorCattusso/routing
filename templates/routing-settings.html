@@ -1,0 +1,139 @@
+{% extends "template.html" %}
+{% block conteudo %}
+
+    <link rel="stylesheet" href="/static/css/routing_settings.css">
+
+    <div class="container">
+        <div class="main-content">
+            <h1>Configurações gerais</h1>
+            <div id="contentTable" class="content-table scrollable">
+                <h2>Modelo de distribuição</h2>
+                <div id="assignmentType" class="content-form-body">
+                    <div class="content-container">
+                        <div class="subtitle-container use-routes-subtitle-icon-container" title="Neste modelo os tickets serão distribuídos de acordo com as regras cadastradas no menu Rotas, no modelo de distrubuição Round Robin ou Menos ativo, dependendo da seleção abaixo">
+                            <h3>Utilizar cadastro de rotas?</h3>
+                            <div class="subtitle-icon-container">
+                                <svg id="useRoutesInformationIcon" width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="black-information-icon information-icon">
+                                    <path d="M12 7.01001V7.00002M12 17L12 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="selector-container">
+                            <div id="routesYesButtonContainer" class="selector-option-container">
+                                <input class="radio-selector use-routes-radio-selector" type="radio" id="routesYes" name="use-routes-yes" {{ 'checked=checked' if use_routes else '' }} disabled>
+                                <label id="routesYesLabel" class="radio-selector-label use-routes-radio-selector-label" for="routesYes" style="cursor: not-allowed">
+                                    <span>Sim</span>
+                                    <svg fill="#ffffff" id="routesYesCheckmark" class="checkmark" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18px" height="18px" viewBox="0 0 78.369 78.369" xml:space="preserve" stroke="#ffffff" style="display: none">
+                                        <path d="M78.049,19.015L29.458,67.606c-0.428,0.428-1.121,0.428-1.548,0L0.32,40.015c-0.427-0.426-0.427-1.119,0-1.547l6.704-6.704 c0.428-0.427,1.121-0.427,1.548,0l20.113,20.112l41.113-41.113c0.429-0.427,1.12-0.427,1.548,0l6.703,6.704 C78.477,17.894,78.477,18.586,78.049,19.015z"></path>
+                                    </svg>
+                                </label>
+                            </div>
+
+                            <div id="routesNoButtonContainer" class="selector-option-container">
+                                <input class="radio-selector use-routes-radio-selector" type="radio" id="routesNo" name="use-routes-yes"  {{ 'checked=checked' if not use_routes else '' }} >
+                                <label id="routesNoLabel" class="radio-selector-label use-routes-radio-selector-label" for="routesNo">
+                                    <span>Não</span>
+                                    <svg fill="#ffffff" id="routesNoCheckmark" class="checkmark" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18px" height="18px" viewBox="0 0 78.369 78.369" xml:space="preserve" stroke="#ffffff" style="display: none">
+                                        <path d="M78.049,19.015L29.458,67.606c-0.428,0.428-1.121,0.428-1.548,0L0.32,40.015c-0.427-0.426-0.427-1.119,0-1.547l6.704-6.704 c0.428-0.427,1.121-0.427,1.548,0l20.113,20.112l41.113-41.113c0.429-0.427,1.12-0.427,1.548,0l6.703,6.704 C78.477,17.894,78.477,18.586,78.049,19.015z"></path>
+                                    </svg>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-container">
+                        <h3>Selecione o modelo de distribuição dos tickets</h3>
+                        <div class="selector-container">
+                            <div id="leastActiveButtonContainer" class="selector-option-container" title="Neste modelo os tickets serão distribuídos primeiro para o usuário com menos tickets em seu backlog, abertos e pendentes, sendo que os tickets pendentes representam metade do peso dos abertos">
+                                <input class="radio-selector assignment-type-radio-selector" type="radio" id="leastActive" name="routing-assignment-type" {{ 'checked=checked' if routing_model == 0 else '' }} >
+                                <label id="leastActiveButtonLabel" class="radio-selector-label assignment-type-radio-selector-label" for="leastActive">
+                                    <span>Menos ativo</span>
+                                    <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="black-information-icon information-icon">
+                                        <path d="M12 7.01001V7.00002M12 17L12 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </svg>
+                                </label>
+                            </div>
+
+                            <div id="roundRobinButtonContainer" class="selector-option-container" title="Neste modelo os tickets serão distribuídos sequencialmente, seguindo a ordem de login dos usuários">
+                                <input class="radio-selector assignment-type-radio-selector" type="radio" id="roundRobin" name="routing-assignment-type" {{ 'checked=checked' if routing_model == 1 else '' }} >
+                                <label id="roundRobinButtonLabel" class="radio-selector-label assignment-type-radio-selector-label" for="roundRobin">
+                                    <span>Round Robin</span>
+                                    <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="black-information-icon information-icon">
+                                        <path d="M12 7.01001V7.00002M12 17L12 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </svg>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="assigment-rules-title">Limites de distribuição</h2>
+                <div id="assignmentRules" class="content-form-body assigment-rules-wrapper">
+                    <div class="assignment-rules-wrapper">
+                        <div class="assignment-rule-container">
+                            <div class="rule-wrapper ticket-limit-rule-wrapper">
+                                <div class="subtitle-container use-routes-subtitle-icon-container" title="Agentes com essa quantidade de tickets em análise não receberão mais tickets. Aqui contam tickets em aberto e pendentes, sendo que 2 pendentes valem 1 aberto. Deixe em branco para não aplicar a configuração">
+                                    <h3 class="rule-title ticket-limit-title">Limite de tickets em análise</h3>
+                                    <div class="subtitle-icon-container">
+                                        <svg id="useRoutesInformationIcon" width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="black-information-icon information-icon">
+                                            <path d="M12 7.01001V7.00002M12 17L12 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="rule-container ticket-limit-container" id="ticketLimitContainer">
+                                    <label class="rule-label" for="ticketLimit"></label>
+                                    <input type="number" id="ticketLimit" class="rule-input ticket-limit-input" value="{{ agent_backlog_limit if agent_backlog_limit else '' }}">
+                                </div>
+                            </div>
+
+                            <div class="rule-wrapper daily-limit-rule-wrapper">
+                                <div class="subtitle-container use-routes-subtitle-icon-container" title="Agentes que atingirem essa quantidade de tickets distribuídos no dia não receberão mais tickets. Deixe em branco para não aplicar a configuração">
+                                    <h3 class="rule-title daily-limit-title">Limite diário de tickets</h3>
+                                    <div class="subtitle-icon-container">
+                                        <svg id="useRoutesInformationIcon" width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="black-information-icon information-icon">
+                                            <path d="M12 7.01001V7.00002M12 17L12 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="rule-container daily-limit-container" id="dailyLimitContainer">
+                                    <label class="rule-label" for="dailyLimit"></label>
+                                    <input type="number" id="dailyLimit" class="rule-input daily-limit-input" value="{{ daily_assignment_limit if daily_assignment_limit else '' }}">
+                                </div>
+                            </div>
+
+                            <div class="rule-wrapper daily-limit-rule-wrapper">
+                                <div class="subtitle-container use-routes-subtitle-icon-container" title="Número máximo de tickets que serão atribuídos a um único agente dentro de uma hora">
+                                    <h3 class="rule-title hourly-limit-title">Limite de tickets de agente por hora</h3>
+                                    <div class="subtitle-icon-container">
+                                        <svg id="useRoutesInformationIcon" width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="black-information-icon information-icon">
+                                            <path d="M12 7.01001V7.00002M12 17L12 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="rule-container daily-limit-container" id="dailyLimitContainer">
+                                    <label class="rule-label" for="hourlyLimit"></label>
+                                    <input type="number" id="hourlyLimit" class="rule-input hourly-limit-input" value="{{ hourly_assignment_limit if hourly_assignment_limit else '' }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-items">
+                <div class="options">
+                    <div></div>
+                </div>
+                <div class="page-actions">
+                    <div><button id="save">Salvar</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/routing_settings.js"></script>
+
+{% endblock %}
