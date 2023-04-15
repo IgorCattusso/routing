@@ -1,9 +1,10 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session, aliased
-from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, engine, create_engine
-from sqlalchemy.sql import func
+from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, create_engine, update, Table, MetaData
+from sqlalchemy.sql import func, text
 import datetime
 from config import url_object
-from views import *
+from models import ZendeskSchedules
+from datetime import datetime, timedelta
 
 engine = create_engine(url_object)
 
@@ -142,23 +143,110 @@ zendesk_default_user_group(11490525550747)
 #         test = delete(RouteTicketLocales).where(RouteTicketLocales.routes_id == 64).where(RouteTicketLocales.zendesk_locales_id.in_(list))
 #         session.execute(test)
 
-routes_id = 64
-list_of_zendesk_groups_ids = [557, 558, 559, 560]
-
-for group in list_of_zendesk_groups_ids:
-    insert_dict = {'routes_id': routes_id, 'zendesk_groups_id': group}
-
-print(insert_dict)
+# routes_id = 64
+# list_of_zendesk_groups_ids = [557, 558, 559, 560]
+#
+# for group in list_of_zendesk_groups_ids:
+#     insert_dict = {'routes_id': routes_id, 'zendesk_groups_id': group}
+#
+# print(insert_dict)
+#
+# with Session(engine) as session:
+#     try:
+#         session.execute(
+#             insert(RouteTicketGroups), [
+#                 insert_dict
+#             ]
+#         )
+#         session.commit()
+#         print('yay')
+#     except (IntegrityError, FlushError) as error:
+#         error_info = error.orig.args
+#         print(f'There was an error: {error_info}')
+#
+#
+# def get_week_day(minutes):
+#     days = ['1', '2', '3', '4', '5', '6', '7']
+#     day_index = minutes // 1440
+#     day = days[day_index % 7]
+#     return day
+#
+#
+# def get_hour(minutes):
+#     hour = (minutes // 60) % 24
+#     minute = minutes % 60
+#     hour = f'{hour:02d}:{minute:02d}'
+#     return hour
+#
+#
+# def get_starting_hour_column(argument):
+#     switcher = {
+#         1: "sunday_start",
+#         2: "monday_start",
+#         3: "tuesday_start",
+#         4: "wednesday_start",
+#         5: "thursday_start",
+#         6: "friday_start",
+#         7: "saturday_start",
+#     }
+#     return switcher.get(argument, "Invalid input")
+#
+#
+# def get_ending_hour_column(argument):
+#     switcher = {
+#         1: "sunday_end",
+#         2: "monday_end",
+#         3: "tuesday_end",
+#         4: "wednesday_end",
+#         5: "thursday_end",
+#         6: "friday_end",
+#         7: "saturday_end",
+#     }
+#     return switcher.get(argument, "Invalid input")
+#
+#
+# get_week_day(4800)
+# get_hour(4800)
+#
+# # a = switch_case(int(get_week_day(4800)))
+# # print(a)
+# # week_day = int(get_week_day(4800))
+# # week_day_column = switch_case(week_day)
+# # hour = get_hour(4800)
+# #
+# # print(str(getattr(ZendeskSchedules, week_day_column)))
+#
+# with Session(engine) as session:
+#     week_day = int(get_week_day(4800))
+#     week_day_column = switch_case(week_day)
+#     hour = get_hour(4800)
+#     schedule_id = 1
+#
+#     session.execute(
+#         update(ZendeskSchedules),
+#         [
+#             {"id": schedule_id, week_day_column: hour}
+#         ],
+#     )
+#
+#     session.commit()
+#
+#
+# with Session(engine) as session:
+#     ZendeskSchedules.update_day_schedule(session, 1, 4080, 'dasdasdasdas')
+#     session.commit()
 
 with Session(engine) as session:
-    try:
-        session.execute(
-            insert(RouteTicketGroups), [
-                insert_dict
-            ]
-        )
-        session.commit()
-        print('yay')
-    except (IntegrityError, FlushError) as error:
-        error_info = error.orig.args
-        print(f'There was an error: {error_info}')
+    a = ZendeskSchedules.get_schedule(session, 35)
+
+    times_list = []
+
+    for item in a:
+        if type(item) == timedelta:
+            dt = datetime(1, 1, 1, 0, 0) + item
+            times_list.append(dt.strftime("%H:%M:%S"))
+        elif not item:
+            times_list.append(item)
+
+    print(times_list)
+
