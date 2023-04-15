@@ -1,0 +1,50 @@
+{% extends "template.html" %}
+{% block conteudo %}
+
+    <link rel="stylesheet" href="/static/css/tags.css">
+
+    <div class="container">
+        <div class="main-content">
+            <div class="header-wrapper">
+                <h1>Programações</h1>
+            </div>
+            <div id="contentTable" class="content-table">
+                <div class="std-table" id="std-table">
+                    <div class="std-thead" id="thead">
+                        <span class="std-th th-id" data-sortby="id">ID</span>
+                        <span class="std-th th-zendesk-schedule-id" data-sortby="zendesk_schedule_id">ID da Programação no Zendesk</span>
+                        <span class="std-th th-name" data-sortby="name">Nome</span>
+                        <span class="std-th th-timezone" data-sortby="timezone">Timezone</span>
+                    </div>
+                    <div class="std-body scrollable" id="tbody">
+                        {% for schedule in schedules %}
+                            <div class="std-tr" data-id="{{ schedule.id }}">
+                                <span class="std-td std-td-id">{{ schedule.id }}</span>
+                                <span class="std-td std-td-zendesk-schedule-id">{{ schedule.zendesk_schedule_id }}</span>
+                                <span class="std-td std-td-name">{{ schedule.name }}</span>
+                                <span class="std-td std-td-timezone">{{ schedule.timezone }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-items">
+                <div class="options">
+                    <ul class="options-list" id="options-list">
+                        <li id="updateSchedules"><a href="/get-schedules">Atualizar Programações</a></li>
+                    </ul>
+                    <button onclick="toggleOptions()">Opções</button>
+                </div>
+                <div class="page-actions">
+                    <div><button id="seeSchedule" disabled="disabled">Ver Programação</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/schedules.js"></script>
+
+{% endblock %}

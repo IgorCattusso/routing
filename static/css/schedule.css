@@ -1,0 +1,4 @@
+.std-td-start, .std-td-end {
+    margin-left: 1em;
+    margin-right: calc(0px - 1em)
+}

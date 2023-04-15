@@ -1,0 +1,52 @@
+{% extends "template.html" %}
+{% block conteudo %}
+
+    <link rel="stylesheet" href="/css/schedule.css">
+
+    <div class="container">
+        <div class="main-content">
+            <h1>{{ schedule_name }}</h1>
+            <div id="contentTable" class="content-table">
+                <div class="std-table" id="std-table">
+                    <div class="std-thead" id="thead">
+                        <span class="std-th th-timezone" data-sortby="timezone"></span>
+                        <span class="std-th th-weekday" data-sortby="weekday">Domingo</span>
+                        <span class="std-th th-weekday" data-sortby="weekday">Segunda-feira</span>
+                        <span class="std-th th-weekday" data-sortby="weekday">Terça-feira</span>
+                        <span class="std-th th-weekday" data-sortby="weekday">Quarta-feira</span>
+                        <span class="std-th th-weekday" data-sortby="weekday">Quinta-feira</span>
+                        <span class="std-th th-weekday" data-sortby="weekday">Sexta-feira</span>
+                        <span class="std-th th-weekday" data-sortby="weekday">Sábado</span>
+                    </div>
+                    <div class="std-body scrollable" id="tbody">
+                        <div class="std-tr">
+                        <span class="std-td std-td-start">Início</span>
+                        {% for i in range(0, schedule_times_len, 2) %}
+                            <span class="std-td std-td-starting-hour">{{ schedule_times[i] }}</span>
+                        {% endfor %}
+                        </div>
+                        <div class="std-tr">
+                            <span class="std-td std-td-end">Fim</span>
+                            {% for i in range(1, schedule_times_len, 2) %}
+                                <span class="std-td std-td-ending-hour">{{ schedule_times[i] }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-items">
+                <div class="options">
+                </div>
+                <div class="page-actions">
+                    <a href="/schedules"><div><button id="goBackToSchedules">Voltar</button></div></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/schedules.js"></script>
+
+{% endblock %}
