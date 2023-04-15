@@ -318,7 +318,7 @@ def get_schedules():
 
             for interval in schedule['intervals']:
                 schedule_id = ZendeskSchedules.get_id_from_zendesk_schedule_id(session, schedule['id'])
-                ZendeskSchedules.new_insert_schedule_hour(
+                ZendeskSchedules.update_schedule_hours(
                     session,
                     schedule_id,
                     interval['start_time'],

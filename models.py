@@ -626,7 +626,7 @@ class ZendeskSchedules(Base):
             return f'There was an error: {error_info}'
 
     @staticmethod
-    def new_insert_schedule_hour(session, schedule_id, start_time, end_time):
+    def update_schedule_hours(session, schedule_id, start_time, end_time):
         start_parsed_week_day = int(ZendeskSchedules.get_week_day(start_time))
         end_parsed_week_day = int(ZendeskSchedules.get_week_day(end_time))
 
