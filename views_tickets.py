@@ -75,7 +75,7 @@ def get_user_backlog():
                         ticket_status = str(ticket['status'])
                         custom_fields = ticket['custom_fields']
                         for field in custom_fields:
-                            if field['id'] == ZENDESK_TICKET_LEVEL_ID:
+                            if field['id'] == ZENDESK_TICKET_LEVEL_ID:  # Campo Atendimento no Zendesk
                                 ticket_level = str(field['value'])
                                 if ticket_level == 'None':
                                     ticket_level = ''
