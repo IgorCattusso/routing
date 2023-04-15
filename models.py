@@ -494,3 +494,244 @@ class RouteTicketTags(Base):
             return f'There was an error: {error_info}'
 
 
+class GeneralSettings(Base):
+    __tablename__ = "general_settings"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    use_routes: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    routing_model: Mapped[int] = mapped_column(nullable=False)
+    agent_backlog_limit: Mapped[int] = mapped_column(nullable=False)
+    daily_assignment_limit: Mapped[int] = mapped_column(nullable=False)
+    hourly_assignment_limit: Mapped[int] = mapped_column(nullable=False)
+
+    def __repr__(self) -> str:
+        return f'{self.id}, {self.use_routes}, {self.routing_model}, ' \
+               f'{self.agent_backlog_limit}, {self.daily_assignment_limit}'
+
+    @staticmethod
+    def get_settings(session):
+        try:
+            all_settings = session.execute(
+                select(
+                    GeneralSettings.use_routes,
+                    GeneralSettings.routing_model,
+                    GeneralSettings.agent_backlog_limit,
+                    GeneralSettings.daily_assignment_limit,
+                    GeneralSettings.hourly_assignment_limit,
+                )
+            ).all()
+            return all_settings
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def update_settings(session, use_routes, routing_model, agent_backlog_limit,
+                        daily_assignment_limit, hourly_assignment_limit):
+        try:
+            session.execute(
+                update(GeneralSettings)
+                .values(
+                    use_routes=use_routes,
+                    routing_model=routing_model,
+                    agent_backlog_limit=agent_backlog_limit,
+                    daily_assignment_limit=daily_assignment_limit,
+                    hourly_assignment_limit=hourly_assignment_limit,
+                )
+            )
+            return True
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+
+class ZendeskSchedules(Base):
+    __tablename__ = "zendesk_schedules"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    zendesk_schedule_id: Mapped[int] = mapped_column(nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    timezone: Mapped[str] = mapped_column(String(100), nullable=False)
+    sunday_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    sunday_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    monday_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    monday_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    tuesday_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    tuesday_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    wednesday_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    wednesday_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    thursday_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    thursday_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    friday_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    friday_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    saturday_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    saturday_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    def __repr__(self) -> str:
+        return f'{self.id}, {self.name}, {self.timezone}'
+
+    @staticmethod
+    def get_schedules(session):
+        try:
+            all_schedules = session.execute(
+                select(ZendeskSchedules.id,
+                       ZendeskSchedules.zendesk_schedule_id,
+                       ZendeskSchedules.name,
+                       ZendeskSchedules.timezone)
+            ).all()
+            return all_schedules
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_schedule(session, schedule_id):
+        try:
+            schedule = session.execute(
+                select(
+                    ZendeskSchedules.id, ZendeskSchedules.name, ZendeskSchedules.timezone,
+                    ZendeskSchedules.sunday_start, ZendeskSchedules.sunday_end,
+                    ZendeskSchedules.monday_start, ZendeskSchedules.monday_end,
+                    ZendeskSchedules.tuesday_start, ZendeskSchedules.tuesday_end,
+                    ZendeskSchedules.wednesday_start, ZendeskSchedules.wednesday_end,
+                    ZendeskSchedules.thursday_start, ZendeskSchedules.thursday_end,
+                    ZendeskSchedules.friday_start, ZendeskSchedules.friday_end,
+                    ZendeskSchedules.saturday_start, ZendeskSchedules.saturday_end,
+                ).where(ZendeskSchedules.id == schedule_id)
+            ).first()
+            return schedule
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def insert_schedule_hour(session, schedule_id, hour, start_or_end):
+        parsed_week_day = int(ZendeskSchedules.get_week_day(hour))
+        parsed_hour = ZendeskSchedules.get_hour(hour)
+        if start_or_end == 'start_time':
+            week_day_column = ZendeskSchedules.get_starting_hour_column(parsed_week_day)
+        elif start_or_end == 'end_time':
+            week_day_column = ZendeskSchedules.get_ending_hour_column(parsed_week_day)
+        else:
+            raise ValueError(f'Invalid start_or_end parameter.'
+                             f'Expected start_time or end_time, received {str(start_or_end)}')
+
+        try:
+            session.execute(
+                update(ZendeskSchedules),
+                [
+                    {"id": schedule_id, week_day_column: parsed_hour}
+                ],
+            )
+            return True
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def new_insert_schedule_hour(session, schedule_id, start_time, end_time):
+        start_parsed_week_day = int(ZendeskSchedules.get_week_day(start_time))
+        end_parsed_week_day = int(ZendeskSchedules.get_week_day(end_time))
+
+        start_parsed_hour = ZendeskSchedules.get_hour(start_time)
+        end_parsed_hour = ZendeskSchedules.get_hour(end_time)
+
+        start_week_day_column = ZendeskSchedules.get_starting_hour_column(start_parsed_week_day)
+        end_week_day_column = ZendeskSchedules.get_ending_hour_column(end_parsed_week_day)
+
+        try:
+            session.execute(
+                update(ZendeskSchedules),
+                [
+                    {"id": schedule_id, start_week_day_column: start_parsed_hour, end_week_day_column: end_parsed_hour}
+                ],
+            )
+            return True
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_starting_hour_column(argument):
+        switcher = {
+            1: "sunday_start",
+            2: "monday_start",
+            3: "tuesday_start",
+            4: "wednesday_start",
+            5: "thursday_start",
+            6: "friday_start",
+            7: "saturday_start",
+        }
+        return switcher.get(argument, "Invalid input")
+
+    @staticmethod
+    def get_ending_hour_column(argument):
+        switcher = {
+            1: "sunday_end",
+            2: "monday_end",
+            3: "tuesday_end",
+            4: "wednesday_end",
+            5: "thursday_end",
+            6: "friday_end",
+            7: "saturday_end",
+        }
+        return switcher.get(argument, "Invalid input")
+
+    @staticmethod
+    def get_week_day(minutes):
+        days = ['1', '2', '3', '4', '5', '6', '7']
+        day_index = minutes // 1440
+        day = days[day_index % 7]
+        return day
+
+    @staticmethod
+    def get_hour(minutes):
+        hour = (minutes // 60) % 24
+        minute = minutes % 60
+        hour = f'{hour:02d}:{minute:02d}'
+        return hour
+
+    @staticmethod
+    def insert_schedule(session, zendesk_schedule_id, schedule_name, schedule_timezone):
+        try:
+            session.execute(
+                insert(ZendeskSchedules)
+                .values(zendesk_schedule_id=zendesk_schedule_id,
+                        name=schedule_name,
+                        timezone=schedule_timezone,
+                        )
+            )
+            return True
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_id_from_zendesk_schedule_id(session, zendesk_schedule_id):
+        try:
+            schedule_id = session.execute(
+                select(ZendeskSchedules.id).where(ZendeskSchedules.zendesk_schedule_id == zendesk_schedule_id)
+            ).scalar()
+            return schedule_id
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def check_for_existing_schedule(session, zendesk_schedule_id):
+        try:
+            schedule_id = session.execute(
+                select(ZendeskSchedules.id).where(ZendeskSchedules.zendesk_schedule_id == zendesk_schedule_id)
+            ).first()
+            if schedule_id:
+                return True
+            else:
+                return False
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
