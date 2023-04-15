@@ -34,7 +34,7 @@ setTimeout(function() {
             fieldInputField.id = item.value
             const selectedFormInputField = fieldInputField.id
             // Get the fields of the selected field
-            fetch('../fields/get-field-fields/' + selectedFormInputField)
+            fetch('../fields/get-form-fields/' + selectedFormInputField)
                 .then(response => response.json())
                 .then(data => {
                     // Removing the existing fields before displaying the fetched ones
