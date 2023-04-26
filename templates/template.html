@@ -1,79 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Zendesk Routing</title>
-    <link rel="icon" type="image/png" href="/static/img/favicon.png">
-    <link rel="stylesheet" href="/static/css/app.css">
-    <link rel="stylesheet" href="/static/css/reset.css">
-</head>
-<body>
-<div class="wrapper">
-    <div class="nav-bar">
-        <ul class="accordion-menu">
-            <li onclick="window.location.href='/'">
-                <div class="no-dropdown-link">
-                    <div><img src="/static/img/home.png" alt="Home" class="menu-img"></div>
-                    <div><span class="no-dropdown-link-text">Home</span></div>
-                </div>
-            </li>
-            <li onclick="window.location.href='/routes'">
-                <div class="no-dropdown-link">
-                    <div><img src="/static/img/star.png" alt="Rotas" class="menu-img"></div>
-                    <div><span class="no-dropdown-link-text">Rotas</span></div>
-                </div>
-            </li>
-            <li>
-                <div class="dropdown-link">
-                    <div><img src="/static/img/person.png" alt="Usuários" class="menu-img"></div>
-                    <div><span class="dropdown-link-text">Usuários</span></div>
-                </div>
-                <ul class="submenu-Items">
-                    <li><a href="/users">Usuários</a></li>
-                    <li><a href="/groups">Grupos</a></li>
+    <head>
+        <meta charset="UTF-8">
+        <title>Zendesk Routing</title>
+        <link rel="icon" type="image/png" href="/static/img/favicon.png">
+        <link rel="stylesheet" href="/static/css/app.css">
+        <link rel="stylesheet" href="/static/css/reset.css">
+    </head>
+    <body>
+        <div class="wrapper">
+            <div class="nav-bar">
+                <ul class="accordion-menu">
+                <span>{{ session['_user_id'] }}</span>
+                    {% if session['logged_in'] == True %}
+                        <label for="userId"></label>
+                        <input id="userId" type="text" value="{{ session['_user_id'] }}" style="display: none">
+                        <li>
+                            <a href="/change-status">
+                                <div class="dropdown-link">
+                                    {% if session['routing_status'] == 1 %}
+                                        <svg viewBox="0 0 210 210" width="24px" height="24px" xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <radialGradient gradientUnits="userSpaceOnUse" cx="105" cy="105" r="100" id="gradient-0" gradientTransform="matrix(-0.88656, 0, 0, -1, 198.088773, 210.000024)">
+                                                    <stop offset="0" style="stop-color: rgba(187, 218, 85, 1)"></stop>
+                                                    <stop offset="1" style="stop-color: rgb(0, 128, 0);"></stop>
+                                                </radialGradient>
+                                            </defs>
+                                            <ellipse style="stroke: rgb(0, 0, 0); paint-order: fill; fill-rule: nonzero; fill: url(#gradient-0);" cx="105" cy="105" rx="100" ry="100"></ellipse>
+                                        </svg>
+                                        {% else %}
+                                        <svg viewBox="0 0 210 210" width="24px" height="24px" xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <radialGradient gradientUnits="userSpaceOnUse" cx="105" cy="105" r="100" id="gradient-1" gradientTransform="matrix(-0.849568, -0.006165, 0.007257, -0.999974, 193.442734, 210.644584)">
+                                                    <stop offset="0" style="stop-color: rgba(255, 187, 0, 1)"></stop>
+                                                    <stop offset="1" style="stop-color: rgba(153, 112, 0, 1)"></stop>
+                                                </radialGradient>
+                                            </defs>
+                                            <ellipse style="stroke: rgb(0, 0, 0); fill: url(#gradient-1); paint-order: stroke;" cx="105" cy="105" rx="100" ry="100"></ellipse>
+                                        </svg>
+                                    {% endif %}
+
+                                    {% if session['routing_status'] == 1 %}
+                                        <div><span class="dropdown-link-text" id="userStatus">Online</span></div>
+                                    {% else %}
+                                        <div><span class="dropdown-link-text" id="userStatus">Ausente</span></div>
+                                    {% endif %}
+                                </div>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <li onclick="window.location.href='/'">
+                        <div class="no-dropdown-link">
+                            <div><img src="/static/img/home.png" alt="Home" class="menu-img"></div>
+                            <div><span class="no-dropdown-link-text">Home</span></div>
+                        </div>
+                    </li>
+                    <li onclick="window.location.href='/routes'">
+                        <div class="no-dropdown-link">
+                            <div><img src="/static/img/star.png" alt="Rotas" class="menu-img"></div>
+                            <div><span class="no-dropdown-link-text">Rotas</span></div>
+                        </div>
+                    </li>
+                    <li onclick="window.location.href='/users'">
+                        <div class="dropdown-link">
+                            <div><img src="/static/img/person.png" alt="Usuários" class="menu-img"></div>
+                            <div><span class="dropdown-link-text">Usuários</span></div>
+                        </div>
+                    </li>
+                    <li onclick="window.location.href='/routing-settings'">
+                        <div class="dropdown-link">
+                            <div><img src="/static/img/settings.png" alt="Configurações" class="menu-img"></div>
+                            <div><span class="dropdown-link-text">Configurações</span></div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-link">
+                            <svg fill="#ffffff" width="28px" height="28px" viewBox="0 0 14 14" role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff" stroke-width="0.00014">
+                                <path d="m 6.5425,11.5475 -5.5425,0 5.5425,-6.6915 0,6.6915 z m 6.4575,0 -5.5425,0 c 0,-1.5315 1.2395,-2.7715 2.7715,-2.7715 1.5315,0 2.771,1.241 2.771,2.7715 z m -5.5425,-2.402 0,-6.693 5.5425,0 -5.5425,6.693 z M 6.5425,2.4525 C 6.5425,3.983 5.302,5.2245 3.771,5.2245 2.241,5.2245 1,3.984 1,2.4535 l 5.5425,0 0,-10e-4 z"></path>
+                            </svg>
+                            <div><span class="dropdown-link-text">Zendesk</span></div>
+                        </div>
+                        <ul class="submenu-Items">
+                            <li><a href="/zendesk-ticket-forms">Formulários</a></li>
+                            <li><a href="/zendesk-locales">Localidades</a></li>
+                            <li><a href="/zendesk-schedules">Programação</a></li>
+                            <li><a href="/zendesk-tags">Tags</a></li>
+                            <li><a href="/zendesk-users">Usuários</a></li>
+                            <li><a href="/zendesk-groups">Grupos</a></li>
+                        </ul>
+                    </li>
                 </ul>
-            </li>
-            <li>
-                <div class="dropdown-link">
-                    <div><img src="/static/img/settings.png" alt="Configurações" class="menu-img"></div>
-                    <div><span class="dropdown-link-text">Configurações</span></div>
+
+                <div class="accordion-menu login-logout">
+                    {% if session['logged_in'] == True %}
+                        <ul>
+                            <li>
+                                <a href="/logout">
+                                    <div class="dropdown-link">
+                                        <div><img src="/static/img/key.png" alt="Logout" class="menu-img"></div>
+                                        <div><span class="dropdown-link-text">Logout</span></div>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    {% else %}
+                        <ul>
+                            <li>
+                                <a href="/login">
+                                    <div class="dropdown-link">
+                                        <div><img src="/static/img/key.png" alt="Login" class="menu-img"></div>
+                                        <div><span class="dropdown-link-text">Login</span></div>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    {% endif %}
                 </div>
-                <ul class="submenu-Items">
-                    <li><a href="/routing-settings">Routing</a></li>
-                </ul>
-            </li>
-            <li>
-                <div class="dropdown-link">
-                    <svg fill="#ffffff" width="28px" height="28px" viewBox="0 0 14 14" role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff" stroke-width="0.00014">
-                        <path d="m 6.5425,11.5475 -5.5425,0 5.5425,-6.6915 0,6.6915 z m 6.4575,0 -5.5425,0 c 0,-1.5315 1.2395,-2.7715 2.7715,-2.7715 1.5315,0 2.771,1.241 2.771,2.7715 z m -5.5425,-2.402 0,-6.693 5.5425,0 -5.5425,6.693 z M 6.5425,2.4525 C 6.5425,3.983 5.302,5.2245 3.771,5.2245 2.241,5.2245 1,3.984 1,2.4535 l 5.5425,0 0,-10e-4 z"></path>
-                    </svg>
-                    <div><span class="dropdown-link-text">Zendesk</span></div>
-                </div>
-                <ul class="submenu-Items">
-                    <li><a href="/ticket-forms">Formulários</a></li>
-                    <li><a href="/locales">Localidades</a></li>
-                    <li><a href="/schedules">Programação</a></li>
-                    <li><a href="/tags">Tags</a></li>
-                </ul>
-            </li>
-        </ul>
-    </div>
+            </div>
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul id="messages" class="list-unstyled">
-                {% for message in messages %}
-                    <li class="alert alert-success">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul id="messages" class="list-unstyled">
+                        {% for message in messages %}
+                            <li class="alert alert-success">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
 
-    {% block conteudo %}{% endblock %}
+            {% block conteudo %}{% endblock %}
 
-    <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
-    <script src="/static/js/app.js"></script>
+            <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
+            <script src="/static/js/app.js"></script>
+            <script src="/static/js/notification.js"></script>
 
-</div>
-</body>
+        </div>
+    </body>
 </html>

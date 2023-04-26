@@ -29,7 +29,7 @@ button.addEventListener("click", function () {
         }
     }
     if (selectedRowIDs.length === 1) {
-        window.location.href = `/schedule/${selectedRowIDs[0]}`;
+        window.location.href = `/zendesk-schedule/${selectedRowIDs[0]}`;
     } else {
         button.setAttribute("disabled", true);
     }

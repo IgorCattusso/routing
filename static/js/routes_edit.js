@@ -18,7 +18,7 @@ groupRadio.addEventListener('click', () => {
 });
 
 
-// On Recipients, when selecting Users, this function it will deselect all Groups and vice-versa
+// On Recipients, when selecting User, this function it will deselect all Groups and vice-versa
 // On Tickets, when deselecting the groups of rules (locales, groups, organizations, etc.), this will deselect the options selected in that group
 $(document).ready(function () {
     $('#recipient-users').click(function () {

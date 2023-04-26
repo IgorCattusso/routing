@@ -1,3 +1,7 @@
+/** {*/
+/*    outline: 1px solid limegreen !important;*/
+/*}*/
+
 html {
     font-size: 16px;
     font-family: Montserrat, sans-serif;
@@ -114,6 +118,9 @@ a {
     height: 100vh;
     color: white;
     background-color: #040C26;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .container {
@@ -193,7 +200,6 @@ a {
     max-height: 25rem;
     display: block;
     overflow: auto;
-    width: 99.99%;
 }
 
 .th-id, .std-td-id {
@@ -347,4 +353,12 @@ a {
 
 #new, #save {
     background-color: #38853d;
+}
+
+.login-logout {
+    margin-bottom: 0;
+}
+
+.login-logout:hover {
+    background-color: #54618D;
 }

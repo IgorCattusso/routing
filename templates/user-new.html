@@ -1,0 +1,110 @@
+{% extends "template.html" %}
+{% block conteudo %}
+
+    <label>
+        <input id="userId" hidden="hidden" value="{{ user_id }}">
+    </label>
+
+    <link rel="stylesheet" href="/static/css/user.css">
+
+    <div class="container">
+        <div class="main-content">
+            <h1>Novo usuário</h1>
+            <div id="contentTable" class="content-table scrollable">
+                <h2>Dados do usuário</h2>
+                <div class="user-data-wrapper">
+                    <div onclick="toggleCheckbox()" class="user-status-container user-data-container" id="userStatusContainer">
+                        <h3 class="user-status-title subtitle-container">Status do usuário</h3>
+                        <div class="user-status-slider-container">
+                            <input type="checkbox" id="userStatus" class="active-input" checked="checked"/>
+                            <label id="active-label" class="active-label" for="userStatus"></label>
+                        </div>
+                    </div>
+                    <div class="user-name-container user-data-container" id="userNameContainer">
+                        <h3 class="user-name-title">Nome do usuário</h3>
+                        <input type="text" id="userName" class="form-item-input-text rule-input"/>
+                        <label class="user-name-input" for="userName"></label>
+                    </div>
+                    <div class="user-email-container user-data-container" id="userEmailContainer">
+                        <h3 class="user-email-title">E-mail do usuário</h3>
+                        <input type="text" id="userEmail" class="form-item-input-text rule-input"/>
+                        <label class="user-email-input" for="userEmail"></label>
+                    </div>
+                </div>
+
+                <h2 class="zendesk-bind-title">Vínculo com o Zendesk</h2>
+                <div class="zendesk-settings-wrapper">
+                    <div id="zendeskUsersWrapper" class="zendesk-users-filter-container filter-container">
+                        <h3 class="zendesk-bind-sub-title">Agente correspondente do Usuário no Zendesk</h3>
+                        <div class="dropdown-menu-button-container">
+                            <form>
+                                <label aria-label="Selecione">
+                                    <input id="userZendeskUsersId" class="chosen-value chosen-form-value zendesk-users-id-chosen-value" type="text" value="" placeholder="Selecione">
+                                </label>
+                                <ul id="zendeskUserId" class="user-values-list values-list">
+                                    {% for user in zendesk_users %}
+                                        <li class="user-dropdown-menu-option dropdown-menu-option" id={{ user.id }} value={{ user.id }}>{{ user.zendesk_user_id }} - {{ user.email }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div id="zendeskSchedulesWrapper" class="zendesk-schedules-filter-container filter-container">
+                        <h3 class="zendesk-bind-sub-title">Programação do usuário</h3>
+                        <div class="dropdown-menu-button-container">
+                            <form>
+                                <label aria-label="Selecione">
+                                    <input id="userZendeskSchedulesId" class="chosen-value chosen-form-value zendesk-schedules-id-chosen-value" type="text" value="" placeholder="Selecione">
+                                </label>
+                                <ul id="zendeskSchedulesId" class="schedule-values-list values-list">
+                                    {% for schedule in zendesk_schedules %}
+                                        <li class="schedule-dropdown-menu-option dropdown-menu-option" id={{ schedule.id }} value={{ schedule.id }}>{{ schedule.name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div id="latamUserWrapper" class="latam-user-filter-container filter-container">
+                        <h3 class="zendesk-bind-sub-title">Usuário LATAM?</h3>
+                        <div class="selector-container">
+                            <div class="selector-option-container">
+                                <input class="radio-selector" type="radio" id="latam-yes" name="latam-user" value="latam-yes">
+                                <label class="radio-selector-label" for="latam-yes">Sim</label>
+                            </div>
+                            <div class="selector-option-container">
+                                <input class="radio-selector" type="radio" id="latam-no" name="latam-user" value="latam-no">
+                                <label class="radio-selector-label" for="latam-no">Não</label>
+                            </div>
+                            <div class="selector-option-container">
+                                <input class="radio-selector" type="radio" id="latam-both" name="latam-user" value="latam-both">
+                                <label class="radio-selector-label" for="latam-both">Ambos</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-items">
+                <div class="options">
+                    <div></div>
+                </div>
+                <div class="page-actions">
+                    <a href="/users">
+                        <div>
+                            <button id="goBackToUsers">Voltar</button>
+                        </div>
+                    </a>
+                    <div><button id="save">Salvar</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/users_edit.js"></script>
+    <script src="/static/js/users_save.js"></script>
+
+{% endblock %}

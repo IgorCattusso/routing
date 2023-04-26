@@ -1,12 +1,11 @@
-from helpers import *
-from config import *
-from app import app
-from models import *
-from sqlalchemy import create_engine, select, update, and_, or_, delete
+from config import API_BASE_URL, ZENDESK_TICKET_LEVEL_ID
+import requests
+from models import ZendeskTickets, ZendeskUsers, ZendeskUserBacklog
+from helpers import generate_zendesk_headers, generate_assign_tickets_json
+from app import app, engine
+from sqlalchemy import select, update, and_, or_, delete
 from sqlalchemy.orm import Session
 import time
-
-engine = create_engine(url_object)
 
 
 @app.route('/get-tickets-to-be-assigned')

@@ -1,12 +1,9 @@
-from helpers import *
-from app import app
-from models import *
-from sqlalchemy import create_engine, select, insert, case, update, delete, exists, text
-from sqlalchemy.orm import Session, sessionmaker
-from flask import render_template, request, redirect, url_for, abort
+from app import app, engine
+from models import ZendeskGroups, ZendeskGroupMemberships, ZendeskUsers, ZendeskLocales, ZendeskTicketForms, ZendeskTags, ZendeskTicketFields, ZendeskTicketFieldsInForms, Routes, RouteRecipientType, RouteRecipientUsers, RouteRecipientGroups, RouteTicketTags, RouteTicketLocales, RouteTicketGroups
+from sqlalchemy import select, insert, update, delete, func
+from sqlalchemy.orm import Session
+from flask import render_template, request, abort
 import time
-
-engine = create_engine(url_object)
 
 
 @app.route('/routes/new')
@@ -128,7 +125,7 @@ def insert_new_route():
                             )
                             session.flush()
                     else:
-                        abort(422, 'No recipient received, please select Users or Groups as recipients for the route')
+                        abort(422, 'No recipient received, please select User or Groups as recipients for the route')
 
             for tag in data['ticket_tags']:
                 session.execute(
@@ -335,7 +332,7 @@ def update_existing_route(route_id):
                                         )
 
                     # Delete any Recipient Groups bound to the Route, because,
-                    # as of this point, we know it was saved with Users instead
+                    # as of this point, we know it was saved with User instead
                     session.execute(delete(RouteRecipientGroups).where(RouteRecipientGroups.routes_id == route_id))
 
                     # If by any chance there's no record on the route_recipient_type table, insert it
@@ -413,7 +410,7 @@ def update_existing_route(route_id):
                                             .values(recipient_type=1)
                                             )
 
-                        # Delete any Recipient Users bound to the Route, because,
+                        # Delete any Recipient User bound to the Route, because,
                         # as of this point, we know it was saved with groups instead
                         session.execute(delete(RouteRecipientUsers).where(RouteRecipientUsers.routes_id == route_id))
 
@@ -470,7 +467,7 @@ def update_existing_route(route_id):
                         session.commit()
 
                     else:
-                        abort(422, 'No recipient received, please select Users or Groups as recipients for the route')
+                        abort(422, 'No recipient received, please select User or Groups as recipients for the route')
 
         if data['ticket_tags']:
             with Session(engine) as session:

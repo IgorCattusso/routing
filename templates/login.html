@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/css/login.css">
+</head>
+    <body>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul id="messages" class="list-unstyled">
+                    {% for message in messages %}
+                        <li class="alert alert-success">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <div class="wrapper">
+            <div class="title-container">
+                <img class="login-logo" src="/static/img/favicon.png" alt="logo">
+                <h1 class="login-title">Login</h1>
+            </div>
+            <form action="{{ url_for('login') }}" method="post" class="login-form">
+                {{ form.hidden_tag() }}
+                <div class="email-container">
+                    {{ form.email.label }}
+                    {{ form.email(size=255) }}
+                </div>
+                <div class="password-container">
+                    {{ form.password.label }}
+                    {{ form.password(size=255) }}
+                </div>
+                <div class="submit-container">
+                    {{ form.submit() }}
+                </div>
+            </form>
+
+        </div>
+
+
+    </body>
+</html>

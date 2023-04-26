@@ -1,6 +1,8 @@
 {% extends "template.html" %}
 {% block conteudo %}
 
+    <link rel="stylesheet" href="/static/css/user.css">
+
     <div class="container">
         <div class="main-content">
             <h1>Usuários</h1>
@@ -10,15 +12,61 @@
                         <span class="std-th th-id" data-sortby="id">ID</span>
                         <span class="std-th th-zendesk-user-id" data-sortby="zendesk_user_id">ID do Usuário no Zendesk</span>
                         <span class="std-th th-name" data-sortby="name">Nome</span>
-                        <span class="std-th th-email" data-sortby="name">E-mail</span>
+                        <span class="std-th th-email" data-sortby="email">Email</span>
+                        <span class="std-th th-status" data-sortby="status">Status</span>
                     </div>
                     <div class="std-body scrollable" id="tbody">
-                        {% for user in users %}
-                            <div class="std-tr" data-id="{{ user.ZendeskUsers.id }}">
-                                <span class="std-td std-td-id">{{ user.ZendeskUsers.id }}</span>
-                                <span class="std-td std-td-zendesk-user-id">{{ user.ZendeskUsers.zendesk_user_id }}</span>
-                                <span class="std-td std-td-name">{{ user.ZendeskUsers.name }}</span>
-                                <span class="std-td std-td-name">{{ user.ZendeskUsers.email }}</span>
+                        {% for user in all_users %}
+                            <div class="std-tr" data-id="{{ user.id }}">
+                                <span class="std-td std-td-id">{{ user.id }}</span>
+                                {% if user.zendesk_user_id %}
+                                    <span class="std-td std-td-zendesk-user-id">{{ user.zendesk_user_id }}</span>
+                                {% else %}
+                                    <span class="std-td std-td-zendesk-user-id"></span>
+                                {% endif %}
+                                <span class="std-td std-td-name">{{ user.name }}</span>
+                                <span class="std-td std-td-email">{{ user.email }}</span>
+
+                                {% if user.routing_status == 0 %}
+                                    <div class="std-td std-td-status status-container">
+                                        <svg viewBox="0 0 210 210" width="12px" height="12px" xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <radialGradient gradientUnits="userSpaceOnUse" cx="105" cy="105" r="100" id="gradient-offline" gradientTransform="matrix(-0.801567, 0.006527, -0.008143, -0.999967, 190.019542, 209.311145)">
+                                                <stop offset="0" style="stop-color: rgba(154, 154, 154, 1)"></stop>
+                                                <stop offset="1" style="stop-color: rgb(96, 96, 96);"></stop>
+                                                </radialGradient>
+                                            </defs>
+                                            <ellipse style="stroke: rgb(0, 0, 0); fill: url(#gradient-offline);" cx="105" cy="105" rx="100" ry="100"></ellipse>
+                                        </svg>
+                                        <span class="std-td std-td-status">Offline</span>
+                                    </div>
+                                {% elif user.routing_status == 1 %}
+                                    <div class="std-td std-td-status status-container">
+                                        <svg viewBox="0 0 210 210" width="12px" height="12px" xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <radialGradient gradientUnits="userSpaceOnUse" cx="105" cy="105" r="100" id="gradient-online" gradientTransform="matrix(-0.801567, 0.006527, -0.008143, -0.999967, 190.019542, 209.311145)">
+                                                    <stop offset="0" style="stop-color: rgba(187, 218, 85, 1)"></stop>
+                                                    <stop offset="1" style="stop-color: rgb(0, 128, 0);"></stop>
+                                                </radialGradient>
+                                            </defs>
+                                            <ellipse style="stroke: rgb(0, 0, 0); fill: url(#gradient-online);" cx="105" cy="105" rx="100" ry="100"></ellipse>
+                                        </svg>
+                                        <span class="std-td std-td-status">Online</span>
+                                    </div>
+                                {% else %}
+                                    <div class="std-td std-td-status status-container">
+                                        <svg viewBox="0 0 210 210" width="12px" height="12px" xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <radialGradient gradientUnits="userSpaceOnUse" cx="105" cy="105" r="100" id="gradient-away" gradientTransform="matrix(-0.801567, 0.006527, -0.008143, -0.999967, 190.019542, 209.311145)">
+                                                    <stop offset="0" style="stop-color: rgba(255, 187, 0, 1)"></stop>
+                                                    <stop offset="1" style="stop-color: rgba(153, 112, 0, 1)"></stop>
+                                                </radialGradient>
+                                            </defs>
+                                            <ellipse style="stroke: rgb(0, 0, 0); fill: url(#gradient-away);" cx="105" cy="105" rx="100" ry="100"></ellipse>
+                                        </svg>
+                                        <span class="std-td std-td-status">Ausente</span>
+                                    </div>
+                                {% endif %}
                             </div>
                         {% endfor %}
                     </div>
@@ -29,13 +77,17 @@
         <div class="footer">
             <div class="footer-items">
                 <div class="options">
-                    <ul class="options-list" id="options-list">
-                        <li><a href="/get-users">Atualizar Usuários</a></li>
-                    </ul>
-                    <button onclick="toggleOptions()">Opções</button>
+                </div>
+                <div class="page-actions">
+                    <div><button id="delete" disabled="disabled">Excluir</button></div>
+                    <div><button id="edit" disabled="disabled">Editar</button></div>
+                    <div><a href="/users/new"><button id="new">+ Novo</button></a></div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script src="/static/js/users.js"></script>
+
 
 {% endblock %}

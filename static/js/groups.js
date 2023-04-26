@@ -29,7 +29,7 @@ button.addEventListener("click", function () {
         }
     }
     if (selectedRowIDs.length === 1) {
-        window.location.href = `/users-in-group/${selectedRowIDs[0]}`;
+        window.location.href = `/zendesk-users-in-group/${selectedRowIDs[0]}`;
     } else {
         button.setAttribute("disabled", true);
     }
@@ -39,11 +39,11 @@ button.addEventListener("click", function () {
 document.addEventListener('DOMContentLoaded', function () {
     const updateGroups = document.getElementById('updateGroups');
     updateGroups.addEventListener('click', function () {
-        window.location.href = '/get-groups';
+        window.location.href = '/get-zendesk-groups';
     });
 
     const updateGroupMemberships = document.getElementById('updateGroupMemberships');
     updateGroupMemberships.addEventListener('click', function () {
-        window.location.href = '/get-group-memberships';
+        window.location.href = '/get-zendesk-group-memberships';
     });
 });

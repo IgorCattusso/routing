@@ -1,18 +1,16 @@
-from views import *
-from helpers import *
-from config import *
-from app import app
-from models import *
-from sqlalchemy import create_engine, select, case, desc
+from config import API_BASE_URL
+from models import ZendeskGroups, ZendeskGroupMemberships, ZendeskUsers
+from helpers import generate_zendesk_headers, match_false_true
+import requests
+from app import app, engine
+from sqlalchemy import select, case
 from sqlalchemy.orm import Session
 from flask import render_template, flash, redirect, url_for
 import time
 
-engine = create_engine(url_object)
 
-
-@app.route('/get-groups')
-def get_groups():
+@app.route('/get-zendesk-groups')
+def get_zendesk_groups():
     zendesk_endpoint_url = '/api/v2/groups.json?page=1'
     api_url = API_BASE_URL + zendesk_endpoint_url
 
@@ -43,14 +41,14 @@ def get_groups():
 
     if inserted_groups:
         flash(f'Grupos inseridos: {str(inserted_groups)}')
-        return redirect(url_for('groups'))
+        return redirect(url_for('zendesk_groups'))
     else:
         flash(f'Nenhum grupo inserido!')
-        return redirect(url_for('groups'))
+        return redirect(url_for('zendesk_groups'))
 
 
-@app.route('/get-all-group-memberships')
-def get_all_group_memberships():
+@app.route('/get-all-zendesk-group-memberships')
+def get_all_zendesk_group_memberships():
     zendesk_endpoint_url = f'/api/v2/group_memberships.json?page=1'
     api_url = API_BASE_URL + zendesk_endpoint_url
 
@@ -93,14 +91,14 @@ def get_all_group_memberships():
 
     if inserted_users_and_groups:
         flash(f'Relação de usuários inseridos: {str(inserted_users_and_groups)}')
-        return redirect(url_for('groups'))
+        return redirect(url_for('zendesk_groups'))
     else:
         flash(f'Nenhuma relação inserida!')
-        return redirect(url_for('groups'))
+        return redirect(url_for('zendesk_groups'))
 
 
-@app.route('/get-group-memberships/<int:group_id>')
-def get_group_memberships(group_id):
+@app.route('/get-zendesk-group-memberships/<int:group_id>')
+def get_zendesk_group_memberships(group_id):
     with Session(engine) as session:
         stmt = select(ZendeskGroups.zendesk_group_id) \
             .where(ZendeskGroups.id == group_id)
@@ -148,14 +146,14 @@ def get_group_memberships(group_id):
 
     if inserted_users_and_groups:
         flash(f'Usuários inseridos: {str(inserted_users_and_groups)}')
-        return redirect(url_for('get_users_in_group', group_id=group_id))
+        return redirect(url_for('get_zendesk_users_in_group', group_id=group_id))
     else:
         flash(f'Nenhum usuário inserido!')
-        return redirect(url_for('get_users_in_group', group_id=group_id))
+        return redirect(url_for('get_zendesk_users_in_group', group_id=group_id))
 
 
-@app.route('/users-in-group/<int:group_id>')
-def get_users_in_group(group_id):
+@app.route('/zendesk-users-in-group/<int:group_id>')
+def get_zendesk_users_in_group(group_id):
     stmt = select(
         ZendeskGroupMemberships.id,
         ZendeskGroupMemberships.group_id_on_zendesk,
@@ -178,7 +176,7 @@ def get_users_in_group(group_id):
     time.sleep(.35)
 
     if group:
-        return render_template('users-in-group.html',
+        return render_template('zendesk-users-in-group.html',
                                titulo='Groups',
                                group_memberships=group_memberships,
                                group_name=group.group_name,
@@ -188,7 +186,7 @@ def get_users_in_group(group_id):
         with Session(engine) as session:
             stmt = select(ZendeskGroups.name).where(ZendeskGroups.id == group_id)
             group_name = session.execute(stmt).scalar()
-        return render_template('users-in-group.html',
+        return render_template('zendesk-users-in-group.html',
                                titulo='Groups',
                                group_memberships=group_memberships,
                                group_name=group_name,

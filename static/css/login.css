@@ -1,0 +1,64 @@
+#email, #password {
+    max-width: 30em;
+    width: 30em;
+    height: 40px;
+    padding: .5em 2em;
+}
+
+#submit {
+    height: 40px;
+    width: calc(30em + 1em);
+    border-radius: 20px;
+    cursor: pointer;
+    background-color: #38853d;
+    color: white;
+    font-weight: bold;
+}
+
+label {
+    display: none;
+}
+
+input {
+    border: none;
+    background-color: #f3f3f3;
+    border-radius: 10px;
+}
+
+input:focus-visible {
+    outline-style: none;
+}
+
+input:focus-visible {
+    outline-style: none;
+}
+
+.submit-container {
+    margin-top: 1em;
+
+}
+
+.password-container {
+    margin-top: .5em;
+}
+
+.wrapper {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    padding: 20px;
+}
+
+.login-title {
+    font-family: helvetica, serif;
+}
+
+.login-logo {
+    margin-top: calc(0px - 100px);
+}
+
+.title-container {
+    margin-bottom: 2em;
+}

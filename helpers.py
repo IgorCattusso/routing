@@ -1,13 +1,25 @@
 import base64
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
-from config import *
-from models import *
-from sqlalchemy import create_engine
-import requests
 from flask_wtf import FlaskForm
-from wtforms import validators, StringField, SubmitField, PasswordField, BooleanField
+from wtforms import validators, StringField, SubmitField, PasswordField
+from config import *
+import requests
 
-engine = create_engine(url_object)
+
+class UserForm(FlaskForm):
+    email = StringField(
+        'E-mail',
+        [validators.DataRequired(),
+         validators.Length(min=1, max=150)],
+        render_kw={"placeholder": "E-mail"}
+    )
+    password = PasswordField(
+        'Senha',
+        [validators.DataRequired(),
+         validators.Length(min=1, max=150)],
+        render_kw={"placeholder": "Senha"}
+    )
+    submit = SubmitField('LOGIN')
 
 
 def generate_zendesk_headers():
