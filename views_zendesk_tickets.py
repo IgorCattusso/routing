@@ -157,19 +157,3 @@ def get_user_backlog():
                f'Tickets removidos: {str(deleted_backlog)}'
     else:
         return f'Nenhum backlog alterado!'
-
-
-@app.route('/assign-tickets')
-def assign_tickets():
-    pass
-
-
-@app.route('/update-ticket')
-def update_ticket(ticket_id, zendesk_user_id):
-    zendesk_endpoint_url = f'/api/v2/tickets/{ticket_id}'
-    api_url = API_BASE_URL + zendesk_endpoint_url
-
-    request_json = generate_assign_tickets_json(zendesk_user_id)
-    api_response = requests.put(api_url, json=request_json, headers=generate_zendesk_headers()).json()
-
-    return api_response['ticket']['status']
