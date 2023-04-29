@@ -45,25 +45,6 @@ def match_false_true(value):
             return 0
 
 
-def generate_assign_tickets_json(zendesk_user_id):
-    try:
-        json = \
-            {
-                "ticket": {
-                    "status": "open",
-                    "assignee_id": zendesk_user_id
-                }
-            }
-
-        return json
-
-    except NoResultFound:
-        return 'Usuário não possui grupo padrão ou não está cadastrado!'
-
-    except MultipleResultsFound:
-        return 'Usuário possui mais de um registro de grupo padrão!'
-
-
 def get_ticket_requester_locale(requester_id):
     zendesk_endpoint_url = f'/api/v2/users/{requester_id}'
     api_url = API_BASE_URL + zendesk_endpoint_url
