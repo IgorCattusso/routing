@@ -992,13 +992,16 @@ class Users(Base):
             user = db_session.execute(
                 select(
                     Users.id,
-                    ZendeskUsers.zendesk_user_id,
                     Users.name,
                     Users.email,
                     Users.active,
+                    Users.deleted,
+                    Users.authenticated,
+                    Users.routing_status,  # 0 = offline | 1 = online | 2 = away
                     Users.zendesk_users_id,
+                    ZendeskUsers.zendesk_user_id,
                     Users.zendesk_schedules_id,
-                    Users.latam_user,
+                    Users.latam_user,  # 0 = no | 1 = yes | 2 = both
                 ).where(Users.id == user_id)
                 .join(ZendeskUsers, isouter=True)
             ).first()
