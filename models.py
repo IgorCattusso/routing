@@ -1431,6 +1431,19 @@ class UsersQueue(Base):
             return f'There was an error: {error_info}'
 
     @staticmethod
+    def delete_user_from_queue(db_session, users_id):
+        try:
+            UsersQueue.remove_user_from_queue(db_session, users_id)
+            db_session.execute(
+                delete(UsersQueue).where(UsersQueue.users_id == users_id)
+            )
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
     def move_user_to_queue_end(db_session, users_id):
         try:
             current_user = db_session.execute(
