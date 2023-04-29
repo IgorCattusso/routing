@@ -1,8 +1,6 @@
 // Sets an interval to check for new notifications every 5 seconds
-let counter = 0;
 setInterval(function () {
     notify();
-    counter++;
 }, 5000);
 
 // Check for notifications permission and prompts the user for it if it's not allowed
@@ -35,7 +33,7 @@ const newTicketNotificationSound = new Audio('/static/snd/new_ticket_notificatio
 function notification(userId) {
     $.ajax({
         type: 'GET', // Get notifications
-        url: 'get-users-next-notification/' + userId.value,
+        url: '/get-users-next-notification/' + userId.value,
         success: function (get_notification_response, xhr, textStatus) {
             // console.log('get-users-next-notification-status: ' + textStatus.status)
             if (textStatus.status === 200) { // If a notification was received
@@ -45,7 +43,7 @@ function notification(userId) {
                 }
                 $.ajax({
                     type: 'PUT', // Set's the notification as received
-                    url: 'flag-notification-as-sent/' + get_notification_response['id'],
+                    url: '/flag-notification-as-sent/' + get_notification_response['id'],
                     success: function (flag_as_sent_response, xhr, textStatus) {
                         // console.log('flag-notification-as-sent-status: ' + textStatus.status)
                         if (textStatus.status === 200) {  // If a notification was successfully flagged as received
@@ -67,7 +65,7 @@ function notification(userId) {
                             // Sets the notification as received
                             $.ajax({
                                 type: 'PUT',
-                                url: 'flag-notification-as-received/' + get_notification_response['id'],
+                                url: '/flag-notification-as-received/' + get_notification_response['id'],
                                 success: function (flag_as_received_response, xhr, textStatus) {
                                     // console.log('flag-notification-as-received-status: ' + textStatus.status)
                                 },
