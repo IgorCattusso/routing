@@ -1,10 +1,10 @@
-from models import Users, ZendeskUsers, UsersQueue
+from models import Users, ZendeskUsers, UsersQueue, UserBacklog, AssignedTickets, ZendeskSchedules, ZendeskTickets
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
 from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, delete, update, insert
-import datetime
 from sqlalchemy import create_engine
 from config import url_object
-from datetime import datetime
+from datetime import datetime, timedelta, date, time
+
 
 engine = create_engine(url_object)
 
@@ -107,7 +107,7 @@ zendesk_default_user_group(11490525550747)
 # print(str(get_zendesk_users_id(11490551144219)))
 
 # list = []
-# stmt = select(ZendeskUserBacklog.ticket_id)
+# stmt = select(UserBacklog.ticket_id)
 # with Session(engine) as session:
 #     a = session.execute(stmt).all()
 #     for row in a:
@@ -357,3 +357,83 @@ zendesk_default_user_group(11490525550747)
 #                 ],
 #             )
 #             session.commit()
+
+# with Session(engine) as db_session:
+#     UsersQueue.delete_user_from_queue(db_session, 16)
+#     db_session.commit()
+
+#
+# with Session(engine) as db_session:
+#     a = UserBacklog.get_user_backlog(db_session, 13)
+#     b = UserBacklog.get_agent_backlog_count(db_session, 13)
+#
+# print(str(a))
+# print(b)
+#
+# print(datetime.now)
+
+# def test(db_session, users_id):
+#     working_hours = db_session.execute(
+#         select(
+#             Users.zendesk_schedules_id,
+#             ZendeskSchedules.saturday_start,
+#             ZendeskSchedules.saturday_end,
+#         ).where(Users.id == users_id)
+#         .join(ZendeskSchedules, Users.zendesk_schedules_id == ZendeskSchedules.id)
+#     ).first()
+#
+#     return working_hours
+#
+#
+# current_time = datetime.now().time()
+# midnight_time = datetime.combine(datetime.today(), time.min).time()
+#
+# delta_time = \
+#     datetime.combine(date.today(), current_time) - \
+#     datetime.combine(date.today(), midnight_time)
+#
+# with Session(engine) as db_session:
+#     a = AssignedTickets.get_user_assigned_ticket_count_at_today(db_session, 13)
+#     b = Users.is_user_on_working_hours(db_session, 13)
+#     print(b)
+#     #
+    # a = test(db_session, 13)
+    # print(a[1])
+    # print(a[2])
+    # print(delta_time)
+    #
+    # c = a[1] + delta_time
+    #
+    # if a[1] <= delta_time <= a[2]:
+    #     print('a')
+    # else:
+    #     print('b')
+    #
+    # print(c)
+
+a = 0
+b = 1
+c = 2
+
+if a == 0 and b == 4 or c == 3:
+    print('hey')
+
+with Session(engine) as db_session:
+    stmt = (
+        select(
+            ZendeskTickets.id,
+            ZendeskTickets.ticket_id,
+            ZendeskTickets.subject,
+            ZendeskTickets.channel,
+            ZendeskTickets.created_at,
+            ZendeskTickets.tag_pais,
+        )
+        .join(AssignedTickets, isouter=True)
+        .where(ZendeskTickets.channel != 'chat')
+        .where(ZendeskTickets.channel != 'whatsapp')
+        .where(ZendeskTickets.channel != 'api')
+        .where(AssignedTickets.zendesk_tickets_id == None)
+        .order_by(ZendeskTickets.id)
+    )
+
+    print(str(stmt))
