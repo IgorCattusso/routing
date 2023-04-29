@@ -222,6 +222,82 @@ class UserBacklog(Base):
         return f'{self.id}, {self.users_id}, {self.ticket_id}, ' \
                f'{self.ticket_status}, {self.ticket_level}'
 
+    @staticmethod
+    def get_user_backlog(db_session, users_id):
+        try:
+            user_backlog = db_session.execute(
+                select(
+                    UserBacklog.id,
+                    UserBacklog.users_id,
+                    UserBacklog.ticket_id,
+                    UserBacklog.ticket_status,
+                    UserBacklog.ticket_level,
+                ).where(UserBacklog.users_id == users_id)
+            ).all()
+            return user_backlog
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_agent_backlog_count(db_session, users_id):
+        try:
+            user_open_backlog = db_session.execute(
+                select(
+                    func.count(UserBacklog.id)
+                )
+                .where(UserBacklog.users_id == users_id)
+                .where(
+                    and_(
+                        or_(
+                            UserBacklog.ticket_status == 'open',
+                            UserBacklog.ticket_status == '',
+                            UserBacklog.ticket_status == None,
+                        )
+                    )
+                )
+                .where(
+                    and_(
+                        or_(
+                            UserBacklog.ticket_level == 'atendimento_n1_n2',
+                            UserBacklog.ticket_level == '',
+                            UserBacklog.ticket_level == None,
+                        )
+                    )
+                )
+            ).scalar()
+
+            user_pending_hold_backlog = db_session.execute(
+                select(
+                    func.count(UserBacklog.id)
+                )
+                .where(UserBacklog.users_id == users_id)
+                .where(
+                    and_(
+                        or_(
+                            UserBacklog.ticket_status == 'pending',
+                            UserBacklog.ticket_status == 'hold'
+                        )
+                    )
+                )
+                .where(
+                    and_(
+                        or_(
+                            UserBacklog.ticket_level == 'atendimento_n1_n2',
+                            UserBacklog.ticket_level == None,
+                        )
+                    )
+                )
+            ).scalar()
+
+            user_backlog = int(user_open_backlog) + (int(user_pending_hold_backlog) / 2)
+
+            return user_backlog
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
 
 class ZendeskLocales(Base):
     __tablename__ = "zendesk_locales"
