@@ -694,7 +694,7 @@ class GeneralSettings(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     use_routes: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    routing_model: Mapped[int] = mapped_column(nullable=False)
+    routing_model: Mapped[int] = mapped_column(nullable=False)  # 0 = Least Active | 1 = Round Robin
     agent_backlog_limit: Mapped[int] = mapped_column(nullable=False)
     daily_assignment_limit: Mapped[int] = mapped_column(nullable=False)
     hourly_assignment_limit: Mapped[int] = mapped_column(nullable=False)
@@ -714,7 +714,7 @@ class GeneralSettings(Base):
                     GeneralSettings.daily_assignment_limit,
                     GeneralSettings.hourly_assignment_limit,
                 )
-            ).all()
+            ).first()
             return all_settings
 
         except (IntegrityError, FlushError) as error:
