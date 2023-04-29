@@ -29,6 +29,36 @@ class ZendeskTickets(Base):
     def __repr__(self) -> str:
         return f'{self.id}, {self.ticket_id}, {self.subject}, {self.channel}, {self.created_at}'
 
+    @staticmethod
+    def get_next_ticket_to_be_assigned(db_session):
+        try:
+            next_ticket = db_session.execute(
+                select(
+                    ZendeskTickets.id,
+                    ZendeskTickets.ticket_id,
+                    ZendeskTickets.subject,
+                    ZendeskTickets.channel,
+                    ZendeskTickets.created_at,
+                    ZendeskTickets.tag_pais,
+                )
+                .join(AssignedTickets, isouter=True)
+                .where(ZendeskTickets.channel != 'chat')
+                .where(ZendeskTickets.channel != 'whatsapp')
+                .where(ZendeskTickets.channel != 'api')
+                .where(AssignedTickets.zendesk_tickets_id == None)
+                .order_by(ZendeskTickets.id)
+            ).first()
+            if next_ticket:
+                return next_ticket
+            else:
+                return None
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+
+
 
 class ZendeskUsers(Base):
     __tablename__ = "zendesk_users"
