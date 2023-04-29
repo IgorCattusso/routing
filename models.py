@@ -1449,7 +1449,6 @@ class UsersQueue(Base):
             current_user = db_session.execute(
                 select(UsersQueue.id, UsersQueue.users_id, UsersQueue.position).where(UsersQueue.users_id == users_id)
             ).first()
-            print('current_user: ' + str(current_user))
 
             if current_user:
                 users_ahead_of_current_user = db_session.execute(
@@ -1462,7 +1461,6 @@ class UsersQueue(Base):
                 last_user_in_the_queue = db_session.execute(
                     select(UsersQueue.id, UsersQueue.users_id, UsersQueue.position).order_by(UsersQueue.position.desc())
                 ).first()
-                print('last_user_in_the_queue: ' + str(last_user_in_the_queue.id))
 
                 ''' Get the users ahead of the current user one position down '''
                 for user in users_ahead_of_current_user:
@@ -1504,13 +1502,11 @@ class UsersQueue(Base):
             current_user = db_session.execute(
                 select(UsersQueue.id, UsersQueue.users_id, UsersQueue.position).where(UsersQueue.users_id == users_id)
             ).first()
-            print('current_user: ' + str(current_user))
 
             if current_user:
                 last_user_in_the_queue = db_session.execute(
                     select(UsersQueue.id, UsersQueue.users_id, UsersQueue.position).order_by(UsersQueue.position.desc())
                 ).first()
-                print('last_user_in_the_queue: ' + str(last_user_in_the_queue.id))
 
                 db_session.execute(
                     update(UsersQueue), [{
