@@ -154,11 +154,62 @@ class AssignedTickets(Base):
     assigned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     def __repr__(self) -> str:
-        return f'{self.id}, {self.zendesk_tickets_id}, {self.zendesk_users_id}, {self.assigned_at}'
+        return f'{self.id}, {self.zendesk_tickets_id}, {self.users_id}, {self.assigned_at}'
+
+    @staticmethod
+    def get_user_assigned_ticket_count_on_the_last_hour(db_session, users_id):
+        try:
+            ticket_count = db_session.execute(
+                select(
+                    func.count(AssignedTickets.id)
+                )
+                .where(AssignedTickets.users_id == users_id)
+                .where(AssignedTickets.assigned_at <= datetime.now())
+                .where(AssignedTickets.assigned_at >= datetime.now() - timedelta(hours=1))
+            ).scalar()
+            return ticket_count
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_user_assigned_ticket_count_at_today(db_session, users_id):
+        try:
+            today = date.today()
+
+            ticket_count = db_session.execute(
+                select(
+                    func.count(AssignedTickets.id)
+                )
+                .where(AssignedTickets.users_id == users_id)
+                .where(AssignedTickets.assigned_at <= datetime(today.year, today.month, today.day, 23, 59, 59, 999))
+                .where(AssignedTickets.assigned_at >= datetime(today.year, today.month, today.day, 00, 00, 00, 000))
+            ).scalar()
+
+            return ticket_count
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def insert_new_assigned_ticket(db_session, zendesk_tickets_id, users_id):
+        new_assigned_ticket = AssignedTickets(
+            zendesk_tickets_id=zendesk_tickets_id,
+            users_id=users_id
+        )
+        try:
+            db_session.add(new_assigned_ticket)
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
 
 
-class ZendeskUserBacklog(Base):
-    __tablename__ = "zendesk_user_backlog"
+class UserBacklog(Base):
+    __tablename__ = "user_backlog"
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
