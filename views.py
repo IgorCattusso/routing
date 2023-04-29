@@ -115,15 +115,14 @@ def routing_settings():
         all_settings = GeneralSettings.get_settings(db_session)
 
     time.sleep(.35)
-    for row in all_settings:
-        return render_template(
-            'routing-settings.html',
-            use_routes=row.use_routes,
-            routing_model=row.routing_model,
-            agent_backlog_limit=row.agent_backlog_limit,
-            daily_assignment_limit=row.daily_assignment_limit,
-            hourly_assignment_limit=row.hourly_assignment_limit,
-        )
+    return render_template(
+        'routing-settings.html',
+        use_routes=all_settings.use_routes,
+        routing_model=all_settings.routing_model,
+        agent_backlog_limit=all_settings.agent_backlog_limit,
+        daily_assignment_limit=all_settings.daily_assignment_limit,
+        hourly_assignment_limit=all_settings.hourly_assignment_limit,
+    )
 
 
 @app.route('/zendesk-schedules')
