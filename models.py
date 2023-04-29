@@ -1115,6 +1115,163 @@ class Users(Base):
             error_info = error.orig.args
             return f'There was an error: {error_info}'
 
+    @staticmethod
+    def get_user_from_zendesk_users_id(db_session, zendesk_users_id):
+        try:
+            user = db_session.execute(
+                select(
+                    Users.id,
+                    Users.name,
+                    Users.email,
+                    Users.active,
+                    Users.deleted,
+                    Users.authenticated,
+                    Users.routing_status,  # 0 = offline | 1 = online | 2 = away
+                    Users.zendesk_users_id,
+                    Users.zendesk_schedules_id,
+                    Users.latam_user,  # 0 = no | 1 = yes | 2 = both
+                ).where(Users.zendesk_users_id == zendesk_users_id)
+            ).first()
+            return user
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_starting_hour_column(argument):
+        switcher = {
+            0: "monday_start",
+            1: "tuesday_start",
+            2: "wednesday_start",
+            3: "thursday_start",
+            4: "friday_start",
+            5: "saturday_start",
+            6: "sunday_start",
+        }
+        return switcher.get(argument, "Invalid input")
+
+    @staticmethod
+    def get_ending_hour_column(argument):
+        switcher = {
+            0: "monday_end",
+            1: "tuesday_end",
+            2: "wednesday_end",
+            3: "thursday_end",
+            4: "friday_end",
+            5: "saturday_end",
+            6: "sunday_end",
+        }
+        return switcher.get(argument, "Invalid input")
+
+    @staticmethod
+    def is_user_on_working_hours(db_session, users_id):
+        try:
+            current_time = datetime.now().time()
+            midnight_time = datetime.combine(datetime.today(), time.min).time()
+
+            delta_time = \
+                datetime.combine(date.today(), current_time) - \
+                datetime.combine(date.today(), midnight_time)
+
+            if date.today().weekday() == 0:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.monday_start,
+                        ZendeskSchedules.monday_end,
+                    ).where(Users.id == users_id)
+                    .join(Users)
+                ).first()
+                if working_hours.monday_start <= delta_time <= working_hours.monday_end:
+                    return True
+                else:
+                    return False
+
+            elif date.today().weekday() == 1:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.tuesday_start,
+                        ZendeskSchedules.tuesday_end,
+                    ).where(Users.id == users_id)
+                    .join(Users)
+                ).first()
+                if working_hours.tuesday_start <= delta_time <= working_hours.tuesday_end:
+                    return True
+                else:
+                    return False
+
+            elif date.today().weekday() == 2:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.wednesday_start,
+                        ZendeskSchedules.wednesday_end,
+                    ).where(Users.id == users_id)
+                    .join(Users)
+                ).first()
+                if working_hours.wednesday_start <= delta_time <= working_hours.wednesday_end:
+                    return True
+                else:
+                    return False
+
+            elif date.today().weekday() == 3:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.thursday_start,
+                        ZendeskSchedules.thursday_end,
+                    ).where(Users.id == users_id)
+                    .join(Users)
+                ).first()
+                if working_hours.thursday_start <= delta_time <= working_hours.thursday_end:
+                    return True
+                else:
+                    return False
+
+            elif date.today().weekday() == 4:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.friday_start,
+                        ZendeskSchedules.friday_end,
+                    ).where(Users.id == users_id)
+                    .join(Users)
+                ).first()
+                if working_hours.friday_start <= delta_time <= working_hours.friday_end:
+                    return True
+                else:
+                    return False
+
+            elif date.today().weekday() == 5:
+                working_hours = db_session.execute(
+                    select(
+                        Users.zendesk_schedules_id,
+                        ZendeskSchedules.saturday_start,
+                        ZendeskSchedules.saturday_end,
+                    ).where(Users.id == users_id)
+                    .join(ZendeskSchedules, Users.zendesk_schedules_id == ZendeskSchedules.id)
+                ).first()
+                if working_hours.saturday_start <= delta_time <= working_hours.saturday_end:
+                    return True
+                else:
+                    return False
+
+            elif date.today().weekday() == 6:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.sunday_start,
+                        ZendeskSchedules.sunday_end,
+                    ).where(Users.id == users_id)
+                    .join(Users)
+                ).first()
+                if working_hours.sunday_start <= delta_time <= working_hours.sunday_end:
+                    return True
+                else:
+                    return False
+            else:
+                return None
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
 
 class Notifications(Base):
     __tablename__ = 'notifications'
