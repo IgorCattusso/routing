@@ -73,15 +73,16 @@ class ZendeskUsers(Base):
         return f'{self.id}, {self.zendesk_user_id}, {self.name}, {self.email}, {self.suspended}'
 
     @staticmethod
-    def get_zendesk_users_id(user_id):
-        stmt = select(ZendeskUsers.id).where(ZendeskUsers.zendesk_user_id == user_id)
-        with Session(engine) as db_session:
-            result = db_session.execute(stmt)
-            for row in result:
-                zendesk_users_id = row[0]
-                if zendesk_users_id:
-                    return zendesk_users_id
-            return 'null'
+    def get_zendesk_users_id(db_session, zendesk_user_id):
+        try:
+            zendesk_users_id = db_session.execute(
+                select(ZendeskUsers.id).where(ZendeskUsers.zendesk_user_id == zendesk_user_id)
+            ).scalar()
+            return zendesk_users_id
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
 
     @staticmethod
     def get_zendesk_users(db_session):
