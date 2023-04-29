@@ -1526,3 +1526,53 @@ class UsersQueue(Base):
         except (IntegrityError, FlushError) as error:
             error_info = error.orig.args
             return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_first_user_in_queue(db_session):
+        try:
+            first_agent_in_queue = db_session.execute(
+                select(UsersQueue.id, UsersQueue.users_id, UsersQueue.position)
+                .where(UsersQueue.position > 0)
+                .order_by(UsersQueue.position.desc())
+            ).first()
+            if first_agent_in_queue:
+                return first_agent_in_queue
+            else:
+                return None
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_user_position(db_session, users_id):
+        try:
+            position = db_session.execute(
+                select(UsersQueue.position)
+                .where(UsersQueue.users_id == users_id)
+            ).scalar()
+            if position:
+                return position
+            else:
+                return None
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_next_user_in_queue(db_session, users_id):
+        try:
+            next_position = UsersQueue.get_user_position(db_session, users_id) + 1
+            next_agent_in_queue = db_session.execute(
+                select(UsersQueue.id, UsersQueue.users_id, UsersQueue.position)
+                .where(UsersQueue.position == next_position)
+            ).first()
+            if next_agent_in_queue:
+                return next_agent_in_queue
+            else:
+                return None
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
