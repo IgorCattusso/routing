@@ -106,7 +106,7 @@ def login():
 
             return redirect(url_for('home'))
 
-        elif user_is_already_logged_in(user.id):
+        elif user and user_is_already_logged_in(user.id):
             flash('Este usuário já está logado!')
             return render_template('login.html', form=form)
 
