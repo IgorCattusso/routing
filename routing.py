@@ -1,19 +1,9 @@
-from app import app, engine
-from models import Users, Notifications, ZendeskTickets, AssignedTickets, GeneralSettings, UsersQueue, Users, \
-    UserBacklog
-from flask import flash, request, redirect, url_for, render_template, session, jsonify
-from flask_login import login_user
-from helpers import UserForm
-from sqlalchemy.orm import Session
-from json import dumps
-from config import API_BASE_URL, ZENDESK_TICKET_LEVEL_ID
+from models import Notifications, ZendeskTickets, AssignedTickets, GeneralSettings, UsersQueue, Users, UserBacklog
+from config import API_BASE_URL
 import requests
-from requests import status_codes
 from helpers import generate_zendesk_headers
 from app import app, engine
-from sqlalchemy import select, update, and_, or_, delete
 from sqlalchemy.orm import Session
-import time
 
 
 @app.route('/get-users-next-notification/<int:user_id>')
@@ -138,7 +128,6 @@ def assign_ticket():
         return 'Não há nenhum agente disponível para receber o ticket'
 
     return 'Não há nenhum ticket para ser distribuído'
-
 
 
 @app.route('/get-recipient-user-for-ticket')
