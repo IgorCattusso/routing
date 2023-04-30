@@ -15,7 +15,7 @@
                         <span class="std-th th-count" data-sortby="count">Padrão</span>
                     </div>
                     <div class="std-body scrollable" id="tbody">
-                        {% for form in ticket_forms %}
+                        {% for form in kwargs['ticket_forms'] %}
                             <div class="std-tr" data-id="{{ form.id }}">
                                 <span class="std-td std-td-id">{{ form.id }}</span>
                                 <span class="std-td std-td-zendesk-ticket-form-id">{{ form.zendesk_ticket_form_id }}</span>

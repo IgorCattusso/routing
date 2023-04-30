@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import FlushError
 from datetime import datetime, timedelta, date, time
 from sqlalchemy import create_engine
-from config import url_object
+from config import url_object, ZENDESK_BASE_URL
 
 engine = create_engine(url_object)
 
@@ -858,7 +858,7 @@ class ZendeskSchedules(Base):
             db_session.execute(
                 update(ZendeskSchedules),
                 [
-                    {"id": schedule_id, start_week_day_column: start_parsed_hour, end_week_day_column: end_parsed_hour}
+                    {'id': schedule_id, start_week_day_column: start_parsed_hour, end_week_day_column: end_parsed_hour}
                 ],
             )
             return True
@@ -904,7 +904,8 @@ class ZendeskSchedules(Base):
     def get_hour(minutes):
         hour = (minutes // 60) % 24
         minute = minutes % 60
-        hour = f'{hour:02d}:{minute:02d}'
+        hour = f'{hour:02d}:{minute:02d}:00'
+        # a_time = time(hour, minute, 0, 0)
         return hour
 
     @staticmethod
@@ -912,10 +913,11 @@ class ZendeskSchedules(Base):
         try:
             db_session.execute(
                 insert(ZendeskSchedules)
-                .values(zendesk_schedule_id=zendesk_schedule_id,
-                        name=schedule_name,
-                        timezone=schedule_timezone,
-                        )
+                .values(
+                    zendesk_schedule_id=zendesk_schedule_id,
+                    name=schedule_name,
+                    timezone=schedule_timezone,
+                )
             )
             return True
 
@@ -927,7 +929,7 @@ class ZendeskSchedules(Base):
     def get_id_from_zendesk_schedule_id(db_session, zendesk_schedule_id):
         try:
             schedule_id = db_session.execute(
-                select(ZendeskSchedules).where(ZendeskSchedules.zendesk_schedule_id == zendesk_schedule_id)
+                select(ZendeskSchedules.id).where(ZendeskSchedules.zendesk_schedule_id == zendesk_schedule_id)
             ).scalar()
             return schedule_id
 
@@ -1308,15 +1310,26 @@ class Notifications(Base):
             return f'There was an error: {error_info}'
 
     @staticmethod
-    def create_notification(db_session, user_id, notification_type, content):
-        new_notification = Notifications(
-            users_id=user_id,
-            type=notification_type,
-            content=content,
-            # created_at → Not needed, since the server has a default as func.now()
-            sent=False,
-            received=False,
-        )
+    def create_notification(db_session, user_id, notification_type, content, *ticket_id):
+        if ticket_id:
+            new_notification = Notifications(
+                users_id=user_id,
+                type=notification_type,
+                content=content,
+                url=ZENDESK_BASE_URL + 'agent/tickets/' + str(ticket_id[0]),
+                # created_at → Not needed, since the server has a default as func.now()
+                sent=False,
+                received=False,
+            )
+        else:
+            new_notification = Notifications(
+                users_id=user_id,
+                type=notification_type,
+                content=content,
+                # created_at → Not needed, since the server has a default as func.now()
+                sent=False,
+                received=False,
+            )
         try:
             db_session.add(new_notification)
             return True

@@ -30,7 +30,7 @@ userEmail.addEventListener('click', function() {
 const saveButton = document.querySelector('#save');
 saveButton.addEventListener('click', () => {
   // Setting variables
-  const userId = document.getElementById('userId');
+  const userId = document.getElementById('editUserId');
   const userName = document.getElementById('userName');
   const userEmail = document.getElementById('userEmail');
   const userZendeskUserId = document.getElementsByClassName('zendesk-users-id-chosen-value');
@@ -85,11 +85,11 @@ saveButton.addEventListener('click', () => {
     return;
   }
 
-  // Get the value of the Route status, true or false
-  const userStatusValue = $('#userStatus').prop('checked');
+  // Get the value of the User status, true or false
+  const userStatusValue = $('#editUserStatus').prop('checked');
 
   // If the ID of the route is empty, that means we're on the NEW page, if it has a value, that means we're on the EDIT page
-  if (userId.value === '') {
+  if (editUserId.value === '') {
     // Send the selected values to your Flask app using an AJAX request
     $.ajax({
       type: 'POST',
@@ -118,7 +118,7 @@ saveButton.addEventListener('click', () => {
     });
   }
 
-  if (userId.value !== '') {
+  if (editUserId.value !== '') {
     $.ajax({
       type: 'PUT',
       url: '/users/edit/' + userId.value,

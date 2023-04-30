@@ -17,7 +17,7 @@
                         <span class="std-th th-timezone" data-sortby="timezone">Timezone</span>
                     </div>
                     <div class="std-body scrollable" id="tbody">
-                        {% for schedule in schedules %}
+                        {% for schedule in kwargs['schedules'] %}
                             <div class="std-tr" data-id="{{ schedule.id }}">
                                 <span class="std-td std-td-id">{{ schedule.id }}</span>
                                 <span class="std-td std-td-zendesk-schedule-id">{{ schedule.zendesk_schedule_id }}</span>

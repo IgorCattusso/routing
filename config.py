@@ -6,7 +6,7 @@ load_dotenv()
 
 SECRET_KEY = str(os.getenv('APP_SECRET_KEY'))
 
-API_BASE_URL = 'https://agilepromoter1671733243.zendesk.com/'
+ZENDESK_BASE_URL = 'https://agilepromoter1671733243.zendesk.com/'
 
 USERNAME = 'igor.cattusso@involves.com'
 

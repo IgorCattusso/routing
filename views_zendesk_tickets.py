@@ -1,4 +1,4 @@
-from config import API_BASE_URL, ZENDESK_TICKET_LEVEL_ID
+from config import ZENDESK_BASE_URL, ZENDESK_TICKET_LEVEL_ID
 import requests
 from models import ZendeskTickets, ZendeskUsers, UserBacklog, Users
 from helpers import generate_zendesk_headers
@@ -12,7 +12,7 @@ import time
 def get_tickets_to_be_assigned():
     zendesk_endpoint_url = 'api/v2/search.json?page=1'
     zendesk_search_query = 'query=type:ticket assignee:none'
-    api_url = API_BASE_URL + zendesk_endpoint_url + '&' + zendesk_search_query
+    api_url = ZENDESK_BASE_URL + zendesk_endpoint_url + '&' + zendesk_search_query
 
     inserted_tickets = []
 
@@ -55,7 +55,7 @@ def get_user_backlog():
     zendesk_endpoint_url = 'api/v2/search.json?page=1'
     zendesk_search_query = 'query=type:ticket status:open status:pending status:hold'
 
-    api_url = API_BASE_URL + zendesk_endpoint_url + '&' + zendesk_search_query
+    api_url = ZENDESK_BASE_URL + zendesk_endpoint_url + '&' + zendesk_search_query
 
     inserted_backlog = []
     updated_backlog = []

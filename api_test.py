@@ -12,7 +12,7 @@ engine = create_engine(url_object)
 '''
 zendesk_endpoint_url = 'api/v2/search.json'
 zendesk_search_query = 'query=type:ticket status:new'
-api_url = API_BASE_URL + zendesk_endpoint_url + "?" + zendesk_search_query
+api_url = ZENDESK_BASE_URL + zendesk_endpoint_url + "?" + zendesk_search_query
 
 # Autenticação
 concatenate = USERNAME + '/token:' + ZENDESK_API_KEY
@@ -65,7 +65,7 @@ zendesk_default_user_group(11490525550747)
 
 #
 # zendesk_endpoint_url = '/api/v2/group_memberships'
-# api_url = API_BASE_URL + zendesk_endpoint_url
+# api_url = ZENDESK_BASE_URL + zendesk_endpoint_url
 #
 # api_response = requests.get(api_url, headers=generate_zendesk_headers())
 #

@@ -1,7 +1,8 @@
 from app import app, engine
 from models import ZendeskUsers, Users, ZendeskSchedules
 from sqlalchemy.orm import Session
-from flask import render_template, request
+from flask import request
+from helpers import internal_render_template
 
 
 @app.route('/users/new/', methods=['GET', 'POST', ])
@@ -11,7 +12,7 @@ def new_user():
             zendesk_users = ZendeskUsers.get_zendesk_users(session)
             zendesk_schedules = ZendeskSchedules.get_schedules(session)
 
-        return render_template(
+        return internal_render_template(
             'user-new.html', zendesk_users=zendesk_users, zendesk_schedules=zendesk_schedules,
         )
 
@@ -54,7 +55,7 @@ def get_user(user_id):
             zendesk_schedules = ZendeskSchedules.get_schedules(session)
             zendesk_schedule_name = ZendeskSchedules.get_zendesk_schedule_name_by_id(session, user.zendesk_schedules_id)
 
-        return render_template(
+        return internal_render_template(
             'user-edit.html',
             user=user,
             zendesk_users=zendesk_users,

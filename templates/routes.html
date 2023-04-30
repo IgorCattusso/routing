@@ -12,7 +12,7 @@
                         <span class="std-th th-email" data-sortby="name">Ativa</span>
                     </div>
                     <div class="std-body scrollable" id="tbody">
-                        {% for route in routes %}
+                        {% for route in kwargs['routes'] %}
                             <div class="std-tr" data-id="{{ route.id }}">
                                 <span class="std-td std-td-id">{{ route.id }}</span>
                                 <span class="std-td std-td-name">{{ route.name }}</span>

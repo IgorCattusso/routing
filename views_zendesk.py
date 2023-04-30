@@ -1,11 +1,12 @@
-from config import API_BASE_URL
+from config import ZENDESK_BASE_URL
 import requests
-from helpers import generate_zendesk_headers, match_false_true
-from models import ZendeskLocales, ZendeskTicketFields, ZendeskTicketForms, ZendeskTicketFieldsInForms, ZendeskTicketFieldOptions, ZendeskTags, ZendeskSchedules
+from helpers import generate_zendesk_headers, match_false_true, internal_render_template
+from models import ZendeskLocales, ZendeskTicketFields, ZendeskTicketForms, ZendeskTicketFieldsInForms, \
+    ZendeskTicketFieldOptions, ZendeskTags, ZendeskSchedules
 from app import app, engine
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from flask import render_template, flash, redirect, url_for, request
+from flask import flash, redirect, url_for
 import time
 from datetime import datetime, timedelta
 
@@ -13,28 +14,28 @@ from datetime import datetime, timedelta
 @app.route('/get-zendesk-schedules')
 def get_zendesk_schedules():
     zendesk_endpoint_url = '/api/v2/business_hours/schedules'
-    api_url = API_BASE_URL + zendesk_endpoint_url
+    api_url = ZENDESK_BASE_URL + zendesk_endpoint_url
 
     inserted_schedules = []
 
     api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
 
     for schedule in api_response['schedules']:
-        with Session(engine) as session:
-            if not ZendeskSchedules.check_for_existing_schedule(session, schedule['id']):
-                ZendeskSchedules.insert_schedule(session, schedule['id'], schedule['name'], schedule['time_zone'])
-                session.commit()
+        with Session(engine) as db_session:
+            if not ZendeskSchedules.check_for_existing_schedule(db_session, schedule['id']):
+                ZendeskSchedules.insert_schedule(db_session, schedule['id'], schedule['name'], schedule['time_zone'])
+                db_session.commit()
                 inserted_schedules.append(schedule['id'])
 
             for interval in schedule['intervals']:
-                schedule_id = ZendeskSchedules.get_id_from_zendesk_schedule_id(session, schedule['id'])
+                schedule_id = ZendeskSchedules.get_id_from_zendesk_schedule_id(db_session, schedule['id'])
                 ZendeskSchedules.update_schedule_hours(
-                    session,
+                    db_session,
                     schedule_id,
                     interval['start_time'],
                     interval['end_time']
                 )
-                session.commit()
+                db_session.commit()
 
     time.sleep(.35)
 
@@ -62,7 +63,7 @@ def get_zendesk_schedule_hours(schedule_id):
         elif not item:
             times_list.append('--:--:--')
 
-    return render_template(
+    return internal_render_template(
         'zendesk-schedule.html',
         schedule_id=schedule.id,
         schedule_name=schedule.name,
@@ -76,7 +77,7 @@ def get_zendesk_schedule_hours(schedule_id):
 @app.route('/get-zendesk-locales')
 def get_zendesk_locales():
     zendesk_endpoint_url = '/api/v2/locales.json?page=1'
-    api_url = API_BASE_URL + zendesk_endpoint_url
+    api_url = ZENDESK_BASE_URL + zendesk_endpoint_url
 
     inserted_locales = []
 
@@ -128,7 +129,7 @@ def get_zendesk_ticket_forms():
     Inserção dos Campos ativos no zendesk
     '''
     zendesk_endpoint_url = '/api/v2/ticket_fields.json?page=1&active=true'
-    api_url = API_BASE_URL + zendesk_endpoint_url
+    api_url = ZENDESK_BASE_URL + zendesk_endpoint_url
 
     inserted_ticket_fields = []
 
@@ -158,7 +159,7 @@ def get_zendesk_ticket_forms():
     Inserção dos Formulários ativos no zendesk
     '''
     zendesk_endpoint_url = '/api/v2/ticket_forms.json?page=1&active=true'
-    api_url = API_BASE_URL + zendesk_endpoint_url
+    api_url = ZENDESK_BASE_URL + zendesk_endpoint_url
 
     inserted_ticket_forms = []
 
@@ -189,7 +190,7 @@ def get_zendesk_ticket_forms():
     Inserção do vínculo de Formulários e Campos de Formulários 
     '''
     zendesk_endpoint_url = '/api/v2/ticket_forms.json?page=1&active=true'
-    api_url = API_BASE_URL + zendesk_endpoint_url
+    api_url = ZENDESK_BASE_URL + zendesk_endpoint_url
 
     inserted_ticket_fields_in_forms = []
 
@@ -245,7 +246,7 @@ def get_zendesk_ticket_forms():
 
     for field in zendesk_ticket_fields:
         zendesk_endpoint_url = f'/api/v2/ticket_fields/{field[0]}/options'
-        api_url = API_BASE_URL + zendesk_endpoint_url
+        api_url = ZENDESK_BASE_URL + zendesk_endpoint_url
 
         api_response_code = requests.get(api_url, headers=generate_zendesk_headers())
         api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
@@ -293,7 +294,7 @@ def get_zendesk_ticket_forms():
 @app.route('/get-zendesk-tags')
 def get_zendesk_tags():
     zendesk_endpoint_url = '/api/v2/tags.json?page=1'
-    api_url = API_BASE_URL + zendesk_endpoint_url
+    api_url = ZENDESK_BASE_URL + zendesk_endpoint_url
 
     inserted_tags = []
 

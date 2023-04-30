@@ -18,7 +18,7 @@
                         <span class="std-th th-zendesk-tag-id" data-sortby="zendesk_tag_id">Tag</span>
                     </div>
                     <div class="std-body scrollable" id="tbody">
-                        {% for tag in tags %}
+                        {% for tag in kwargs['tags'] %}
                             <div class="std-tr" data-id="{{ tag.id }}">
                                 <span class="std-td std-td-id">{{ tag.id }}</span>
                                 <span class="std-td std-td-zendesk-tag-id">{{ tag.tag }}</span>

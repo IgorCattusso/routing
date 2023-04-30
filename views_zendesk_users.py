@@ -1,4 +1,4 @@
-from config import API_BASE_URL
+from config import ZENDESK_BASE_URL
 import requests
 from helpers import generate_zendesk_headers, match_false_true
 from models import ZendeskUsers
@@ -13,7 +13,7 @@ import time
 def get_zendesk_users():
     zendesk_endpoint_url = 'api/v2/search.json?page=1'
     zendesk_search_query = 'query=type:user routing_user:true'
-    api_url = API_BASE_URL + zendesk_endpoint_url + '&' + zendesk_search_query
+    api_url = ZENDESK_BASE_URL + zendesk_endpoint_url + '&' + zendesk_search_query
 
     inserted_users = []
 

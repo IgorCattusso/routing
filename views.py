@@ -3,16 +3,17 @@ from models import ZendeskUsers, ZendeskGroups, ZendeskGroupMemberships, Zendesk
     ZendeskTags, Routes, ZendeskSchedules, GeneralSettings
 from sqlalchemy import select, desc, case, func
 from sqlalchemy.orm import Session
-from flask import render_template, session, redirect, request
+from flask import session, redirect, request
 import time
 from flask_login import login_required
 from models import Users
+from helpers import internal_render_template
 
 
 @app.route('/')
 def home():
     time.sleep(.35)
-    return render_template('home.html')
+    return internal_render_template('home.html')
 
 
 @app.route('/zendesk-users')
@@ -22,7 +23,7 @@ def zendesk_users():
         user_list = db_session.execute(stmt).all()
 
     time.sleep(.35)
-    return render_template('zendesk-users.html', users=user_list)
+    return internal_render_template('zendesk-users.html', users=user_list)
 
 
 @app.route('/zendesk-groups')
@@ -36,13 +37,13 @@ def zendesk_groups():
         group_list = db_session.execute(stmt).all()
 
     time.sleep(.35)
-    return render_template('zendesk-groups.html', groups=group_list)
+    return internal_render_template('zendesk-groups.html', groups=group_list)
 
 
 @app.route('/reports')
 def reports():
     time.sleep(.35)
-    return render_template('reports.html')
+    return internal_render_template('reports.html')
 
 
 @app.route('/zendesk-locales')
@@ -60,7 +61,7 @@ def zendesk_locales():
         zendesk_locales = db_session.execute(stmt).all()
 
     time.sleep(.35)
-    return render_template('zendesk-locales.html', locales=zendesk_locales)
+    return internal_render_template('zendesk-locales.html', locales=zendesk_locales)
 
 
 @app.route('/zendesk-tags')
@@ -71,7 +72,7 @@ def zendesk_tags():
         zendesk_tags = db_session.execute(stmt).all()
 
     time.sleep(.35)
-    return render_template('zendesk-tags.html', tags=zendesk_tags)
+    return internal_render_template('zendesk-tags.html', tags=zendesk_tags)
 
 
 @app.route('/zendesk-ticket-forms')
@@ -89,7 +90,7 @@ def zendesk_ticket_forms():
         zendesk_ticket_forms = db_session.execute(stmt).all()
 
     time.sleep(.35)
-    return render_template('zendesk-ticket-forms.html', ticket_forms=zendesk_ticket_forms)
+    return internal_render_template('zendesk-ticket-forms.html', ticket_forms=zendesk_ticket_forms)
 
 
 @app.route('/routes')
@@ -106,7 +107,7 @@ def routes():
         app_routes = db_session.execute(stmt).all()
 
     time.sleep(.35)
-    return render_template('routes.html', routes=app_routes)
+    return internal_render_template('routes.html', routes=app_routes)
 
 
 @app.route('/routing-settings')
@@ -115,7 +116,7 @@ def routing_settings():
         all_settings = GeneralSettings.get_settings(db_session)
 
     time.sleep(.35)
-    return render_template(
+    return internal_render_template(
         'routing-settings.html',
         use_routes=all_settings.use_routes,
         routing_model=all_settings.routing_model,
@@ -131,7 +132,7 @@ def zendesk_schedules():
         all_schedules = ZendeskSchedules.get_schedules(db_session)
 
     time.sleep(.35)
-    return render_template('zendesk-schedules.html', schedules=all_schedules)
+    return internal_render_template('zendesk-schedules.html', schedules=all_schedules)
 
 
 @app.route('/change-status')
@@ -162,4 +163,4 @@ def users():
 
     time.sleep(.35)
 
-    return render_template('users.html', all_users=all_users)
+    return internal_render_template('users.html', all_users=all_users)

@@ -13,7 +13,7 @@
                         <span class="std-th th-count" data-sortby="count"># Usuários</span>
                     </div>
                     <div class="std-body scrollable" id="tbody">
-                        {% for group in groups %}
+                        {% for group in kwargs['groups'] %}
                             <div class="std-tr" data-id="{{ group.id }}">
                                 <span class="std-td std-td-id">{{ group.id }}</span>
                                 <span class="std-td std-td-zendesk-group-id">{{ group.zendesk_group_id }}</span>

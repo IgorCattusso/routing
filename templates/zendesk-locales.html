@@ -14,7 +14,7 @@
                         <span class="std-th th-email" data-sortby="default">Padrão</span>
                     </div>
                     <div class="std-body scrollable" id="tbody">
-                        {% for locale in locales %}
+                        {% for locale in kwargs['locales'] %}
                             <div class="std-tr" data-id="{{ locale.id }}">
                                 <span class="std-td std-td-id">{{ locale.id }}</span>
                                 <span class="std-td std-td-zendesk-locale-id">{{ locale.zendesk_locale_id }}</span>

@@ -4,12 +4,12 @@
     <link rel="stylesheet" href="/static/css/routes_new.css">
 
     <label>
-        <input id="routeId" hidden="hidden" value="{{ route_id }}">
+        <input id="routeId" hidden="hidden" value="{{ kwargs['route_id'] }}">
     </label>
 
     <div class="container">
         <div class="main-content">
-            <h1>{{ route_name }}</h1>
+            <h1>{{ kwargs['route_name'] }}</h1>
             <table class="wizard">
                 <tr>
                     <th class="wizard-header wizard-step clickable selected" rowspan="3" id="routeInfoAndRecipients">Dados e destinatários da rota</th>
@@ -37,10 +37,10 @@
                             <div class="form-item form-item-status">
                                 <h3 class="route-status-title">Status da rota</h3>
                                     <div onclick="toggleCheckbox()" class="status-container" id="routeStatusWrapper">
-                                        {% if route_status == 1 %}
+                                        {% if kwargs['route_status'] == 1 %}
                                             <input type="checkbox" id="routeStatus" class="active-input" checked="checked"/>
                                             <label id="active-label" class="active-label" for="routeStatus"></label>
-                                        {% elif route_status == 0 %}
+                                        {% elif kwargs['route_status'] == 0 %}
                                             <input type="checkbox" id="routeStatus" class="active-input"/>
                                             <label id="active-label" class="active-label" for="routeStatus"></label>
                                         {% endif %}
@@ -50,7 +50,7 @@
                             <div class="form-item form-item-status">
                                 <h3 class="route-name-title">Nome da rota</h3>
                                 <div class="name-container" id="routeNameWrapper">
-                                    <input type="text" id="routeName" class="form-item-input-text" value="{{ route_name }}"/><label class="route-name-input" for="routeName"></label>
+                                    <input type="text" id="routeName" class="form-item-input-text" value="{{ kwargs['route_name'] }}"/><label class="route-name-input" for="routeName"></label>
                                 </div>
                             </div>
                         </div>
@@ -79,7 +79,7 @@
                                             <div class="options-title">Nome do Usuário</div>
                                         </div>
                                         <div class="option-wrapper">
-                                            {% for user in all_recipient_users %}
+                                            {% for user in kwargs['all_recipient_users'] %}
                                                 <div class="option-container js-user-option-container {{ 'selected' if user.zendesk_users_id in selected_route_recipient_users else '' }}">
                                                     <option class="option list-option recipient-user-option" id={{ user.zendesk_users_id }} value={{ user.zendesk_users_id }}>{{ user.name }}</option>
                                                 </div>
@@ -96,7 +96,7 @@
                                             <div class="options-title">Usuários no Grupo</div>
                                         </div>
                                         <div class="option-wrapper">
-                                            {% for group in all_recipient_groups %}
+                                            {% for group in kwargs['all_recipient_groups'] %}
                                                 <div class="option-container js-group-option-container {{ 'selected' if group.id in selected_route_recipient_groups else '' }}">
                                                     <option class="option list-option recipient-group-option" id={{ group.id }} value={{ group.id }}>{{ group.name }}</option>
                                                     <div class="option list-option">{{ group.users }}</div>
@@ -121,7 +121,7 @@
                                                 <div class="options-title">Descrição da localidade</div>
                                             </div>
                                             <div class="option-wrapper">
-                                                {% for locale in all_tickets_locales %}
+                                                {% for locale in kwargs['all_tickets_locales'] %}
                                                     <div class="option-container js-locale-option-container  {{ 'selected' if locale.id in selected_route_ticket_locales else '' }}">
                                                         <option class="option list-option ticket-locale-option" id={{ locale.id }} value={{ locale.id }}>{{ locale.locale }}</option>
                                                         <div class="option list-option">{{ locale.presentation_name }}</div>
@@ -140,7 +140,7 @@
                                                 <div class="options-title">Nome do grupo</div>
                                             </div>
                                             <div class="option-wrapper">
-                                                {% for group in all_tickets_groups %}
+                                                {% for group in kwargs['all_tickets_groups'] %}
                                                     <div class="option-container js-ticket-group-option-container  {{ 'selected' if group.id in selected_route_ticket_groups else '' }}">
                                                         <option class="option list-option ticket-group-option" id={{ group.id }} value={{ group.id }}>{{ group.name }}</option>
                                                     </div>
@@ -164,7 +164,7 @@
                                                 <div class="options-title">Tag</div>
                                             </div>
                                             <div class="option-wrapper">
-                                                {% for tag in all_tickets_tags %}
+                                                {% for tag in kwargs['all_tickets_tags'] %}
                                                     <div class="option-container js-tag-option-container {{ 'selected' if tag.id in selected_route_ticket_tags else '' }}">
                                                         <option class="option list-option ticket-tag-option" id={{ tag.id }} value={{ tag.id }}>{{ tag.tag }}</option>
                                                     </div>

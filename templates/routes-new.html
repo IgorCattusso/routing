@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="/static/css/routes_new.css">
 
     <label>
-        <input id="routeId" hidden="hidden" value="{{ route_id }}">
+        <input id="routeId" hidden="hidden" value="{{ kwargs['route_id'] }}">
     </label>
 
     <div class="container">
@@ -73,7 +73,7 @@
                                             <div class="options-title">Nome do Usuário</div>
                                         </div>
                                         <div class="option-wrapper">
-                                            {% for user in recipient_users %}
+                                            {% for user in kwargs['recipient_users'] %}
                                                 <div class="option-container js-user-option-container">
                                                     <option class="option list-option recipient-user-option" id={{ user.zendesk_users_id }} value={{ user.zendesk_users_id }}>{{ user.name }}</option>
                                                 </div>
@@ -90,7 +90,7 @@
                                             <div class="options-title">Usuários no Grupo</div>
                                         </div>
                                         <div class="option-wrapper">
-                                            {% for group in recipient_groups %}
+                                            {% for group in kwargs['recipient_groups'] %}
                                                 <div class="option-container js-group-option-container">
                                                     <option class="option list-option recipient-group-option" id={{ group.id }} value={{ group.id }}>{{ group.name }}</option>
                                                     <div class="option list-option">{{ group.users }}</div>
@@ -115,7 +115,7 @@
                                                 <div class="options-title">Descrição da localidade</div>
                                             </div>
                                             <div class="option-wrapper">
-                                                {% for locale in ticket_locales %}
+                                                {% for locale in kwargs['ticket_locales'] %}
                                                     <div class="option-container js-locale-option-container">
                                                         <option class="option list-option ticket-locale-option" id={{ locale.id }} value={{ locale.id }}>{{ locale.locale }}</option>
                                                         <div class="option list-option">{{ locale.presentation_name }}</div>
@@ -134,7 +134,7 @@
                                                 <div class="options-title">Nome do grupo</div>
                                             </div>
                                             <div class="option-wrapper">
-                                                {% for group in ticket_groups %}
+                                                {% for group in kwargs['ticket_groups'] %}
                                                     <div class="option-container js-ticket-group-option-container">
                                                         <option class="option list-option ticket-group-option" id={{ group.id }} value={{ group.id }}>{{ group.name }}</option>
                                                     </div>
@@ -157,7 +157,7 @@
                                                     <input class="chosen-value chosen-form-value" type="text" value="" placeholder="Selecione">
                                                 </label>
                                                 <ul id="forms" class="form-values-list values-list">
-                                                    {% for form in ticket_forms %}
+                                                    {% for form in kwargs['ticket_forms'] %}
                                                         <li class="form-dropdown-menu-option dropdown-menu-option" id={{ form.id }} value={{ form.id }}>{{ form.name }}</li>
                                                     {% endfor %}
                                                 </ul>
@@ -179,12 +179,6 @@
                                     </div>
                                 </div>
 
-
-
-
-
-
-
                                 <div id="ticketTagsListContainer" class="options-container-wrapper ticket-tags-container tickets-container">
                                     <div class="header-with-search">
                                         <h2 class="route-tickets-tab-title">Selecione as tags da rota</h2>
@@ -199,7 +193,7 @@
                                                 <div class="options-title">Tag</div>
                                             </div>
                                             <div class="option-wrapper">
-                                                {% for tag in ticket_tags %}
+                                                {% for tag in kwargs['ticket_tags'] %}
                                                     <div class="option-container js-tag-option-container">
                                                         <option class="option list-option ticket-tag-option" id={{ tag.id }} value={{ tag.id }}>{{ tag.tag }}</option>
                                                     </div>
@@ -208,11 +202,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-
-
-
-
                             </div>
                         </div>
                     </div>
@@ -239,11 +228,8 @@
         </div>
     </div>
 
-
-
     <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
     <script src="/static/js/routes_edit.js"></script>
     <script src="/static/js/routes_save.js"></script>
-
 
 {% endblock %}

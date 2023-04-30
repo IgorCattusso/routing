@@ -11,13 +11,13 @@
         <div class="wrapper">
             <div class="nav-bar">
                 <ul class="accordion-menu">
-                    {% if session['logged_in'] == True %}
+                    {% if kwargs['authenticated'] == True %}
                         <label for="userId"></label>
-                        <input id="userId" type="text" value="{{ session['_user_id'] }}" style="display: none">
+                        <input id="userId" type="text" value="{{ kwargs['user_id'] }}" style="display: none">
                         <li>
                             <a href="/change-status">
                                 <div class="dropdown-link">
-                                    {% if session['routing_status'] == 1 %}
+                                    {% if kwargs['routing_status'] == 1 %}
                                         <svg viewBox="0 0 210 210" width="24px" height="24px" xmlns="http://www.w3.org/2000/svg">
                                             <defs>
                                                 <radialGradient gradientUnits="userSpaceOnUse" cx="105" cy="105" r="100" id="gradient-0" gradientTransform="matrix(-0.88656, 0, 0, -1, 198.088773, 210.000024)">
@@ -39,7 +39,7 @@
                                         </svg>
                                     {% endif %}
 
-                                    {% if session['routing_status'] == 1 %}
+                                    {% if kwargs['routing_status'] == 1 %}
                                         <div><span class="dropdown-link-text" id="userStatus">Online</span></div>
                                     {% else %}
                                         <div><span class="dropdown-link-text" id="userStatus">Ausente</span></div>
@@ -92,7 +92,7 @@
                 </ul>
 
                 <div class="accordion-menu login-logout">
-                    {% if session['logged_in'] == True %}
+                    {% if kwargs['authenticated'] == True %}
                         <ul>
                             <li>
                                 <a href="/logout">

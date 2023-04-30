@@ -1,8 +1,8 @@
 from app import app, login_manager, engine
 from models import Users, UsersQueue
-from flask import flash, request, redirect, url_for, render_template, session
+from flask import flash, redirect, url_for, session, render_template
 from flask_login import login_user, UserMixin, login_required, logout_user
-from helpers import UserForm
+from helpers import UserForm, internal_render_template
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
@@ -126,6 +126,8 @@ def logout():
     session['routing_status'] = 0
 
     logout_user()
+
+    session['_user_id'] = 0
 
     with Session(engine) as db_session:
         Users.logout_user(db_session, user_id)

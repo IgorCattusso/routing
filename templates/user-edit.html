@@ -2,7 +2,7 @@
 {% block conteudo %}
 
     <label>
-        <input id="userId" hidden="hidden" value="{{ user.id }}">
+        <input id="editUserId" hidden="hidden" value="{{ kwargs['user'].id }}">
     </label>
 
     <link rel="stylesheet" href="/static/css/user.css">
@@ -16,24 +16,24 @@
                     <div onclick="toggleCheckbox()" class="user-status-container user-data-container" id="userStatusContainer">
                         <h3 class="user-status-title subtitle-container">Status do usuário</h3>
                         <div class="user-status-slider-container">
-                            {% if user.active %}
-                                <input type="checkbox" id="userStatus" class="active-input" checked="checked"/>
-                                <label id="active-label" class="active-label" for="userStatus"></label>
-                            {% elif not user.active %}
-                                <input type="checkbox" id="userStatus" class="active-input"/>
-                                <label id="active-label" class="active-label" for="userStatus"></label>
+                            {% if kwargs['user'].active %}
+                                <input type="checkbox" id="editUserStatus" class="active-input" checked="checked"/>
+                                <label id="active-label" class="active-label" for="editUserStatus"></label>
+                            {% elif not kwargs['user'].active %}
+                                <input type="checkbox" id="editUserStatus" class="active-input"/>
+                                <label id="active-label" class="active-label" for="editUserStatus"></label>
                             {% endif %}
 
                         </div>
                     </div>
                     <div class="user-name-container user-data-container" id="userNameContainer">
                         <h3 class="user-name-title">Nome do usuário</h3>
-                        <input type="text" id="userName" value="{{ user.name }}" class="form-item-input-text rule-input"/>
+                        <input type="text" id="userName" value="{{ kwargs['user'].name }}" class="form-item-input-text rule-input"/>
                         <label class="user-name-input" for="userName"></label>
                     </div>
                     <div class="user-email-container user-data-container" id="userEmailContainer">
                         <h3 class="user-email-title">E-mail do usuário</h3>
-                        <input type="text" id="userEmail" value="{{ user.email }}" class="form-item-input-text rule-input"/>
+                        <input type="text" id="userEmail" value="{{ kwargs['user'].email }}" class="form-item-input-text rule-input"/>
                         <label class="user-email-input" for="userEmail"></label>
                     </div>
                 </div>
@@ -45,10 +45,10 @@
                         <div class="dropdown-menu-button-container">
                             <form>
                                 <label aria-label="Selecione">
-                                    <input id="{{ user.zendesk_users_id }}" class="chosen-value chosen-form-value zendesk-users-id-chosen-value" type="text" value="{{ 'Selecione' if not user.zendesk_user_id else user.zendesk_user_id ~ ' - ' ~ zendesk_user_email.email}}" placeholder="Selecione">
+                                    <input id="{{ kwargs['user'].zendesk_users_id }}" class="chosen-value chosen-form-value zendesk-users-id-chosen-value" type="text" value="{{ 'Selecione' if not kwargs['user'].zendesk_user_id else kwargs['user'].zendesk_user_id ~ ' - ' ~ kwargs['zendesk_user_email'].email }}" placeholder="Selecione">
                                 </label>
                                 <ul id="zendeskUserId" class="user-values-list values-list">
-                                    {% for user in zendesk_users %}
+                                    {% for user in kwargs['zendesk_users'] %}
                                         <li class="user-dropdown-menu-option dropdown-menu-option" id={{ user.id }} value={{ user.id }}>{{ user.zendesk_user_id }} - {{ user.email }}</li>
                                     {% endfor %}
                                 </ul>
@@ -61,10 +61,10 @@
                         <div class="dropdown-menu-button-container">
                             <form>
                                 <label aria-label="Selecione">
-                                    <input id="{{ user.zendesk_schedules_id }}" class="chosen-value chosen-form-value zendesk-schedules-id-chosen-value" type="text" value="{{ 'Selecione' if not zendesk_schedule_name.name else zendesk_schedule_name.name }}" placeholder="Selecione">
+                                    <input id="{{ kwargs['user'].zendesk_schedules_id }}" class="chosen-value chosen-form-value zendesk-schedules-id-chosen-value" type="text" value="{{ 'Selecione' if not kwargs['zendesk_schedule_name'].name else kwargs['zendesk_schedule_name'].name }}" placeholder="Selecione">
                                 </label>
                                 <ul id="zendeskSchedulesId" class="schedule-values-list values-list">
-                                    {% for schedule in zendesk_schedules %}
+                                    {% for schedule in kwargs['zendesk_schedules'] %}
                                         <li class="schedule-dropdown-menu-option dropdown-menu-option" id={{ schedule.id }} value={{ schedule.id }}>{{ schedule.name }}</li>
                                     {% endfor %}
                                 </ul>
@@ -76,15 +76,15 @@
                         <h3 class="zendesk-bind-sub-title">Usuário LATAM?</h3>
                         <div class="selector-container">
                             <div class="selector-option-container">
-                                <input class="radio-selector" type="radio" id="latam-yes" name="latam-user" value="latam-yes" {{ 'checked="checked"' if user.latam_user == 1 else '' }}>
+                                <input class="radio-selector" type="radio" id="latam-yes" name="latam-user" value="latam-yes" {{ 'checked="checked"' if kwargs['user'].latam_user == 1 else '' }}>
                                 <label class="radio-selector-label" for="latam-yes">Sim</label>
                             </div>
                             <div class="selector-option-container">
-                                <input class="radio-selector" type="radio" id="latam-no" name="latam-user" value="latam-no" {{ 'checked="checked"' if user.latam_user == 0 else '' }}>
+                                <input class="radio-selector" type="radio" id="latam-no" name="latam-user" value="latam-no" {{ 'checked="checked"' if kwargs['user'].latam_user == 0 else '' }}>
                                 <label class="radio-selector-label" for="latam-no">Não</label>
                             </div>
                             <div class="selector-option-container">
-                                <input class="radio-selector" type="radio" id="latam-both" name="latam-user" value="latam-both" {{ 'checked="checked"' if user.latam_user == 2 else '' }}>
+                                <input class="radio-selector" type="radio" id="latam-both" name="latam-user" value="latam-both" {{ 'checked="checked"' if kwargs['user'].latam_user == 2 else '' }}>
                                 <label class="radio-selector-label" for="latam-both">Ambos</label>
                             </div>
                         </div>

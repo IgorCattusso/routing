@@ -21,7 +21,7 @@
 
                         <div class="selector-container">
                             <div id="routesYesButtonContainer" class="selector-option-container">
-                                <input class="radio-selector use-routes-radio-selector" type="radio" id="routesYes" name="use-routes-yes" {{ 'checked=checked' if use_routes else '' }} disabled>
+                                <input class="radio-selector use-routes-radio-selector" type="radio" id="routesYes" name="use-routes-yes" {{ 'checked=checked' if kwargs['use_routes'] else '' }} disabled>
                                 <label id="routesYesLabel" class="radio-selector-label use-routes-radio-selector-label" for="routesYes" style="cursor: not-allowed">
                                     <span>Sim</span>
                                     <svg fill="#ffffff" id="routesYesCheckmark" class="checkmark" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18px" height="18px" viewBox="0 0 78.369 78.369" xml:space="preserve" stroke="#ffffff" style="display: none">
@@ -31,7 +31,7 @@
                             </div>
 
                             <div id="routesNoButtonContainer" class="selector-option-container">
-                                <input class="radio-selector use-routes-radio-selector" type="radio" id="routesNo" name="use-routes-yes"  {{ 'checked=checked' if not use_routes else '' }} >
+                                <input class="radio-selector use-routes-radio-selector" type="radio" id="routesNo" name="use-routes-yes"  {{ 'checked=checked' if not kwargs['use_routes'] else '' }} >
                                 <label id="routesNoLabel" class="radio-selector-label use-routes-radio-selector-label" for="routesNo">
                                     <span>Não</span>
                                     <svg fill="#ffffff" id="routesNoCheckmark" class="checkmark" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18px" height="18px" viewBox="0 0 78.369 78.369" xml:space="preserve" stroke="#ffffff" style="display: none">
@@ -46,7 +46,7 @@
                         <h3>Selecione o modelo de distribuição dos tickets</h3>
                         <div class="selector-container">
                             <div id="leastActiveButtonContainer" class="selector-option-container" title="Neste modelo os tickets serão distribuídos primeiro para o usuário com menos tickets em seu backlog, abertos e pendentes, sendo que os tickets pendentes representam metade do peso dos abertos">
-                                <input class="radio-selector assignment-type-radio-selector" type="radio" id="leastActive" name="routing-assignment-type" {{ 'checked=checked' if routing_model == 0 else '' }} >
+                                <input class="radio-selector assignment-type-radio-selector" type="radio" id="leastActive" name="routing-assignment-type" {{ 'checked=checked' if kwargs['routing_model'] == 0 else '' }} >
                                 <label id="leastActiveButtonLabel" class="radio-selector-label assignment-type-radio-selector-label" for="leastActive">
                                     <span>Menos ativo</span>
                                     <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="black-information-icon information-icon">
@@ -56,7 +56,7 @@
                             </div>
 
                             <div id="roundRobinButtonContainer" class="selector-option-container" title="Neste modelo os tickets serão distribuídos sequencialmente, seguindo a ordem de login dos usuários">
-                                <input class="radio-selector assignment-type-radio-selector" type="radio" id="roundRobin" name="routing-assignment-type" {{ 'checked=checked' if routing_model == 1 else '' }} >
+                                <input class="radio-selector assignment-type-radio-selector" type="radio" id="roundRobin" name="routing-assignment-type" {{ 'checked=checked' if kwargs['routing_model'] == 1 else '' }} >
                                 <label id="roundRobinButtonLabel" class="radio-selector-label assignment-type-radio-selector-label" for="roundRobin">
                                     <span>Round Robin</span>
                                     <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="black-information-icon information-icon">
@@ -83,7 +83,7 @@
                                 </div>
                                 <div class="rule-container ticket-limit-container" id="ticketLimitContainer">
                                     <label class="rule-label" for="ticketLimit"></label>
-                                    <input type="number" id="ticketLimit" class="rule-input ticket-limit-input" value="{{ agent_backlog_limit if agent_backlog_limit else '' }}">
+                                    <input type="number" id="ticketLimit" class="rule-input ticket-limit-input" value="{{ kwargs['agent_backlog_limit'] if kwargs['agent_backlog_limit'] else '' }}">
                                 </div>
                             </div>
 
@@ -98,7 +98,7 @@
                                 </div>
                                 <div class="rule-container daily-limit-container" id="dailyLimitContainer">
                                     <label class="rule-label" for="hourlyLimit"></label>
-                                    <input type="number" id="hourlyLimit" class="rule-input hourly-limit-input" value="{{ hourly_assignment_limit if hourly_assignment_limit else '' }}">
+                                    <input type="number" id="hourlyLimit" class="rule-input hourly-limit-input" value="{{ kwargs['hourly_assignment_limit'] if kwargs['hourly_assignment_limit'] else '' }}">
                                 </div>
                             </div>
 
@@ -113,7 +113,7 @@
                                 </div>
                                 <div class="rule-container daily-limit-container" id="dailyLimitContainer">
                                     <label class="rule-label" for="dailyLimit"></label>
-                                    <input type="number" id="dailyLimit" class="rule-input daily-limit-input" value="{{ daily_assignment_limit if daily_assignment_limit else '' }}">
+                                    <input type="number" id="dailyLimit" class="rule-input daily-limit-input" value="{{ kwargs['daily_assignment_limit'] if kwargs['daily_assignment_limit'] else '' }}">
                                 </div>
                             </div>
 

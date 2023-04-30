@@ -14,7 +14,7 @@
                         <span class="std-th th-default-group" data-sortby="default-group">Grupo padrão</span>
                     </div>
                     <div class="std-body scrollable" id="tbody">
-                        {% for user in group_memberships %}
+                        {% for user in kwargs['group_memberships'] %}
                             <div class="std-tr" data-id="{{ user.id }}">
                                 <span class="std-td std-td-id">{{ user.id }}</span>
                                 <span class="std-td std-td-zendesk-group-id">{{ user.group_id_on_zendesk }}</span>
@@ -32,7 +32,7 @@
             <div class="footer-items">
                 <div class="options">
                     <ul class="options-list" id="options-list">
-                        <li><a href="/get-zendesk-group-memberships/{{ group_id }}">Atualizar usuários deste grupo</a></li>
+                        <li><a href="/get-zendesk-group-memberships/{{ kwargs['group_id'] }}">Atualizar usuários deste grupo</a></li>
                     </ul>
                     <button onclick="toggleOptions()">Opções</button>
                 </div>

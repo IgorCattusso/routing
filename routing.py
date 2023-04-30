@@ -1,9 +1,10 @@
 from models import Notifications, ZendeskTickets, AssignedTickets, GeneralSettings, UsersQueue, Users, UserBacklog
-from config import API_BASE_URL
+from config import ZENDESK_BASE_URL
 import requests
-from helpers import generate_zendesk_headers
+from helpers import generate_zendesk_headers, internal_render_template
 from app import app, engine
 from sqlalchemy.orm import Session
+from flask import flash
 
 
 @app.route('/get-users-next-notification/<int:user_id>')
@@ -43,18 +44,68 @@ def flag_notification_as_received(notification_id):
         return 'No results', 204
 
 
+@app.route('/test')
+def test():
+    with Session(engine) as db_session:
+        all_users = Users.get_all_users(db_session)
+
+        return internal_render_template('users.html', all_users=all_users)
+
+
+def assign_ticket(db_session, next_ticket, user):
+    assign_ticket_on_zendesk(next_ticket.ticket_id, user.id)
+    UsersQueue.move_user_to_queue_end(db_session, user.id)
+    AssignedTickets.insert_new_assigned_ticket(db_session, next_ticket.id, user.id)
+    Notifications.create_notification(
+        db_session,
+        user.id,
+        0,
+        next_ticket.subject,
+        next_ticket.ticket_id,
+    )
+    db_session.commit()
+    assigned_ticket = True
+    return assigned_ticket
+
+
 @app.route('/assign-ticket')
-def assign_ticket():
+def assign_ticket_route():
+
+    count = 0
+    next_ticket = None
+    recipient_user_for_ticket = None
+    user = None
+    settings = None
+    assigned_ticket = False
+
     with Session(engine) as db_session:
         next_ticket = ZendeskTickets.get_next_ticket_to_be_assigned(db_session)  # ticket that will be assigned
         recipient_user_for_ticket = get_recipient_user_for_ticket()  # get the next user that can receive ticket
-        user = Users.get_user(db_session, recipient_user_for_ticket.users_id)  # create an object with the user info
+        if recipient_user_for_ticket:
+            user = Users.get_user(db_session, recipient_user_for_ticket.users_id)  # create an object with the user info
         settings = GeneralSettings.get_settings(db_session)
 
-    assigned_ticket = False
+    print(str(next_ticket))
+    print(str(recipient_user_for_ticket))
+    print(str(user))
+    print(str(settings))
+
+    if not next_ticket:
+        flash('Não há nenhum ticket para ser distribuído')
+        return internal_render_template('home.html')
+
+    if not recipient_user_for_ticket:
+        flash('Não há nenhum agente para receber o próximo ticket')
+        return internal_render_template('home.html')
+
+    if not settings:
+        flash('Não há configurações definidas')
+        return internal_render_template('home.html')
 
     while not assigned_ticket:
-        if next_ticket and recipient_user_for_ticket and user and settings:
+        print(f'entering while for the {count + 1} time')
+        count += 1
+        if next_ticket and user and settings:
             with Session(engine) as db_session:
                 if user.deleted:  # if the user is deleted, delete it from the queue and get the next user in queue
                     print('if 1')
@@ -63,6 +114,7 @@ def assign_ticket():
                     next_user = UsersQueue.get_next_user_in_queue(db_session, user.id)
                     if next_user:
                         user = Users.get_user(db_session, next_user.users_id)
+
                 elif not user.active or user.routing_status == 0:  # if the user is not active or offline, remove it
                     print('if 2')                                  # from the queue and get the next user in queue
                     UsersQueue.remove_user_from_queue(db_session, user.id)
@@ -70,11 +122,13 @@ def assign_ticket():
                     next_user = UsersQueue.get_next_user_in_queue(db_session, user.id)
                     if next_user:
                         user = Users.get_user(db_session, next_user.users_id)
+
                 elif user.routing_status == 2:  # if the user is away, get the next user in the queue
                     print('if 3 - OK')
                     next_user = UsersQueue.get_next_user_in_queue(db_session, user.id)
                     if next_user:
                         user = Users.get_user(db_session, next_user.users_id)
+
                 elif not UserBacklog.get_agent_backlog_count(db_session, user.id) < settings.agent_backlog_limit:
                     # if the user has more tickets than the backlog limit, move the user
                     # to the end of the queue and get the next user
@@ -84,6 +138,7 @@ def assign_ticket():
                     next_user = UsersQueue.get_next_user_in_queue(db_session, user.id)
                     if next_user:
                         user = Users.get_user(db_session, next_user.users_id)
+
                 elif not AssignedTickets.get_user_assigned_ticket_count_on_the_last_hour(db_session, user.id) \
                         < settings.hourly_assignment_limit:
                     print('if 5 - OK')
@@ -92,52 +147,56 @@ def assign_ticket():
                     next_user = UsersQueue.get_next_user_in_queue(db_session, user.id)
                     if next_user:
                         user = Users.get_user(db_session, next_user.users_id)
+
                 elif not AssignedTickets.get_user_assigned_ticket_count_at_today(db_session, user.id) \
                         < settings.daily_assignment_limit:
                     print('if 6')
                     UsersQueue.remove_user_from_queue(db_session, user.id)
+                    Notifications.create_notification(db_session, user.id, 1, 'Você foi removido da fila!')
                     db_session.commit()
                     next_user = UsersQueue.get_next_user_in_queue(db_session, user.id)
                     if next_user:
                         user = Users.get_user(db_session, next_user.users_id)
+
                 elif not Users.is_user_on_working_hours(db_session, user.id):
                     print('if 7 - OK')
                     UsersQueue.remove_user_from_queue(db_session, user.id)
+                    Notifications.create_notification(db_session, user.id, 1, 'Você foi removido da fila! ')
                     db_session.commit()
                     next_user = UsersQueue.get_next_user_in_queue(db_session, user.id)
                     if next_user:
                         user = Users.get_user(db_session, next_user.users_id)
+
                 elif not next_ticket.tag_pais == 'pais_brasil' and user.latam_user == 0:
                     print('if 8')
                     next_user = UsersQueue.get_next_user_in_queue(db_session, user.id)
                     if next_user:
                         user = Users.get_user(db_session, next_user.users_id)
+
                 elif not next_ticket.tag_pais == 'pais_brasil' and user.latam_user == 1 or user.latam_user == 2:
                     print('if 9')
-                    assign_ticket_on_zendesk(next_ticket.ticket_id, user.id)
-                    UsersQueue.move_user_to_queue_end(db_session, user.id)
-                    AssignedTickets.insert_new_assigned_ticket(db_session, next_ticket.id, user.id)
-                    db_session.commit()
-                    assigned_ticket = True
-                    return 'success'
+                    assign_ticket(db_session, next_ticket, user)
+                    flash('success')
+                    return internal_render_template('home.html')
+
                 elif next_ticket.tag_pais == 'pais_brasil' and user.latam_user == 1:
                     print('if 10')
                     next_user = UsersQueue.get_next_user_in_queue(db_session, user.id)
                     if next_user:
                         user = Users.get_user(db_session, next_user.users_id)
+
                 elif next_ticket.tag_pais == 'pais_brasil' and user.latam_user == 0 or user.latam_user == 2:
                     print('if 11')
-                    assign_ticket_on_zendesk(next_ticket.ticket_id, user.id)
-                    UsersQueue.move_user_to_queue_end(db_session, user.id)
-                    AssignedTickets.insert_new_assigned_ticket(db_session, next_ticket.id, user.id)
-                    db_session.commit()
-                    assigned_ticket = True
-                    return 'success'
-            return 'Não há nenhum agente disponível para receber o ticket'
+                    assign_ticket(db_session, next_ticket, user)
+                    flash('success')
+                    return internal_render_template('home.html')
+
         else:
+            flash('Não há nenhum agente disponível para receber o ticket')
             break
 
-    return 'Não há nenhum ticket para ser distribuído'
+    flash('Não há nenhum ticket para ser distribuído')
+    return internal_render_template('home.html')
 
 
 @app.route('/get-recipient-user-for-ticket')
@@ -155,7 +214,7 @@ def get_recipient_user_for_ticket():
 @app.route('/assign-ticket-on-zendesk/<int:ticket_id>/<int:user_id>')
 def assign_ticket_on_zendesk(ticket_id, user_id):
     zendesk_endpoint_url = f'/api/v2/tickets/{ticket_id}'
-    api_url = API_BASE_URL + zendesk_endpoint_url
+    api_url = ZENDESK_BASE_URL + zendesk_endpoint_url
 
     with Session(engine) as db_session:
         user = Users.get_user(db_session, user_id)

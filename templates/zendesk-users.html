@@ -13,7 +13,7 @@
                         <span class="std-th th-email" data-sortby="name">E-mail</span>
                     </div>
                     <div class="std-body scrollable" id="tbody">
-                        {% for user in users %}
+                        {% for user in kwargs['users'] %}
                             <div class="std-tr" data-id="{{ user.ZendeskUsers.id }}">
                                 <span class="std-td std-td-id">{{ user.ZendeskUsers.id }}</span>
                                 <span class="std-td std-td-zendesk-user-id">{{ user.ZendeskUsers.zendesk_user_id }}</span>

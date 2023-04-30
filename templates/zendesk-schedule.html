@@ -5,7 +5,7 @@
 
     <div class="container">
         <div class="main-content">
-            <h1>{{ schedule_name }}</h1>
+            <h1>{{ kwargs['schedule_name'] }}</h1>
             <div id="contentTable" class="content-table">
                 <div class="std-table" id="std-table">
                     <div class="std-thead" id="thead">
@@ -21,14 +21,14 @@
                     <div class="std-body scrollable" id="tbody">
                         <div class="std-tr">
                         <span class="std-td std-td-start">Início</span>
-                        {% for i in range(0, schedule_times_len, 2) %}
-                            <span class="std-td std-td-starting-hour">{{ schedule_times[i] }}</span>
+                        {% for i in range(0, kwargs['schedule_times_len'], 2) %}
+                            <span class="std-td std-td-starting-hour">{{ kwargs['schedule_times'][i] }}</span>
                         {% endfor %}
                         </div>
                         <div class="std-tr">
                             <span class="std-td std-td-end">Fim</span>
-                            {% for i in range(1, schedule_times_len, 2) %}
-                                <span class="std-td std-td-ending-hour">{{ schedule_times[i] }}</span>
+                            {% for i in range(1, kwargs['schedule_times_len'], 2) %}
+                                <span class="std-td std-td-ending-hour">{{ kwargs['schedule_times'][i] }}</span>
                             {% endfor %}
                         </div>
                     </div>

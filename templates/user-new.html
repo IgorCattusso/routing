@@ -2,7 +2,7 @@
 {% block conteudo %}
 
     <label>
-        <input id="userId" hidden="hidden" value="{{ user_id }}">
+        <input id="editUserId" hidden="hidden" value="">
     </label>
 
     <link rel="stylesheet" href="/static/css/user.css">
@@ -16,7 +16,7 @@
                     <div onclick="toggleCheckbox()" class="user-status-container user-data-container" id="userStatusContainer">
                         <h3 class="user-status-title subtitle-container">Status do usuário</h3>
                         <div class="user-status-slider-container">
-                            <input type="checkbox" id="userStatus" class="active-input" checked="checked"/>
+                            <input type="checkbox" id="editUserStatus" class="active-input" checked="checked"/>
                             <label id="active-label" class="active-label" for="userStatus"></label>
                         </div>
                     </div>
@@ -42,7 +42,7 @@
                                     <input id="userZendeskUsersId" class="chosen-value chosen-form-value zendesk-users-id-chosen-value" type="text" value="" placeholder="Selecione">
                                 </label>
                                 <ul id="zendeskUserId" class="user-values-list values-list">
-                                    {% for user in zendesk_users %}
+                                    {% for user in kwargs['zendesk_users'] %}
                                         <li class="user-dropdown-menu-option dropdown-menu-option" id={{ user.id }} value={{ user.id }}>{{ user.zendesk_user_id }} - {{ user.email }}</li>
                                     {% endfor %}
                                 </ul>
@@ -58,7 +58,7 @@
                                     <input id="userZendeskSchedulesId" class="chosen-value chosen-form-value zendesk-schedules-id-chosen-value" type="text" value="" placeholder="Selecione">
                                 </label>
                                 <ul id="zendeskSchedulesId" class="schedule-values-list values-list">
-                                    {% for schedule in zendesk_schedules %}
+                                    {% for schedule in kwargs['zendesk_schedules'] %}
                                         <li class="schedule-dropdown-menu-option dropdown-menu-option" id={{ schedule.id }} value={{ schedule.id }}>{{ schedule.name }}</li>
                                     {% endfor %}
                                 </ul>

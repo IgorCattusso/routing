@@ -16,7 +16,7 @@
                         <span class="std-th th-status" data-sortby="status">Status</span>
                     </div>
                     <div class="std-body scrollable" id="tbody">
-                        {% for user in all_users %}
+                        {% for user in kwargs['all_users'] %}
                             <div class="std-tr" data-id="{{ user.id }}">
                                 <span class="std-td std-td-id">{{ user.id }}</span>
                                 {% if user.zendesk_user_id %}

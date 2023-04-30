@@ -1,18 +1,18 @@
-from config import API_BASE_URL
+from config import ZENDESK_BASE_URL
 from models import ZendeskGroups, ZendeskGroupMemberships, ZendeskUsers
-from helpers import generate_zendesk_headers, match_false_true
+from helpers import generate_zendesk_headers, match_false_true, internal_render_template
 import requests
 from app import app, engine
 from sqlalchemy import select, case
 from sqlalchemy.orm import Session
-from flask import render_template, flash, redirect, url_for
+from flask import flash, redirect, url_for
 import time
 
 
 @app.route('/get-zendesk-groups')
 def get_zendesk_groups():
     zendesk_endpoint_url = '/api/v2/groups.json?page=1'
-    api_url = API_BASE_URL + zendesk_endpoint_url
+    api_url = ZENDESK_BASE_URL + zendesk_endpoint_url
 
     inserted_groups = []
 
@@ -50,7 +50,7 @@ def get_zendesk_groups():
 @app.route('/get-all-zendesk-group-memberships')
 def get_all_zendesk_group_memberships():
     zendesk_endpoint_url = f'/api/v2/group_memberships.json?page=1'
-    api_url = API_BASE_URL + zendesk_endpoint_url
+    api_url = ZENDESK_BASE_URL + zendesk_endpoint_url
 
     inserted_users_and_groups = []
 
@@ -105,7 +105,7 @@ def get_zendesk_group_memberships(group_id):
         group_id_on_zendesk = session.execute(stmt).scalar()
 
     zendesk_endpoint_url = f'/api/v2/groups/{group_id_on_zendesk}/memberships.json?page=1'
-    api_url = API_BASE_URL + zendesk_endpoint_url
+    api_url = ZENDESK_BASE_URL + zendesk_endpoint_url
 
     inserted_users_and_groups = []
 
@@ -176,19 +176,21 @@ def get_zendesk_users_in_group(group_id):
     time.sleep(.35)
 
     if group:
-        return render_template('zendesk-users-in-group.html',
-                               titulo='Groups',
-                               group_memberships=group_memberships,
-                               group_name=group.group_name,
-                               group_id=group_id,
-                               )
+        return internal_render_template(
+            'zendesk-users-in-group.html',
+            titulo='Groups',
+            group_memberships=group_memberships,
+            group_name=group.group_name,
+            group_id=group_id,
+        )
     else:
         with Session(engine) as session:
             stmt = select(ZendeskGroups.name).where(ZendeskGroups.id == group_id)
             group_name = session.execute(stmt).scalar()
-        return render_template('zendesk-users-in-group.html',
-                               titulo='Groups',
-                               group_memberships=group_memberships,
-                               group_name=group_name,
-                               group_id=group_id,
-                               )
+        return internal_render_template(
+            'zendesk-users-in-group.html',
+            titulo='Groups',
+            group_memberships=group_memberships,
+            group_name=group_name,
+            group_id=group_id,
+        )

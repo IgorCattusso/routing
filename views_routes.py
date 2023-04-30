@@ -4,6 +4,7 @@ from sqlalchemy import select, insert, update, delete, func
 from sqlalchemy.orm import Session
 from flask import render_template, request, abort
 import time
+from helpers import internal_render_template
 
 
 @app.route('/routes/new')
@@ -63,16 +64,17 @@ def new_route():
 
     time.sleep(.35)
 
-    return render_template('routes-new.html',
-                           titulo='Routing home',
-                           recipient_groups=recipient_groups_list,
-                           recipient_users=recipient_users_list,
-                           ticket_locales=ticket_locales_list,
-                           ticket_groups=ticket_groups_list,
-                           ticket_forms=ticket_forms_list,
-                           ticket_tags=ticket_tags_list,
-                           ticket_fields=ticket_fields_in_forms_list,
-                           )
+    return internal_render_template(
+        'routes-new.html',
+        titulo='Routing home',
+        recipient_groups=recipient_groups_list,
+        recipient_users=recipient_users_list,
+        ticket_locales=ticket_locales_list,
+        ticket_groups=ticket_groups_list,
+        ticket_forms=ticket_forms_list,
+        ticket_tags=ticket_tags_list,
+        ticket_fields=ticket_fields_in_forms_list,
+    )
 
 
 @app.route('/routes/insert_new', methods=['POST', ])
@@ -272,7 +274,7 @@ def edit_route(route_id):
 
     time.sleep(.35)
 
-    return render_template(
+    return internal_render_template(
         'routes-edit.html',
         route_id=route_id,
         all_recipient_groups=all_recipient_groups_list,
