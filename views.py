@@ -58,10 +58,10 @@ def zendesk_locales():
                       else_='')
                   .label('default'))
     with Session(engine) as db_session:
-        zendesk_locales = db_session.execute(stmt).all()
+        all_zendesk_locales = db_session.execute(stmt).all()
 
     time.sleep(.35)
-    return internal_render_template('zendesk-locales.html', locales=zendesk_locales)
+    return internal_render_template('zendesk-locales.html', locales=all_zendesk_locales)
 
 
 @app.route('/zendesk-tags')
@@ -69,10 +69,10 @@ def zendesk_tags():
     stmt = select(ZendeskTags.id, ZendeskTags.tag)
 
     with Session(engine) as db_session:
-        zendesk_tags = db_session.execute(stmt).all()
+        all_zendesk_tags = db_session.execute(stmt).all()
 
     time.sleep(.35)
-    return internal_render_template('zendesk-tags.html', tags=zendesk_tags)
+    return internal_render_template('zendesk-tags.html', tags=all_zendesk_tags)
 
 
 @app.route('/zendesk-ticket-forms')
