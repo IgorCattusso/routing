@@ -208,6 +208,90 @@ class AssignedTickets(Base):
             return f'There was an error: {error_info}'
 
 
+class AssignedTicketsLog(Base):
+    __tablename__ = "assigned_tickets_log"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    zendesk_tickets_id: Mapped[int] = mapped_column(ForeignKey("zendesk_tickets.id"))
+    users_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    log: Mapped[str] = mapped_column(String(5000), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    def __repr__(self) -> str:
+        return f'{self.id}, {self.zendesk_tickets_id}, {self.zendesk_tickets_id}, {self.log}'
+
+    @staticmethod
+    def insert_new_log(db_session, zendesk_tickets_id, log, users_id=None):
+        new_log = AssignedTicketsLog(
+            zendesk_tickets_id=zendesk_tickets_id,
+            users_id=users_id,
+            log=log,
+        )
+        try:
+            db_session.add(new_log)
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_last_ten_logs(db_session):
+        try:
+            last_ten_logs = db_session.execute(
+                select(
+                    AssignedTicketsLog.id,
+                    ZendeskTickets.ticket_id,
+                    Users.name,
+                    AssignedTicketsLog.log,
+                    AssignedTicketsLog.created_at,
+                ).join(ZendeskTickets)
+                .join(Users)
+                .limit(10)
+                .order_by(AssignedTicketsLog.id.desc())
+            ).all()
+
+            return last_ten_logs
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_logs(db_session, **kwargs):
+        try:
+            stmt = select(
+                AssignedTicketsLog.id,
+                ZendeskTickets.ticket_id,
+                Users.name,
+                AssignedTicketsLog.log,
+                AssignedTicketsLog.created_at,
+            ) \
+            .join(ZendeskTickets) \
+            .join(Users)
+
+            if kwargs['data']['initial_date']:
+                stmt = stmt.where(AssignedTicketsLog.created_at >= kwargs['data']['initial_date'])
+
+            if kwargs['data']['final_date']:
+                stmt = stmt.where(AssignedTicketsLog.created_at <= kwargs['data']['final_date'])
+
+            if kwargs['data']['users_id']:
+                stmt = stmt.where(AssignedTicketsLog.users_id == kwargs['data']['users_id'])
+
+            if kwargs['data']['zendesk_tickets_id']:
+                stmt = stmt.where(AssignedTicketsLog.zendesk_tickets_id == kwargs['data']['zendesk_tickets_id'])
+
+            logs_with_filters = db_session.execute(stmt).all()
+
+            return logs_with_filters
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+
 class UserBacklog(Base):
     __tablename__ = "user_backlog"
     __table_args__ = {'extend_existing': True}
@@ -298,6 +382,7 @@ class UserBacklog(Base):
         except (IntegrityError, FlushError) as error:
             error_info = error.orig.args
             return f'There was an error: {error_info}'
+
 
 class ZendeskLocales(Base):
     __tablename__ = "zendesk_locales"

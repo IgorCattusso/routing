@@ -7,49 +7,39 @@ from sqlalchemy.orm import Session
 from flask import flash
 
 
-@app.route('/get-users-next-notification/<int:user_id>')
-def get_users_next_notification(user_id):
-    with Session(engine) as db_session:
-        notification = Notifications.get_next_pending_user_notification(db_session, user_id)
+class Log:
+    def __init__(self, queue_id, queue_position, user_id, user_name, user_active, user_deleted,
+                 user_authenticated, user_status, user_latam, ticket_id, tag_pais, message):
+        self.queue_id = queue_id
+        self.queue_position = queue_position
+        self.user_id = user_id
+        self.user_name = user_name
+        self.user_active = user_active
+        self.user_deleted = user_deleted
+        self.user_authenticated = user_authenticated
+        self.user_status = user_status
+        self.user_latam = user_latam
+        self.ticket_id = ticket_id
+        self.tag_pais = tag_pais
+        self.message = message
 
-    keys = ('id', 'type', 'content', 'url')
+    def create_log(self):
+        log = {
+            'queue_id': self.queue_id,
+            'queue_position': self.queue_position,
+            'user_id': self.user_id,
+            'user_name': self.user_name,
+            'user_active': self.user_active,
+            'user_deleted': self.user_deleted,
+            'user_authenticated': self.user_authenticated,
+            'user_status': self.user_status,
+            'user_latam': self.user_latam,
+            'ticket_id': self.ticket_id,
+            'tag_pais': self.tag_pais,
+            'message': self.message,
+        }
 
-    if notification:
-        return dict(zip(keys, notification)), 200
-    else:
-        return 'No results', 204
-
-
-@app.route('/flag-notification-as-sent/<int:notification_id>', methods=['PUT', ])
-def flag_notification_as_sent(notification_id):
-    with Session(engine) as db_session:
-        notification = Notifications.flag_notification_as_sent(db_session, notification_id)
-        db_session.commit()
-
-    if notification:
-        return 'Success', 200
-    else:
-        return 'No results', 204
-
-
-@app.route('/flag-notification-as-received/<int:notification_id>', methods=['PUT', ])
-def flag_notification_as_received(notification_id):
-    with Session(engine) as db_session:
-        notification = Notifications.flag_notification_as_received(db_session, notification_id)
-        db_session.commit()
-
-    if notification:
-        return 'Success', 200
-    else:
-        return 'No results', 204
-
-
-@app.route('/test')
-def test():
-    with Session(engine) as db_session:
-        all_users = Users.get_all_users(db_session)
-
-        return internal_render_template('users.html', all_users=all_users)
+        return str(log)
 
 
 def assign_ticket(db_session, next_ticket, user):

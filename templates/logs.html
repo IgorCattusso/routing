@@ -1,0 +1,73 @@
+{% extends "template.html" %}
+{% block conteudo %}
+
+    <link rel="stylesheet" href="/static/css/logs.css">
+
+    <div class="container" onload="formatJSON()">
+        <div class="main-content">
+            <h1>Logs</h1>
+
+            <div class="filter-wrapper">
+
+                <div class="filter-container">
+                    <label for="ticketIdInput" class="form-item-label">ID do Ticket</label>
+                    <input class="form-item-input-number" min="0" type="number" id="ticketIdInput" placeholder="Digite">
+                </div>
+
+                <div class="filter-container">
+                    <label for="userName" class="form-item-label">Usuário</label>
+                    <input class="form-item-input-text" type="text" id="userName" placeholder="Selecione">
+                </div>
+
+                <div class="filter-container">
+                    <label for="createdAtInitial" class="form-item-label">Data Inicial</label>
+                    <input class="form-item-input-datetime" type="datetime-local" id="createdAtInitial">
+                </div>
+
+                <div class="filter-container">
+                    <label for="createdAtFinal" class="form-item-label">Data Final</label>
+                    <input class="form-item-input-datetime" type="datetime-local" id="createdAtFinal">
+                </div>
+
+            </div>
+
+            <div id="contentTable" class="content-table">
+                <div class="std-table" id="std-table">
+                    <div class="std-thead" id="thead">
+                        <span class="std-th th-id" data-sortby="id">ID</span>
+                        <span class="std-th th-ticket-id" data-sortby="ticket_id">ID do Ticket</span>
+                        <span class="std-th th-user-name" data-sortby="user_name">Usuário</span>
+                        <span class="std-th th-short-message" data-sortby="short_message">Mensagem</span>
+                        <span class="std-th th-created-at" data-sortby="created_at">Criação</span>
+                        <span class="std-th th-arrow"></span>
+                    </div>
+                    <div class="std-body scrollable" id="tbody">
+                        {% for logs in kwargs['list_of_logs'] %}
+                            <div class="row-container">
+                                <div class="std-tr" data-id="{{ logs['log_id'] }}">
+                                    <span class="std-td std-td-id">{{ logs['log_id'] }}</span>
+                                    <span class="std-td std-td-ticket-id">{{ logs['ticket_id'] }}</span>
+                                    <span class="std-td std-td-user-name">{{ logs['user_name'] }}</span>
+                                    <span class="std-td std-td-short-message">{{ logs['short_message'] }}</span>
+                                    <span class="std-td std-td-created-at">{{ logs['created_at'] }}</span>
+                                    <svg class="std-td std-td-arrow" fill="#8f8f8f" height="64px" width="64px" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 330 330" xml:space="preserve" stroke="#8f8f8f"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path id="XMLID_225_" d="M325.607,79.393c-5.857-5.857-15.355-5.858-21.213,0.001l-139.39,139.393L25.607,79.393 c-5.857-5.857-15.355-5.858-21.213,0.001c-5.858,5.858-5.858,15.355,0,21.213l150.004,150c2.813,2.813,6.628,4.393,10.606,4.393 s7.794-1.581,10.606-4.394l149.996-150C331.465,94.749,331.465,85.251,325.607,79.393z"></path> </g></svg>
+                                </div>
+                                <div>
+                                    <span class="std-td std-td-json-row json-row" style="display: none">{{ logs['full_message'] }}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer"></div>
+
+    </div>
+
+    <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
+    <script src="/static/js/logs.js"></script>
+
+
+{% endblock %}
