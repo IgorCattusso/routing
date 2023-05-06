@@ -1,12 +1,15 @@
-from models import Users, ZendeskUsers, UsersQueue, UserBacklog, AssignedTickets, ZendeskSchedules, ZendeskTickets
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
-from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, delete, update, insert
-from sqlalchemy import create_engine
-from config import url_object
+from models import AssignedTicketsLog
+from app import engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session, aliased
+from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, delete, update, insert, and_, or_
+from sqlalchemy.sql import func, alias
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import FlushError
 from datetime import datetime, timedelta, date, time
-
-
-engine = create_engine(url_object)
+from sqlalchemy import create_engine
+from config import url_object, ZENDESK_BASE_URL
+import json
+import ast
 
 
 '''
@@ -268,13 +271,6 @@ zendesk_default_user_group(11490525550747)
 #     print(str(row.id))
 
 
-
-
-
-
-
-
-
 #
 # current_user_position = session.execute(
 #     select(UsersQueue.position).where(UsersQueue.users_id == users_id)
@@ -397,43 +393,80 @@ zendesk_default_user_group(11490525550747)
 #     b = Users.is_user_on_working_hours(db_session, 13)
 #     print(b)
 #     #
-    # a = test(db_session, 13)
-    # print(a[1])
-    # print(a[2])
-    # print(delta_time)
-    #
-    # c = a[1] + delta_time
-    #
-    # if a[1] <= delta_time <= a[2]:
-    #     print('a')
-    # else:
-    #     print('b')
-    #
-    # print(c)
+# a = test(db_session, 13)
+# print(a[1])
+# print(a[2])
+# print(delta_time)
+#
+# c = a[1] + delta_time
+#
+# if a[1] <= delta_time <= a[2]:
+#     print('a')
+# else:
+#     print('b')
+#
+# print(c)
 
-a = 0
-b = 1
-c = 2
+# a = 0
+# b = 1
+# c = 2
+#
+# if a == 0 and b == 4 or c == 3:
+#     print('hey')
+#
+# with Session(engine) as db_session:
+#     stmt = (
+#         select(
+#             ZendeskTickets.id,
+#             ZendeskTickets.ticket_id,
+#             ZendeskTickets.subject,
+#             ZendeskTickets.channel,
+#             ZendeskTickets.created_at,
+#             ZendeskTickets.tag_pais,
+#         )
+#         .join(AssignedTickets, isouter=True)
+#         .where(ZendeskTickets.channel != 'chat')
+#         .where(ZendeskTickets.channel != 'whatsapp')
+#         .where(ZendeskTickets.channel != 'api')
+#         .where(AssignedTickets.zendesk_tickets_id == None)
+#         .order_by(ZendeskTickets.id)
+#     )
+#
+#     print(str(stmt))
 
-if a == 0 and b == 4 or c == 3:
-    print('hey')
+# zendesk_tickets_id
+# users_id
+# final_date
+# initial_date
+
+# with Session(engine) as db_session:
+#     a = AssignedTicketsLog.get_logs(db_session, initial_date='2023-04-30 00:00:00', final_date='2023-04-30 20:56:00')
+#     for row in a:
+#         print(str(row))
+#
+# test = "{'queue_id': 32, 'queue_position': 1, 'user_id': 13, 'user_name': 'Igor Cattusso', 'user_active': True, " \
+#        "'user_deleted': False, 'user_authenticated': True, 'user_status': 1, 'user_latam': 0, 'ticket_id': 30, " \
+#        "'tag_pais': 'pais_brasil', 'message': 'Ticket é Brasil e o usuário está configurado como LATAM NÃO ou AMBOS. " \
+#        "O ticket foi atribuído ao usuário. O usuário foi enviado ao final da fila e próximo ticket será distribuído.'}"
+#
+# # test2 = '{"queue_id": 32, "queue_position": 1, "user_id": 13, "user_name": "Igor Cattusso", "user_active": True, ' \
+# #         '"user_deleted": False, "user_authenticated": True, "user_status": 1, "user_latam": 0, "ticket_id": 30, ' \
+# #         '"tag_pais": "pais_brasil", "message": "Ticket é Brasil e o usuário está configurado como LATAM NÃO ou AMBOS. ' \
+# #         'O ticket foi atribuído ao usuário. O usuário foi enviado ao final da fila e próximo ticket será distribuído."}'
+#
+# print(test)
+# print(type(test))
+#
+#
+# # result = json.loads(test2)
+#
+# result = ast.literal_eval(test)
+#
+# print(type(result))
+# print(result)
 
 with Session(engine) as db_session:
-    stmt = (
-        select(
-            ZendeskTickets.id,
-            ZendeskTickets.ticket_id,
-            ZendeskTickets.subject,
-            ZendeskTickets.channel,
-            ZendeskTickets.created_at,
-            ZendeskTickets.tag_pais,
-        )
-        .join(AssignedTickets, isouter=True)
-        .where(ZendeskTickets.channel != 'chat')
-        .where(ZendeskTickets.channel != 'whatsapp')
-        .where(ZendeskTickets.channel != 'api')
-        .where(AssignedTickets.zendesk_tickets_id == None)
-        .order_by(ZendeskTickets.id)
-    )
+       a = AssignedTicketsLog.get_last_ten_logs(db_session)
 
-    print(str(stmt))
+for b in a:
+       print(str(b))
