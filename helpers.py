@@ -1,13 +1,12 @@
 import base64
-from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from flask_wtf import FlaskForm
 from flask import render_template, session
 from wtforms import validators, StringField, SubmitField, PasswordField
 from config import *
 import requests
-from models import Users
-from app import engine
+from models import Users, Notifications
 from sqlalchemy.orm import Session
+from app import engine
 
 
 class UserForm(FlaskForm):
@@ -64,9 +63,15 @@ def internal_render_template(template, **kwargs):
         if session['_user_id']:
             with Session(engine) as db_session:
                 user = Users.get_user(db_session, session['_user_id'])
+                notification_count = Notifications.count_user_unread_notifications(db_session, session['_user_id'])
+                user_notifications = Notifications.get_user_last_hundred_notifications(db_session, session['_user_id'])
 
             kwargs['routing_status'] = user.routing_status
             kwargs['authenticated'] = user.authenticated
             kwargs['user_id'] = user.id
+            kwargs['notification_count'] = notification_count
+            kwargs['user_notifications'] = user_notifications
+
+    print(kwargs)
 
     return render_template(template, kwargs=kwargs)

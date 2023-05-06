@@ -362,3 +362,150 @@ a {
 .login-logout:hover {
     background-color: #54618D;
 }
+
+#notificationBell {
+    width: 50px;
+    height: 50px;
+    display: block;
+    margin-top: 15px;
+    margin-right: 40px;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+#newNotificationBellIcon, #newNotificationCounter, #newNotificationCounterMoreThanTen {
+    width: 18px;
+    height: 18px;
+    display: block;
+    position: fixed;
+    top: 30px;
+    right: 52px;
+    font-size: 12px;
+    color: white;
+    font-weight: bold;
+}
+
+#newNotificationCounter {
+    right: 46px;
+    top: 33px;
+}
+
+#newNotificationCounterMoreThanTen {
+    right: 50px;
+    top: 33px;
+}
+
+.fix-alignment {
+    right: 46px !important;
+    top: 33px !important;
+}
+
+#notificationBell:hover {
+    background-color: #e8e8e8;
+}
+
+.notification-icon-container {
+    position: fixed;
+    right: 0;
+    top: 0;
+    background-color: #fcfcfd;
+}
+
+#notificationPanelWrapper {
+    display: none;
+}
+
+.notification-panel-wrapper {
+    flex-direction: column;
+    position: fixed;
+    right: 90px;
+    top: 70px;
+    background-color: #fbfbff;
+    border-radius: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    width: 500px;
+    max-height: calc(100dvh - 220px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+}
+
+.notification-container {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    line-height: 1.5em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    border-bottom: 1px solid #ececec;
+}
+
+.notification-text {
+    max-width: 400px;
+    overflow: hidden;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.notification-container:hover {
+    background-color: #CCCCCC;
+}
+
+.unread-notification-icon {
+    width: 10px;
+    height: 10px;
+    color: white;
+    font-weight: bold;
+    padding-right: 25px;
+}
+
+.open-link-svg {
+    width: 25px;
+    height: 25px;
+    padding-right: 25px;
+
+}
+
+.notification-icons-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.panel-actions {
+    text-align: right;
+    font-size: 13px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.notifications-panel-title {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.notifications-panel-header-container {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid lightgray;
+}
+
+.no-notifications-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 150%;
+    padding-top: 1em;
+}
+
+#no-notifications-text {
+    font-size: 1.25em;
+    font-weight: bold;
+    color: #222222;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}

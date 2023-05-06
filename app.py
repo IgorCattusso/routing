@@ -14,6 +14,7 @@ engine = create_engine(url_object)
 
 from views import *
 from views_login import *
+from views_logs import *
 from views_routes import *
 from views_settings import *
 from views_users import *
@@ -22,6 +23,8 @@ from views_zendesk_groups import *
 from views_zendesk_tickets import *
 from views_zendesk_users import *
 from routing import *
+from notifications import *
+from scheduler import *
 
 if __name__ == '__main__':
     app.run(debug=True)

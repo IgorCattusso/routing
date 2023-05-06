@@ -1,6 +1,6 @@
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session, aliased
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, delete, update, insert, and_, or_
-from sqlalchemy.sql import func, alias
+from sqlalchemy.sql import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import FlushError
 from datetime import datetime, timedelta, date, time
@@ -56,7 +56,24 @@ class ZendeskTickets(Base):
             error_info = error.orig.args
             return f'There was an error: {error_info}'
 
+    @staticmethod
+    def insert_new_ticket(db_session, json):
+        try:
+            new_ticket = ZendeskTickets(
+                ticket_id=int(json['ticket_id']),
+                subject=json['subject'],
+                channel=json['channel'],
+                created_at=json['created_at'],
+                tag_pais=json['tag_pais'],
+            )
 
+            db_session.add(new_ticket)
+
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
 
 
 class ZendeskUsers(Base):
@@ -1374,6 +1391,7 @@ class Notifications(Base):
     sent_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     received: Mapped[bool] = mapped_column(Boolean, nullable=False)
     received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    read: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
     @staticmethod
     def get_next_pending_user_notification(db_session, user_id):
@@ -1384,9 +1402,10 @@ class Notifications(Base):
                     Notifications.type,
                     Notifications.content,
                     Notifications.url,
+                    Notifications.read,
                 ).where(Notifications.users_id == user_id)
-                 .where(Notifications.sent == 0)
-                 .order_by(Notifications.id)
+                .where(Notifications.sent == 0)
+                .order_by(Notifications.id)
             ).first()
             return notification
 
@@ -1405,6 +1424,7 @@ class Notifications(Base):
                 # created_at → Not needed, since the server has a default as func.now()
                 sent=False,
                 received=False,
+                read=False,
             )
         else:
             new_notification = Notifications(
@@ -1414,6 +1434,7 @@ class Notifications(Base):
                 # created_at → Not needed, since the server has a default as func.now()
                 sent=False,
                 received=False,
+                read=False,
             )
         try:
             db_session.add(new_notification)
@@ -1450,6 +1471,74 @@ class Notifications(Base):
                 }],
             )
             return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def count_user_unread_notifications(db_session, users_id):
+        try:
+            notifications_count = db_session.execute(
+                select(
+                    func.count(Notifications.id)
+                )
+                .where(Notifications.users_id == users_id)
+                .where(Notifications.read == False)
+            ).scalar()
+
+            return notifications_count
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def flag_notification_as_read(db_session, notification_id):
+        try:
+            db_session.execute(
+                update(Notifications), [{
+                    'id': notification_id,
+                    'read': True,
+                }],
+            )
+
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def flag_all_notifications_as_read(db_session, users_id):
+        try:
+            db_session.execute(
+                update(Notifications)
+                .values(read=True)
+                .where(Notifications.users_id == users_id)
+                .where(Notifications.read == False)
+            )
+
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_user_last_hundred_notifications(db_session, users_id):
+        try:
+            notifications = db_session.execute(
+                select(
+                    Notifications.id,
+                    Notifications.content,
+                    Notifications.url,
+                    Notifications.read,
+                ).where(Notifications.users_id == users_id)
+                .order_by(Notifications.id.desc())
+            ).all()
+
+            return notifications
 
         except (IntegrityError, FlushError) as error:
             error_info = error.orig.args
@@ -1531,7 +1620,6 @@ class UsersQueue(Base):
     @staticmethod
     def delete_user_from_queue(db_session, users_id):
         try:
-            UsersQueue.remove_user_from_queue(db_session, users_id)
             db_session.execute(
                 delete(UsersQueue).where(UsersQueue.users_id == users_id)
             )
@@ -1553,8 +1641,6 @@ class UsersQueue(Base):
                     select(UsersQueue.id, UsersQueue.users_id, UsersQueue.position).where(
                         UsersQueue.position > current_user.position)
                 ).all()
-                for user in users_ahead_of_current_user:
-                    print('users_ahead_of_current_user: ' + str(user.id))
 
                 last_user_in_the_queue = db_session.execute(
                     select(UsersQueue.id, UsersQueue.users_id, UsersQueue.position).order_by(UsersQueue.position.desc())
@@ -1640,7 +1726,7 @@ class UsersQueue(Base):
             first_agent_in_queue = db_session.execute(
                 select(UsersQueue.id, UsersQueue.users_id, UsersQueue.position)
                 .where(UsersQueue.position > 0)
-                .order_by(UsersQueue.position.desc())
+                .order_by(UsersQueue.position.asc())
             ).first()
             if first_agent_in_queue:
                 return first_agent_in_queue
