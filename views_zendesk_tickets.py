@@ -6,6 +6,8 @@ from app import app, engine
 from sqlalchemy import select, update, and_, or_, delete
 from sqlalchemy.orm import Session
 import time
+from flask import request
+from datetime import datetime
 
 
 @app.route('/get-tickets-to-be-assigned')
@@ -25,12 +27,17 @@ def get_tickets_to_be_assigned():
             with Session(engine) as session:
                 existing_ticket = session.execute(stmt).first()
                 if not existing_ticket:
+
                     new_ticket = ZendeskTickets(
                         ticket_id=ticket['id'],
                         channel=ticket['via']['channel'],
                         subject=ticket['subject'],
                         created_at=ticket['created_at'].replace('T', ' ').replace('Z', ''),
                     )
+
+                    tag_pais = [tag for tag in ticket['tags'] if tag.startswith('pais')]
+                    if tag_pais:
+                        ZendeskTickets.tag_pais = tag_pais
 
                     inserted_tickets.append(ticket['id'])
 
@@ -157,3 +164,40 @@ def get_user_backlog():
                f'Tickets removidos: {str(deleted_backlog)}'
     else:
         return f'Nenhum backlog alterado!'
+
+
+@app.route('/new-zendesk-ticket', methods=['POST', ])
+def new_zendesk_ticket():
+    if request.method == 'POST':
+        data = request.get_json()
+
+        data['created_at'] = datetime.now()
+
+        if data['channel'] == 'Formulário web':
+            data['channel'] = 'web'
+
+        if data['channel'] == 'Conversa paralela':
+            data['channel'] = 'side_conversation'
+
+        if data['channel'] == 'E - mail':
+            data['channel'] = 'email'
+
+        if data['channel'] == 'Serviço Web':
+            data['channel'] = 'api'
+
+        if data['channel'] == 'Chat':
+            data['channel'] = 'chat'
+
+        tags = data['tags'].split()
+        data['tag_pais'] = next((tag for tag in tags if tag.startswith('pais')), '')
+
+        del data['tags']
+
+        with Session(engine) as db_session:
+            ZendeskTickets.insert_new_ticket(
+                db_session,
+                data,
+            )
+            db_session.commit()
+
+        return 'Success'
