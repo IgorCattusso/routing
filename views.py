@@ -9,6 +9,7 @@ from flask_login import login_required
 from models import Users
 from helpers import internal_render_template
 import ast
+from views_logs import logs_as_list
 
 
 @app.route('/')
@@ -165,20 +166,8 @@ def users():
 def logs():
     with Session(engine) as db_session:
         last_ten_logs = AssignedTicketsLog.get_last_ten_logs(db_session)
+        log_users = Users.get_all_users(db_session)
 
-    list_of_logs = []
+    list_of_logs = logs_as_list(last_ten_logs)
 
-    for log in last_ten_logs:
-        list_of_logs.append({
-            'log_id': log[0],
-            'ticket_id': log[1],
-            'user_name': log[2],
-            'short_message': ast.literal_eval(log[3])['message'],  # converting str to dict
-            'full_message': str(ast.literal_eval(log[3])).replace("'", '"').replace('True', '"True"').replace('False', '"False"'),  # converting str to dict
-            'created_at': log[4],
-        })
-
-    # print(list_of_logs)
-
-    time.sleep(.35)
-    return internal_render_template('logs.html', list_of_logs=list_of_logs)
+    return internal_render_template('logs.html', list_of_logs=list_of_logs, users=log_users)

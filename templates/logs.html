@@ -11,23 +11,37 @@
 
                 <div class="filter-container">
                     <label for="ticketIdInput" class="form-item-label">ID do Ticket</label>
-                    <input class="form-item-input-number" min="0" type="number" id="ticketIdInput" placeholder="Digite">
+                    <input class="form-item-input-number" min="0" type="number" id="ticketIdInput" placeholder="Digite" autocomplete="false">
                 </div>
 
-                <div class="filter-container">
-                    <label for="userName" class="form-item-label">Usuário</label>
-                    <input class="form-item-input-text" type="text" id="userName" placeholder="Selecione">
+                <div id="ticketFormsWrapper" class="filter-container">
+                    <label for="userInput" class="form-item-label">Usuário</label>
+                    <div class="dropdown-users-list">
+                        <label aria-label="Selecione">
+                            <input id="userInput" class="chosen-value chosen-form-value" type="text" value="" placeholder="Selecione" autocomplete="false">
+                        </label>
+                        <ul id="users" class="users-values-list values-list scrollable">
+                            {% for user in kwargs['users'] %}
+                                <li class="user-dropdown-list-option dropdown-list-option" id={{ user.id }} value={{ user.id }}>{{ user.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
+
 
                 <div class="filter-container">
                     <label for="createdAtInitial" class="form-item-label">Data Inicial</label>
-                    <input class="form-item-input-datetime" type="datetime-local" id="createdAtInitial">
+                    <input class="form-item-input-datetime" type="datetime-local" id="createdAtInitial" step="1">
                 </div>
 
                 <div class="filter-container">
                     <label for="createdAtFinal" class="form-item-label">Data Final</label>
-                    <input class="form-item-input-datetime" type="datetime-local" id="createdAtFinal">
+                    <input class="form-item-input-datetime" type="datetime-local" id="createdAtFinal" step="1">
                 </div>
+
+                <div class="filter-container"><button id="search">Pesquisar</button></div>
+
+                <div class="filter-container"><button id="clearFilters">Limpar</button></div>
 
             </div>
 
@@ -41,18 +55,22 @@
                         <span class="std-th th-created-at" data-sortby="created_at">Criação</span>
                         <span class="std-th th-arrow"></span>
                     </div>
+
+
+
                     <div class="std-body scrollable" id="tbody">
                         {% for logs in kwargs['list_of_logs'] %}
-                            <div class="row-container">
+                            <div class="row-container" id="{{ logs['log_id'] }}">
                                 <div class="std-tr" data-id="{{ logs['log_id'] }}">
                                     <span class="std-td std-td-id">{{ logs['log_id'] }}</span>
                                     <span class="std-td std-td-ticket-id">{{ logs['ticket_id'] }}</span>
                                     <span class="std-td std-td-user-name">{{ logs['user_name'] }}</span>
                                     <span class="std-td std-td-short-message">{{ logs['short_message'] }}</span>
                                     <span class="std-td std-td-created-at">{{ logs['created_at'] }}</span>
-                                    <svg class="std-td std-td-arrow" fill="#8f8f8f" height="64px" width="64px" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 330 330" xml:space="preserve" stroke="#8f8f8f"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path id="XMLID_225_" d="M325.607,79.393c-5.857-5.857-15.355-5.858-21.213,0.001l-139.39,139.393L25.607,79.393 c-5.857-5.857-15.355-5.858-21.213,0.001c-5.858,5.858-5.858,15.355,0,21.213l150.004,150c2.813,2.813,6.628,4.393,10.606,4.393 s7.794-1.581,10.606-4.394l149.996-150C331.465,94.749,331.465,85.251,325.607,79.393z"></path> </g></svg>
+                                    <object class="std-td std-td-arrow" data="/static/img/arrow-down.svg" type="image/svg+xml"></object>
+
                                 </div>
-                                <div>
+                                <div class="full-message-container">
                                     <span class="std-td std-td-json-row json-row" style="display: none">{{ logs['full_message'] }}</span>
                                 </div>
                             </div>
@@ -66,8 +84,9 @@
 
     </div>
 
-    <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
-    <script src="/static/js/logs.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script id="logsJs" src="/static/js/logs.js"></script>
+    <script id="logsSearchJs" src="/static/js/logs_search.js"></script>
 
 
 {% endblock %}

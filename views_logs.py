@@ -1,8 +1,30 @@
-from models import GeneralSettings, AssignedTicketsLog
+from models import AssignedTicketsLog
 from app import app, engine
 from sqlalchemy.orm import Session
 from flask import request
 import ast
+from helpers import internal_render_template
+
+
+def logs_as_list(logs):
+    list_of_logs = []
+
+    for log in logs:
+        list_of_logs.append({
+            'log_id': log[0],
+            'ticket_id': log[1],
+            'user_name': log[2],
+            'short_message': ast.literal_eval(log[3])['message'],  # converting str to dict
+            'full_message':
+                str(ast.literal_eval(log[3]))
+                .replace("'", '"')
+                .replace('True', '"True"')
+                .replace('False', '"False"')
+                .replace('None', '""'),
+            'created_at': log[4].strftime("%Y-%m-%d %H:%M:%S"),
+        })
+
+    return list_of_logs
 
 
 @app.route('/search-logs', methods=['POST'])
@@ -13,15 +35,6 @@ def search_logs():
         with Session(engine) as db_session:
             logs = AssignedTicketsLog.get_logs(db_session, data=data)
 
-        list_of_logs = []
+        print((logs_as_list(logs)))
 
-        for log in logs:
-            list_of_logs.append({
-                'log_id': log[0],
-                'ticket_id': log[1],
-                'user_name': log[2],
-                'short_message': ast.literal_eval(log[3])['message'],  # converting str to dict
-                'full_message': str(ast.literal_eval(log[3])).replace("'", '"'),  # converting str to dict
-            })
-
-        return str(list_of_logs)
+        return logs_as_list(logs)

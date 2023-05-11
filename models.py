@@ -286,7 +286,8 @@ class AssignedTicketsLog(Base):
                 AssignedTicketsLog.created_at,
             ) \
             .join(ZendeskTickets) \
-            .join(Users)
+            .join(Users) \
+            .order_by(AssignedTicketsLog.id.desc())
 
             if kwargs['data']['initial_date']:
                 stmt = stmt.where(AssignedTicketsLog.created_at >= kwargs['data']['initial_date'])
@@ -297,8 +298,8 @@ class AssignedTicketsLog(Base):
             if kwargs['data']['users_id']:
                 stmt = stmt.where(AssignedTicketsLog.users_id == kwargs['data']['users_id'])
 
-            if kwargs['data']['zendesk_tickets_id']:
-                stmt = stmt.where(AssignedTicketsLog.zendesk_tickets_id == kwargs['data']['zendesk_tickets_id'])
+            if kwargs['data']['zendesk_ticket_id']:
+                stmt = stmt.where(ZendeskTickets.ticket_id == kwargs['data']['zendesk_ticket_id'])
 
             logs_with_filters = db_session.execute(stmt).all()
 

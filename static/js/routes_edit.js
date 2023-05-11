@@ -209,7 +209,6 @@ const formDropdown = document.querySelector('.form-values-list');
 const formDropdownArray = [...document.getElementsByClassName('form-dropdown-menu-option')];
 const ticketFieldsWrapper = document.getElementById('ticketFieldsWrapper')
 formDropdown.classList.add('open');
-formInputField.focus(); // Demo purposes only
 let formValueArray = [];
 formDropdownArray.forEach(item => {
     formValueArray.push(item.textContent);
