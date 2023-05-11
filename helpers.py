@@ -72,6 +72,4 @@ def internal_render_template(template, **kwargs):
             kwargs['notification_count'] = notification_count
             kwargs['user_notifications'] = user_notifications
 
-    print(kwargs)
-
     return render_template(template, kwargs=kwargs)
