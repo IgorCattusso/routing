@@ -6,15 +6,15 @@ setInterval(function () {
 // Check for notifications permission and prompts the user for it if it's not allowed
 // Checks if the user is logged in before calling the notification function
 function notify() {
-    const userId = document.getElementById('userId'); // Checks if the user id is present (logged in)
-    const userStatus = document.getElementById('userStatus').innerHTML; // Checks if the user id is present (logged in)
-    if (userId && userStatus === 'Online') { // If the user id is present, then calls the notification function
+    const userId = document.getElementById("userId"); // Checks if the user id is present (logged in)
+    const userStatus = document.getElementById("userStatus").innerHTML; // Checks if the user id is present (logged in)
+    if (userId && userStatus === "Online") { // If the user id is present, then calls the notification function
         if (!("Notification" in window)) { // Checks if the browser supports notifications
             alert("This browser does not support desktop notification");
         } else if (Notification.permission === "granted") { // Checks if the browser allows notifications
             notification(userId) // If allows notifications, then calls the notification function
         } else if (Notification.permission !== "denied") { // If it does not allow notifications
-            console.log('Nofications are disabled!'); // Logs to the console
+            console.log("Nofications are disabled!"); // Logs to the console
             Notification.requestPermission().then((permission) => { // Prompts for permission
                 if (permission === "granted") { // If granted
                         notification(userId) // Calls the notification function
@@ -26,20 +26,20 @@ function notify() {
 
 
 // Get the notification sound file
-const newTicketNotificationSound = new Audio('/static/snd/new_ticket_notification.wav');
+const newTicketNotificationSound = new Audio("/static/snd/new_ticket_notification.wav");
 
 // Get a user's notifications, one at a time, then marks it as received.
 // After that, displays the notification and flags it as received
 function notification(userId) {
     $.ajax({
-        type: 'GET', // Get notifications
-        url: '/get-users-next-notification/' + userId.value,
+        type: "GET", // Get notifications
+        url: "/get-users-next-notification/" + userId.value,
         success: function (get_notification_response, xhr, textStatus) {
-            // console.log('get-users-next-notification-status: ' + textStatus.status)
+            // console.log("get-users-next-notification-status: " + textStatus.status)
             if (textStatus.status === 200) { // If a notification was received
-                var options = {
-                    body: get_notification_response['content'],
-                    icon: '/static/img/favicon.png',
+                let options = {
+                    body: get_notification_response["content"],
+                    icon: "/static/img/favicon.png",
                 }
 
                     // Notifications.id,
@@ -53,67 +53,67 @@ function notification(userId) {
                     // Notifications.read,
 
                 $.ajax({
-                    type: 'POST', // Set's the notification as received
-                    url: '/flag-notification-as-sent/' + get_notification_response['id'],
+                    type: "POST", // Sets the notification as received
+                    url: "/flag-notification-as-sent/" + get_notification_response["id"],
                     success: function (flag_as_sent_response, xhr, textStatus) {
-                        // console.log('flag-notification-as-sent-status: ' + textStatus.status)
+                        // console.log("flag-notification-as-sent-status: " + textStatus.status)
                         if (textStatus.status === 200) {  // If a notification was successfully flagged as received
                             // Displays a notification
                             const notification = new Notification("Novo ticket atribuído!", options);
 
-
+                            addNewNotificationToList(get_notification_response["id"], get_notification_response["content"], get_notification_response["url"])
 
                             // Plays a sound. To play the sound is either necessary:
                             // 1. That the user interacts with the page, any interaction like changing the status or
-                            //    loggin in. After reloading the page, it's necessary to perform an interaction again.
-                            // 2. It's possible to get around the interaction thing by granting access to the page
+                            //    loggin in. After reloading the page, it"s necessary to perform an interaction again.
+                            // 2. It"s possible to get around the interaction thing by granting access to the page
                             //    to Sound instead of "automatic".
                             newTicketNotificationSound.play();
                             // Sets an onclick event to redirect the user to the ticket when clicking the notification
-                            if (get_notification_response['url']) {
+                            if (get_notification_response["url"]) {
                                 notification.onclick = function (event) {
                                     event.preventDefault();
-                                    window.open(get_notification_response['url']);
+                                    window.open(get_notification_response["url"]);
 
                                 }
                             }
                             // Sets the notification as received
                             $.ajax({
-                                type: 'POST',
-                                url: '/flag-notification-as-received/' + get_notification_response['id'],
+                                type: "POST",
+                                url: "/flag-notification-as-received/" + get_notification_response["id"],
                                 success: function (flag_as_received_response, xhr, textStatus) {
-                                    // console.log('flag-notification-as-received-status: ' + textStatus.status)
+                                    // console.log("flag-notification-as-received-status: " + textStatus.status)
                                 },
                                 error: function (xhr, status, error) {
-                                    console.log('Error flagging notification as received: ' + error);
+                                    console.log("Error flagging notification as received: " + error);
                                 }
                             });
                         }
                     },
                     error: function (xhr, status, error) {
-                        console.log('Error flagging notification as sent: ' + error);
+                        console.log("Error flagging notification as sent: " + error);
                     }
                 });
             }
         },
         error: function (xhr, status, error) {
-            console.log('Error getting new notifications: ' + error);
+            console.log("Error getting new notifications: " + error);
         }
     });
 }
 
 function flagNotificationAsRead(notification_id){
 
-    const _notification_id = "notificationUnreadIcon-" + notification_id
-    const isNotificationAlreadyRead = document.getElementById(_notification_id)
+    let _notification_id = "notificationUnreadIcon-" + notification_id
+    let isNotificationAlreadyRead = document.getElementById(_notification_id)
 
     if (isNotificationAlreadyRead) {
         $.ajax({
-            type: 'POST',
-            url: '/flag-notification-as-read/' + notification_id,
+            type: "POST",
+            url: "/flag-notification-as-read/" + notification_id,
             success: function (flag_as_read_response, xhr, textStatus) {
                 if (textStatus.status === 200) {
-                    const unreadIcon = 'notificationUnreadIcon-' + notification_id;
+                    const unreadIcon = "notificationUnreadIcon-" + notification_id;
                     const notification = document.getElementById(unreadIcon);
                     if (notification) {
                         notification.style.display = "none";
@@ -121,11 +121,12 @@ function flagNotificationAsRead(notification_id){
                 }
             },
             error: function (xhr, status, error) {
-                console.log('Error flagging notification as read: ' + error);
+                console.log("Error flagging notification as read: " + error);
             }
         });
 
-        updateNewNotificationCounter(1)
+        updateUnreadNotificationCounter("subtract", 1)
+        console.log("read 1")
 
     }
 }
@@ -136,17 +137,17 @@ function flagAllNotificationsAsRead(user_id){
     const unreadNotifications = document.getElementsByClassName("unread-notification-icon");
     let numberOfUnreadNotificationsElement = document.getElementById("newNotificationCounter");
     if (!numberOfUnreadNotificationsElement) {
-        let numberOfUnreadNotificationsElement = document.getElementById("newNotificationCounterMoreThanTen")
+        numberOfUnreadNotificationsElement = document.getElementById("newNotificationCounterMoreThanTen")
     }
 
     const numberOfUnreadNotifications = numberOfUnreadNotificationsElement.textContent
 
-    console.log('number: ' + numberOfUnreadNotifications)
+    console.log("number: " + numberOfUnreadNotifications)
 
     if (unreadNotifications) {
         $.ajax({
-            type: 'POST',
-            url: '/flag-all-notifications-as-read/' + user_id,
+            type: "POST",
+            url: "/flag-all-notifications-as-read/" + user_id,
             success: function (flag_all_as_read_response, xhr, textStatus) {
                 if (textStatus.status === 200) {
                     const unreadIcons = document.getElementsByClassName("unread-notification-icon");
@@ -155,73 +156,136 @@ function flagAllNotificationsAsRead(user_id){
                     }
                 }
 
-                updateNewNotificationCounter(numberOfUnreadNotifications)
+                updateUnreadNotificationCounter("subtract", numberOfUnreadNotifications)
 
             },
             error: function (xhr, status, error) {
-                console.log('Error flagging notification as read: ' + error);
+                console.log("Error flagging notification as read: " + error);
             }
         });
     }
 }
 
-function updateNewNotificationCounter(numberOfReadNotifications){
+function updateUnreadNotificationCounter(operation, numberOfReadNotifications){
     let newNotificationCounter = document.getElementById( "newNotificationCounter");
     let newNotificationCounterMoreThanTen = document.getElementById( "newNotificationCounterMoreThanTen");
 
     if (newNotificationCounter) {
-        console.log(newNotificationCounter.textContent);
-        newNotificationCounter.textContent = (newNotificationCounter.textContent - numberOfReadNotifications);
-        console.log(newNotificationCounter.textContent);
+        if (operation === "subtract") {
+            console.log("newNotificationCounter subtract")
+            newNotificationCounter.textContent = parseInt(newNotificationCounter.textContent) - numberOfReadNotifications;
+            if (newNotificationCounter.textContent < 10 ) {
+                console.log("newNotificationCounterMoreThanTen subtract textContent < 10")
+                newNotificationCounter.classList.add("fix-alignment-less-than-ten")
+                newNotificationCounter.classList.remove("fix-alignment-more-than-ten")
+            }
+        } else if (operation === "add") {
+            console.log("newNotificationCounter add")
+            newNotificationCounter.textContent = parseInt(newNotificationCounter.textContent) + numberOfReadNotifications;
+            if (newNotificationCounter.textContent >= 10 ) {
+                console.log("newNotificationCounter add textContent >= 10")
+                newNotificationCounter.classList.add("fix-alignment-more-than-ten")
+                newNotificationCounter.classList.remove("fix-alignment-less-than-ten")
+            }
+        }
     }
 
     if (newNotificationCounterMoreThanTen) {
-        console.log(newNotificationCounterMoreThanTen.textContent);
-        newNotificationCounterMoreThanTen.textContent = (newNotificationCounterMoreThanTen.textContent - numberOfReadNotifications);
-        console.log(newNotificationCounterMoreThanTen.textContent);
-        if (newNotificationCounterMoreThanTen.textContent <10 ) {
-            newNotificationCounterMoreThanTen.classList.add("fix-alignment")
+        if (operation === "subtract") {
+            console.log("newNotificationCounterMoreThanTen subtract")
+            newNotificationCounterMoreThanTen.textContent = (parseInt(newNotificationCounterMoreThanTen.textContent) - numberOfReadNotifications);
+            if (newNotificationCounterMoreThanTen.textContent < 10 ) {
+                console.log("newNotificationCounterMoreThanTen subtract textContent < 10")
+                newNotificationCounterMoreThanTen.classList.add("fix-alignment-less-than-ten")
+                newNotificationCounterMoreThanTen.classList.remove("fix-alignment-more-than-ten")
+            }
+        } else if (operation === "add") {
+            console.log("newNotificationCounterMoreThanTen add")
+            newNotificationCounterMoreThanTen.textContent = (parseInt(newNotificationCounterMoreThanTen.textContent) + numberOfReadNotifications);
+            if (newNotificationCounterMoreThanTen.textContent >= 10 ) {
+                console.log("newNotificationCounterMoreThanTen add textContent >= 10")
+                newNotificationCounterMoreThanTen.classList.add("fix-alignment-more-than-ten")
+                newNotificationCounterMoreThanTen.classList.remove("fix-alignment-less-than-ten")
+            }
         }
     }
+
 }
 
-
-const notificationBell = document.getElementById('notificationBellContainer');
-const notificationWrapper = document.getElementById('notificationPanelWrapper');
-notificationBell.addEventListener('click', function() {
+const notificationBell = document.getElementById("notificationBell");
+const notificationWrapper = document.getElementById("notificationPanelWrapper");
+notificationBell.addEventListener("click", function() {
   const notificationWrapperStyle = window.getComputedStyle(notificationWrapper);
-  if (notificationWrapperStyle.display === 'none') {
-    notificationWrapper.style.display = 'flex';
+  if (notificationWrapperStyle.display === "none") {
+    notificationWrapper.style.display = "flex";
   } else {
-    notificationWrapper.style.display = 'none';
+    notificationWrapper.style.display = "none";
   }
 });
 
-
-document.addEventListener('click', function(event) {
+document.addEventListener("click", function(event) {
   const isClickInside = notificationWrapper.contains(event.target) || notificationBell.contains(event.target);
   if (!isClickInside) {
-    notificationWrapper.style.display = 'none';
+    notificationWrapper.style.display = "none";
   }
 });
 
+function addNewNotificationToList(notificationId, notificationContent, notificationURL=null) {
 
-function addNewNotification(numberOfReadNotifications){
-    let newNotificationCounter = document.getElementById( "newNotificationCounter");
-    let newNotificationCounterMoreThanTen = document.getElementById( "newNotificationCounterMoreThanTen");
+    console.log(notificationId)
+    console.log(notificationContent)
+    console.log(notificationURL)
 
-    if (newNotificationCounter) {
-        console.log(newNotificationCounter.textContent);
-        newNotificationCounter.textContent = (newNotificationCounter.textContent - numberOfReadNotifications);
-        console.log(newNotificationCounter.textContent);
+    const notificationsPanelContainer = document.getElementById("notificationsPanelContainer");
+
+    const notificationContainer = document.createElement("div");
+    notificationContainer.setAttribute("class", "notification-container");
+    notificationContainer.setAttribute("onClick", "flagNotificationAsRead(" + notificationId + ")");
+    notificationContainer.setAttribute("onAuxClick", "flagNotificationAsRead(" + notificationId + ")");
+
+    const notificationText = document.createElement("span");
+    notificationText.setAttribute("id", "notification-" + notificationId);
+    notificationText.setAttribute("class", "notification-text-" + notificationId);
+    notificationText.setAttribute("onClick", "flagNotificationAsRead(" + notificationId + ")");
+    notificationText.setAttribute("onAuxClick", "flagNotificationAsRead(" + notificationId + ")");
+    notificationText.style.fontSize = "13px";
+    notificationText.innerText = notificationContent;
+    notificationContainer.append(notificationText);
+
+    const notificationIconsWrapper = document.createElement("div");
+    notificationIconsWrapper.setAttribute("class", "notification-icons-wrapper");
+    notificationContainer.append(notificationIconsWrapper);
+
+    if (notificationURL) {
+
+        const notificationLink = document.createElement("a");
+        notificationLink.setAttribute("id", "notification-" + notificationId);
+        notificationLink.setAttribute("href", notificationURL);
+        notificationLink.setAttribute("target", "_blank");
+        notificationLink.setAttribute("class", "notification-link");
+        notificationsPanelContainer.prepend(notificationLink);
+
+        notificationLink.append(notificationContainer);
+
+        const notificationUrlSvg = document.createElement("object");
+        notificationUrlSvg.setAttribute("id", "notificationOpenLinkIcon-" + notificationId);
+        notificationUrlSvg.setAttribute("class", "open-link-svg");
+        notificationUrlSvg.setAttribute("data", "/static/svg/open-link.svg");
+        notificationUrlSvg.setAttribute("type", "image/svg+xml");
+        notificationIconsWrapper.prepend(notificationUrlSvg);
+    } else {
+        notificationsPanelContainer.prepend(notificationContainer);
     }
 
-    if (newNotificationCounterMoreThanTen) {
-        console.log(newNotificationCounterMoreThanTen.textContent);
-        newNotificationCounterMoreThanTen.textContent = (newNotificationCounterMoreThanTen.textContent - numberOfReadNotifications);
-        console.log(newNotificationCounterMoreThanTen.textContent);
-        if (newNotificationCounterMoreThanTen.textContent <10 ) {
-            newNotificationCounterMoreThanTen.classList.add("fix-alignment")
-        }
-    }
+    const unreadNotificationSvg = document.createElement("object");
+    unreadNotificationSvg.setAttribute("id", "notificationUnreadIcon-" + notificationId);
+    unreadNotificationSvg.setAttribute("class", "open-link-svg");
+    unreadNotificationSvg.setAttribute("data", "/static/svg/unread-notification-icon.svg");
+    unreadNotificationSvg.setAttribute("type", "image/svg+xml");
+    unreadNotificationSvg.style.width = "10px";
+    unreadNotificationSvg.style.height = "10px";
+    notificationIconsWrapper.append(unreadNotificationSvg);
+
+    updateUnreadNotificationCounter("add", 1)
+
 }
