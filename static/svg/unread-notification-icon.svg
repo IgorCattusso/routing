@@ -1,0 +1,7 @@
+<svg id="unreadNotificationIcon" class="unread-notification-icon" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" preserveAspectRatio="xMidYMid meet" fill="#000000">
+	<g stroke-width="0"></g>
+	<g stroke-linecap="round" stroke-linejoin="round"></g>
+	<g>
+		<circle fill="#5e78ff" cx="18" cy="18" r="18"></circle>
+	</g>
+</svg>
