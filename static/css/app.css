@@ -372,6 +372,9 @@ a {
     padding: 10px;
     border-radius: 50%;
     cursor: pointer;
+    position: fixed;
+    top: 0;
+    right: 0;
 }
 
 #newNotificationBellIcon, #newNotificationCounter, #newNotificationCounterMoreThanTen {
@@ -396,8 +399,13 @@ a {
     top: 33px;
 }
 
-.fix-alignment {
+.fix-alignment-less-than-ten {
     right: 46px !important;
+    top: 33px !important;
+}
+
+.fix-alignment-more-than-ten {
+    right: 50px !important;
     top: 33px !important;
 }
 
