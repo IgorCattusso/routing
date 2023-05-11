@@ -88,7 +88,6 @@ def login():
             session['routing_status'] = 2
             session['logged_in'] = True
             user_id = session['_user_id']
-            print(user_id)
 
             with Session(engine) as db_session:
                 Users.login_user(db_session, user.id)
