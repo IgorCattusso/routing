@@ -49,55 +49,55 @@ searchButton.addEventListener('click', async (evt) => {
                 tableRowContainer.setAttribute("class", "row-container");
                 tableRowContainer.setAttribute("id", data[i]["log_id"]);
 
-                containerTable.appendChild(tableRowContainer);
+                containerTable.append(tableRowContainer);
 
                 const tableRow = document.createElement("div");
                 tableRow.setAttribute("class", "std-tr");
                 tableRow.setAttribute("data-id", data[i]["log_id"]);
-                tableRowContainer.appendChild(tableRow);
+                tableRowContainer.append(tableRow);
 
                 const tableColumnId = document.createElement("span");
                 tableColumnId.setAttribute("class", "std-td std-td-id");
                 tableColumnId.innerText = data[i]["log_id"];
-                tableRow.appendChild(tableColumnId);
+                tableRow.append(tableColumnId);
 
                 const tableColumnTicketId = document.createElement("span");
                 tableColumnTicketId.setAttribute("class", "std-td std-td-ticket-id");
                 tableColumnTicketId.innerText = data[i]["ticket_id"];
-                tableRow.appendChild(tableColumnTicketId);
+                tableRow.append(tableColumnTicketId);
 
                 const tableColumnUserName = document.createElement("span");
                 tableColumnUserName.setAttribute("class", "std-td std-td-user-name");
                 tableColumnUserName.innerText = data[i]["user_name"];
-                tableRow.appendChild(tableColumnUserName);
+                tableRow.append(tableColumnUserName);
 
                 const tableColumnShortMessage = document.createElement("span");
                 tableColumnShortMessage.setAttribute("class", "std-td std-td-short-message");
                 tableColumnShortMessage.innerText = data[i]["short_message"];
-                tableRow.appendChild(tableColumnShortMessage);
+                tableRow.append(tableColumnShortMessage);
 
                 const tableColumnCreatedAt = document.createElement("span");
                 tableColumnCreatedAt.setAttribute("class", "std-td std-td-created-at");
                 tableColumnCreatedAt.innerText = data[i]["created_at"];
-                tableRow.appendChild(tableColumnCreatedAt);
+                tableRow.append(tableColumnCreatedAt);
 
                 const tableColumnArrowSvg = document.createElement("object");
                 tableColumnArrowSvg.setAttribute("class", "std-td std-td-arrow");
-                tableColumnArrowSvg.setAttribute("data", "/static/img/arrow-down.svg");
+                tableColumnArrowSvg.setAttribute("data", "/static/svg/arrow-down.svg");
                 tableColumnArrowSvg.setAttribute("type", "image/svg+xml");
-                tableRow.appendChild(tableColumnArrowSvg);
+                tableRow.append(tableColumnArrowSvg);
 
                 const tableFullMessageContainer = document.createElement("div")
                 tableFullMessageContainer.setAttribute("class", "full-message-container")
 
-                tableRowContainer.appendChild(tableFullMessageContainer)
+                tableRowContainer.append(tableFullMessageContainer)
 
                 const tableColumnFullMessage = document.createElement("span");
                 tableColumnFullMessage.setAttribute("class", "std-td std-td-json-row json-row");
                 tableColumnFullMessage.style.display = "none";
                 tableColumnFullMessage.innerText = data[i]["full_message"];
 
-                tableFullMessageContainer.appendChild(tableColumnFullMessage)
+                tableFullMessageContainer.append(tableColumnFullMessage)
 
             }
         })
@@ -107,7 +107,7 @@ searchButton.addEventListener('click', async (evt) => {
 
     await sleep(500);
 
-    testfunc()
+    await logsSearchFormatJSON()
 
     await sleep(500);
 
@@ -118,7 +118,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function testfunc() {
+async function logsSearchFormatJSON() {
 
     function formatJSON2() {
         const jsonRows2 = document.getElementsByClassName("json-row");
