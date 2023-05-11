@@ -189,8 +189,8 @@ function updateNewNotificationCounter(numberOfReadNotifications){
 const notificationBell = document.getElementById('notificationBellContainer');
 const notificationWrapper = document.getElementById('notificationPanelWrapper');
 notificationBell.addEventListener('click', function() {
-  const computedStyle = window.getComputedStyle(notificationWrapper);
-  if (computedStyle.display === 'none') {
+  const notificationWrapperStyle = window.getComputedStyle(notificationWrapper);
+  if (notificationWrapperStyle.display === 'none') {
     notificationWrapper.style.display = 'flex';
   } else {
     notificationWrapper.style.display = 'none';
