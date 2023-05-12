@@ -23,7 +23,7 @@ from views_zendesk_groups import *
 from views_zendesk_tickets import *
 from views_zendesk_users import *
 from routing import *
-from notifications import *
+from views_notifications import *
 from scheduler import *
 
 if __name__ == '__main__':
