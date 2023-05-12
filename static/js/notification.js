@@ -1,3 +1,5 @@
+notify();
+
 // Sets an interval to check for new notifications every 5 seconds
 setInterval(function () {
     notify();
@@ -47,9 +49,16 @@ function notification(userId) {
                     success: function (flag_as_sent_response, xhr, textStatus) {
                         if (textStatus.status === 200) {  // If a notification was successfully flagged as received
                             // Displays a notification
-                            const notification = new Notification("Novo ticket atribuído!", options);
-
-                            addNewNotificationToList(get_notification_response["id"], get_notification_response["content"], get_notification_response["url"])
+                            if (get_notification_response["type"] === 0) {
+                                const notification = new Notification("Novo ticket atribuído!", options);
+                                addNewNotificationToList(
+                                    get_notification_response["id"],
+                                    get_notification_response["content"],
+                                    get_notification_response["url"]
+                                )
+                            } else {
+                                const notification = new Notification("Operação concluída!", options)
+                            }
 
                             // Plays a sound. To play the sound is either necessary:
                             // 1. That the user interacts with the page, any interaction like changing the status or
@@ -152,7 +161,7 @@ function updateUnreadNotificationCounter(operation, numberOfReadNotifications){
     let newNotificationCounterMoreThanTen = document.getElementById( "newNotificationCounterMoreThanTen");
 
     if (newNotificationCounter) {
-        if (operation === "subtract") {
+        if (operation === "subtract" && parseInt(newNotificationCounter.textContent) > 0) {
             newNotificationCounter.textContent = parseInt(newNotificationCounter.textContent) - numberOfReadNotifications;
             if (newNotificationCounter.textContent < 10 ) {
                 newNotificationCounter.classList.add("fix-alignment-less-than-ten")
@@ -168,7 +177,7 @@ function updateUnreadNotificationCounter(operation, numberOfReadNotifications){
     }
 
     if (newNotificationCounterMoreThanTen) {
-        if (operation === "subtract") {
+        if (operation === "subtract" && parseInt(newNotificationCounterMoreThanTen.textContent) > 0) {
             newNotificationCounterMoreThanTen.textContent = (parseInt(newNotificationCounterMoreThanTen.textContent) - numberOfReadNotifications);
             if (newNotificationCounterMoreThanTen.textContent < 10 ) {
                 newNotificationCounterMoreThanTen.classList.add("fix-alignment-less-than-ten")
