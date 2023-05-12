@@ -3,7 +3,8 @@
 //-------------------------//
 function toggleOptions() {
   var options = document.getElementById("options-list");
-  if (options.style.display === "none") {
+  var optionsStyle = window.getComputedStyle(options)
+  if (optionsStyle.display === "none") {
     options.style.display = "block";
   } else {
     options.style.display = "none";
