@@ -2,11 +2,11 @@ from config import ZENDESK_BASE_URL
 import requests
 from helpers import generate_zendesk_headers, match_false_true, internal_render_template
 from models import ZendeskLocales, ZendeskTicketFields, ZendeskTicketForms, ZendeskTicketFieldsInForms, \
-    ZendeskTicketFieldOptions, ZendeskTags, ZendeskSchedules
+    ZendeskTicketFieldOptions, ZendeskTags, ZendeskSchedules, Notifications
 from app import app, engine
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from flask import flash, redirect, url_for
+from flask import flash, redirect, url_for, session
 import time
 from datetime import datetime, timedelta
 
@@ -40,17 +40,33 @@ def get_zendesk_schedules():
     time.sleep(.35)
 
     if inserted_schedules:
-        flash(f'Programações inseridas: {str(inserted_schedules)}')
+        user_id = session['_user_id']
+        with Session(engine) as db_session:
+            Notifications.create_notification(
+                db_session,
+                user_id,
+                1,
+                f'Programações inseridas: {inserted_schedules}',
+            )
+            db_session.commit()
         return redirect(url_for('zendesk_schedules'))
     else:
-        flash(f'Nenhuma Programação inserida!')
+        user_id = session['_user_id']
+        with Session(engine) as db_session:
+            Notifications.create_notification(
+                db_session,
+                user_id,
+                1,
+                f'Não há novas programações para inserir ou alterar!',
+            )
+            db_session.commit()
         return redirect(url_for('zendesk_schedules'))
 
 
 @app.route('/zendesk-schedule/<int:schedule_id>')
 def get_zendesk_schedule_hours(schedule_id):
-    with Session(engine) as session:
-        schedule = ZendeskSchedules.get_schedule(session, schedule_id)
+    with Session(engine) as db_session:
+        schedule = ZendeskSchedules.get_schedule(db_session, schedule_id)
 
     time.sleep(.35)
 
@@ -73,7 +89,6 @@ def get_zendesk_schedule_hours(schedule_id):
     )
 
 
-
 @app.route('/get-zendesk-locales')
 def get_zendesk_locales():
     zendesk_endpoint_url = '/api/v2/locales.json?page=1'
@@ -87,8 +102,8 @@ def get_zendesk_locales():
     while next_url:
         for locale in api_response['locales']:
             stmt = select(ZendeskLocales).where(ZendeskLocales.zendesk_locale_id == locale['id'])
-            with Session(engine) as session:
-                query_result = session.execute(stmt).first()
+            with Session(engine) as db_session:
+                query_result = db_session.execute(stmt).first()
                 if not query_result:
                     new_locale = ZendeskLocales(zendesk_locale_id=locale['id'],
                                                 locale=locale['locale'],
@@ -97,8 +112,8 @@ def get_zendesk_locales():
                                                 default=match_false_true(locale['default']),
                                                 )
                     inserted_locales.append(locale['locale'])
-                    session.add(new_locale)
-                    session.commit()
+                    db_session.add(new_locale)
+                    db_session.commit()
 
         next_url = api_response['next_page']
 
@@ -108,10 +123,26 @@ def get_zendesk_locales():
     time.sleep(.35)
 
     if inserted_locales:
-        flash(f'Localidades inseridas: {str(inserted_locales)}')
+        user_id = session['_user_id']
+        with Session(engine) as db_session:
+            Notifications.create_notification(
+                db_session,
+                user_id,
+                1,
+                f'Localidades inseridas: {inserted_locales}',
+            )
+            db_session.commit()
         return redirect(url_for('zendesk_locales'))
     else:
-        flash(f'Nenhuma localidade inserida!')
+        user_id = session['_user_id']
+        with Session(engine) as db_session:
+            Notifications.create_notification(
+                db_session,
+                user_id,
+                1,
+                f'Não há novas localidades para inserir ou alterar!',
+            )
+            db_session.commit()
         return redirect(url_for('zendesk_locales'))
 
 
@@ -139,16 +170,16 @@ def get_zendesk_ticket_forms():
     while next_url:
         for field in api_response['ticket_fields']:
             stmt = select(ZendeskTicketFields).where(ZendeskTicketFields.zendesk_ticket_field_id == field['id'])
-            with Session(engine) as session:
-                query_result = session.execute(stmt).first()
+            with Session(engine) as db_session:
+                query_result = db_session.execute(stmt).first()
                 if not query_result:
                     new_ticket_field = ZendeskTicketFields(zendesk_ticket_field_id=field['id'],
                                                            title=field['title'],
                                                            type=field['type'],
                                                            )
                     inserted_ticket_fields.append(field['id'])
-                    session.add(new_ticket_field)
-                    session.commit()
+                    db_session.add(new_ticket_field)
+                    db_session.commit()
 
         next_url = api_response['next_page']
 
@@ -169,8 +200,8 @@ def get_zendesk_ticket_forms():
     while next_url:
         for form in api_response['ticket_forms']:
             stmt = select(ZendeskTicketForms).where(ZendeskTicketForms.zendesk_ticket_form_id == form['id'])
-            with Session(engine) as session:
-                query_result = session.execute(stmt).first()
+            with Session(engine) as db_session:
+                query_result = db_session.execute(stmt).first()
                 if not query_result:
                     new_ticket_form = ZendeskTicketForms(zendesk_ticket_form_id=form['id'],
                                                          name=form['name'],
@@ -178,8 +209,8 @@ def get_zendesk_ticket_forms():
                                                          default=match_false_true(form['default']),
                                                          )
                     inserted_ticket_forms.append(form['id'])
-                    session.add(new_ticket_form)
-                    session.commit()
+                    db_session.add(new_ticket_form)
+                    db_session.commit()
 
         next_url = api_response['next_page']
 
@@ -208,15 +239,15 @@ def get_zendesk_ticket_forms():
                         .where(ZendeskTicketForms.zendesk_ticket_form_id == form_id) \
                         .where(ZendeskTicketFields.zendesk_ticket_field_id == ticket_fields_in_form)
 
-                with Session(engine) as session:
-                    query_result = session.execute(stmt).first()
+                with Session(engine) as db_session:
+                    query_result = db_session.execute(stmt).first()
                     if not query_result:  # TODO: test if the statements below can be made through the query_result var
                         zendesk_ticket_forms_id = \
-                            session.execute(
+                            db_session.execute(
                                 select(ZendeskTicketForms.id)
                                 .where(ZendeskTicketForms.zendesk_ticket_form_id == form_id)).scalar()
                         zendesk_ticket_fields_id = \
-                            session.execute(
+                            db_session.execute(
                                 select(ZendeskTicketFields.id)
                                 .where(ZendeskTicketFields.zendesk_ticket_field_id == ticket_fields_in_form)).scalar()
 
@@ -226,8 +257,8 @@ def get_zendesk_ticket_forms():
                                                        )
 
                         inserted_ticket_fields_in_forms.append(ticket_fields_in_form)
-                        session.add(new_ticket_field_in_form)
-                        session.commit()
+                        db_session.add(new_ticket_field_in_form)
+                        db_session.commit()
 
         next_url = api_response['next_page']
 
@@ -242,7 +273,7 @@ def get_zendesk_ticket_forms():
     stmt = select(ZendeskTicketFields.zendesk_ticket_field_id) \
         .join(ZendeskTicketFieldsInForms) \
         .join(ZendeskTicketForms, ZendeskTicketForms.id == ZendeskTicketFieldsInForms.zendesk_ticket_forms_id)
-    zendesk_ticket_fields = session.execute(stmt)
+    zendesk_ticket_fields = db_session.execute(stmt)
 
     for field in zendesk_ticket_fields:
         zendesk_endpoint_url = f'/api/v2/ticket_fields/{field[0]}/options'
@@ -257,10 +288,10 @@ def get_zendesk_ticket_forms():
                 for option in api_response['custom_field_options']:
                     stmt = select(ZendeskTicketFieldOptions) \
                         .where(ZendeskTicketFieldOptions.zendesk_ticket_field_option_id == option['id'])
-                    with Session(engine) as session:
-                        query_result = session.execute(stmt).first()
+                    with Session(engine) as db_session:
+                        query_result = db_session.execute(stmt).first()
                         if not query_result:
-                            zendesk_ticket_fields_id = session.execute(
+                            zendesk_ticket_fields_id = db_session.execute(
                                 select(ZendeskTicketFields.id)
                                 .where(ZendeskTicketFields.zendesk_ticket_field_id == field[0])).scalar()
                             new_field_option = ZendeskTicketFieldOptions(
@@ -271,8 +302,8 @@ def get_zendesk_ticket_forms():
                                 position=option['position'],
                             )
                             inserted_ticket_field_options.append(option['name'])
-                            session.add(new_field_option)
-                            session.commit()
+                            db_session.add(new_field_option)
+                            db_session.commit()
 
                 next_url = api_response['next_page']
 
@@ -281,13 +312,26 @@ def get_zendesk_ticket_forms():
 
     if inserted_ticket_fields or inserted_ticket_forms or \
             inserted_ticket_fields_in_forms or inserted_ticket_field_options:
-        flash(f'Ticket Fields inseridos: {str(inserted_ticket_fields)};'
-              f'Ticket Forms inseridos: {str(inserted_ticket_forms)};'
-              f'Ticket Fields in Forms inseridos: {str(inserted_ticket_fields_in_forms)};'
-              f'Ticket Fields in Forms inseridos: {str(inserted_ticket_field_options)}')
+        user_id = session['_user_id']
+        with Session(engine) as db_session:
+            Notifications.create_notification(
+                db_session,
+                user_id,
+                1,
+                f'Formulários e campos inseridos com sucesso!',
+            )
+            db_session.commit()
         return redirect(url_for('zendesk_ticket_forms'))
     else:
-        flash(f'Nenhuma nova relação inserida!')
+        user_id = session['_user_id']
+        with Session(engine) as db_session:
+            Notifications.create_notification(
+                db_session,
+                user_id,
+                1,
+                f'Não há novos formulários para inserir ou alterar!',
+            )
+            db_session.commit()
         return redirect(url_for('zendesk_ticket_forms'))
 
 
@@ -304,14 +348,14 @@ def get_zendesk_tags():
     while next_url:
         for tag in api_response['tags']:
             stmt = select(ZendeskTags).where(ZendeskTags.tag == tag['name'])
-            with Session(engine) as session:
-                query_result = session.execute(stmt).first()
+            with Session(engine) as db_session:
+                query_result = db_session.execute(stmt).first()
                 if not query_result:
                     new_tag = ZendeskTags(tag=tag['name'],
                                           )
                     inserted_tags.append(tag['name'])
-                    session.add(new_tag)
-                    session.commit()
+                    db_session.add(new_tag)
+                    db_session.commit()
 
         next_url = api_response['next_page']
 
@@ -321,9 +365,24 @@ def get_zendesk_tags():
     time.sleep(.35)
 
     if inserted_tags:
-        flash(f'Tags inseridas: {str(inserted_tags)}')
+        user_id = session['_user_id']
+        with Session(engine) as db_session:
+            Notifications.create_notification(
+                db_session,
+                user_id,
+                1,
+                f'Tags inseridas: {inserted_tags}',
+            )
+            db_session.commit()
         return redirect(url_for('zendesk_tags'))
     else:
-        flash(f'Nenhuma tag inserida!')
+        user_id = session['_user_id']
+        with Session(engine) as db_session:
+            Notifications.create_notification(
+                db_session,
+                user_id,
+                1,
+                'Não há novas tags para inserir ou alterar!',
+            )
+            db_session.commit()
         return redirect(url_for('zendesk_tags'))
-

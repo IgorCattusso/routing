@@ -101,7 +101,7 @@ def login():
 
                 db_session.commit()
 
-            flash('Logged in successfully.')
+            flash('Logado com sucesso!')
 
             return redirect(url_for('home'))
 

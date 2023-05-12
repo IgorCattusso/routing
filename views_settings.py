@@ -1,8 +1,7 @@
-import requests
 from models import GeneralSettings
 from app import app, engine
 from sqlalchemy.orm import Session
-from flask import render_template, flash, redirect, url_for, request
+from flask import request
 
 
 @app.route('/routing-settings', methods=['PUT'])

@@ -1384,7 +1384,7 @@ class Notifications(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     users_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
-    type: Mapped[int] = mapped_column(nullable=False)  # 0 = new_ticket
+    type: Mapped[int] = mapped_column(nullable=False)  # 0 = new_ticket | 1 = system notifications
     content: Mapped[str] = mapped_column(String(500), nullable=False)
     url: Mapped[str] = mapped_column(String(500), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
