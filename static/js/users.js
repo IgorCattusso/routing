@@ -67,3 +67,38 @@ deleteButton.addEventListener("click", function () {
         deleteButton.setAttribute("disabled", true);
     }
 });
+
+const changeUserStatus = document.getElementById("changeUserStatus");
+changeUserStatus.addEventListener("click", function () {
+    const table = document.getElementById("std-table");
+    const rows = table.getElementsByClassName("std-tr");
+    const selectedRowIDs = [];
+    for (let i = 0; i < rows.length; i++) {
+        if (rows[i].classList.contains("selected")) {
+            selectedRowIDs.push(rows[i].getAttribute("data-id"));
+        }
+    }
+
+    if (selectedRowIDs.length === 1) {
+        const user = document.querySelector('.std-tr.selected');
+        const userId = user.getAttribute('data-id');
+          $.ajax({
+            type: 'PATCH',
+            url: '/users/change-user-status/' + userId,
+
+            success: function(response) {
+              // Provide feedback to the user that the data was processed successfully
+              alert('Status alterado com sucesso!');
+              window.location.href = '/users';
+            },
+            error: function(xhr, status, error) {
+              // Provide feedback to the user that an error occurred during the processing of the data
+              alert('Ocorreu um erro ao alterar o status do usuário: ' + error);
+            }
+          });
+    } else if (selectedRowIDs.length === 0) {
+        alert("Por favor, selecione algum usuário");
+    } else {
+        alert("Por favor, selecione apenas um usuário");
+    }
+});

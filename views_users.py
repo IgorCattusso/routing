@@ -81,3 +81,13 @@ def get_user(user_id):
             session.commit()
 
         return 'Success'
+
+
+@app.route('/users/change-user-status/<int:user_id>', methods=['PATCH', ])
+def change_another_user_status(user_id):
+
+    with Session(engine) as db_session:
+        Users.change_user_status(db_session, user_id)
+        db_session.commit()
+
+    return 'Data processed successfully'

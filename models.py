@@ -1377,6 +1377,34 @@ class Users(Base):
             error_info = error.orig.args
             return f'There was an error: {error_info}'
 
+    @staticmethod
+    def change_user_status(db_session, user_id):
+        try:
+            current_status = db_session.execute(
+                select(
+                    Users.routing_status,  # 0 = offline | 1 = online | 2 = away
+                ).where(Users.id == user_id)
+            ).scalar()
+
+            if current_status == 1:
+                new_status = 2
+            elif current_status == 2:
+                new_status = 1
+            else:
+                new_status = current_status
+
+            db_session.execute(
+                update(Users)
+                .where(Users.id == user_id)
+                .values(routing_status=new_status)
+            )
+
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
 
 class Notifications(Base):
     __tablename__ = 'notifications'

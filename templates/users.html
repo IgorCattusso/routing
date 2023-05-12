@@ -1,7 +1,7 @@
 {% extends "template.html" %}
 {% block conteudo %}
 
-    <link rel="stylesheet" href="/static/css/user.css">
+    <link rel="stylesheet" href="/static/css/users.css">
 
     <div class="container">
         <div class="main-content">
@@ -77,6 +77,10 @@
         <div class="footer">
             <div class="footer-items">
                 <div class="options">
+                    <ul class="options-list" id="options-list">
+                        <li id="changeUserStatus" class="option-list-action">Alterar Status do Usuário</li>
+                    </ul>
+                    <button onclick="toggleOptions()">Opções</button>
                 </div>
                 <div class="page-actions">
                     <div><button id="delete" disabled="disabled">Excluir</button></div>
