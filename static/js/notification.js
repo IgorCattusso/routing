@@ -35,28 +35,16 @@ function notification(userId) {
         type: "GET", // Get notifications
         url: "/get-users-next-notification/" + userId.value,
         success: function (get_notification_response, xhr, textStatus) {
-            // console.log("get-users-next-notification-status: " + textStatus.status)
             if (textStatus.status === 200) { // If a notification was received
                 let options = {
                     body: get_notification_response["content"],
                     icon: "/static/img/favicon.png",
                 }
 
-                    // Notifications.id,
-                    // Notifications.type,
-                    // Notifications.content,
-                    // Notifications.url,
-
-                    // Notifications.id,
-                    // Notifications.content,
-                    // Notifications.url,
-                    // Notifications.read,
-
                 $.ajax({
                     type: "POST", // Sets the notification as received
                     url: "/flag-notification-as-sent/" + get_notification_response["id"],
                     success: function (flag_as_sent_response, xhr, textStatus) {
-                        // console.log("flag-notification-as-sent-status: " + textStatus.status)
                         if (textStatus.status === 200) {  // If a notification was successfully flagged as received
                             // Displays a notification
                             const notification = new Notification("Novo ticket atribuído!", options);
@@ -124,10 +112,7 @@ function flagNotificationAsRead(notification_id){
                 console.log("Error flagging notification as read: " + error);
             }
         });
-
         updateUnreadNotificationCounter("subtract", 1)
-        console.log("read 1")
-
     }
 }
 
@@ -142,8 +127,6 @@ function flagAllNotificationsAsRead(user_id){
 
     const numberOfUnreadNotifications = numberOfUnreadNotificationsElement.textContent
 
-    console.log("number: " + numberOfUnreadNotifications)
-
     if (unreadNotifications) {
         $.ajax({
             type: "POST",
@@ -155,9 +138,7 @@ function flagAllNotificationsAsRead(user_id){
                         unreadIcons[i].style.display = "none";
                     }
                 }
-
                 updateUnreadNotificationCounter("subtract", numberOfUnreadNotifications)
-
             },
             error: function (xhr, status, error) {
                 console.log("Error flagging notification as read: " + error);
@@ -172,18 +153,14 @@ function updateUnreadNotificationCounter(operation, numberOfReadNotifications){
 
     if (newNotificationCounter) {
         if (operation === "subtract") {
-            console.log("newNotificationCounter subtract")
             newNotificationCounter.textContent = parseInt(newNotificationCounter.textContent) - numberOfReadNotifications;
             if (newNotificationCounter.textContent < 10 ) {
-                console.log("newNotificationCounterMoreThanTen subtract textContent < 10")
                 newNotificationCounter.classList.add("fix-alignment-less-than-ten")
                 newNotificationCounter.classList.remove("fix-alignment-more-than-ten")
             }
         } else if (operation === "add") {
-            console.log("newNotificationCounter add")
             newNotificationCounter.textContent = parseInt(newNotificationCounter.textContent) + numberOfReadNotifications;
             if (newNotificationCounter.textContent >= 10 ) {
-                console.log("newNotificationCounter add textContent >= 10")
                 newNotificationCounter.classList.add("fix-alignment-more-than-ten")
                 newNotificationCounter.classList.remove("fix-alignment-less-than-ten")
             }
@@ -192,18 +169,14 @@ function updateUnreadNotificationCounter(operation, numberOfReadNotifications){
 
     if (newNotificationCounterMoreThanTen) {
         if (operation === "subtract") {
-            console.log("newNotificationCounterMoreThanTen subtract")
             newNotificationCounterMoreThanTen.textContent = (parseInt(newNotificationCounterMoreThanTen.textContent) - numberOfReadNotifications);
             if (newNotificationCounterMoreThanTen.textContent < 10 ) {
-                console.log("newNotificationCounterMoreThanTen subtract textContent < 10")
                 newNotificationCounterMoreThanTen.classList.add("fix-alignment-less-than-ten")
                 newNotificationCounterMoreThanTen.classList.remove("fix-alignment-more-than-ten")
             }
         } else if (operation === "add") {
-            console.log("newNotificationCounterMoreThanTen add")
             newNotificationCounterMoreThanTen.textContent = (parseInt(newNotificationCounterMoreThanTen.textContent) + numberOfReadNotifications);
             if (newNotificationCounterMoreThanTen.textContent >= 10 ) {
-                console.log("newNotificationCounterMoreThanTen add textContent >= 10")
                 newNotificationCounterMoreThanTen.classList.add("fix-alignment-more-than-ten")
                 newNotificationCounterMoreThanTen.classList.remove("fix-alignment-less-than-ten")
             }
@@ -231,10 +204,6 @@ document.addEventListener("click", function(event) {
 });
 
 function addNewNotificationToList(notificationId, notificationContent, notificationURL=null) {
-
-    console.log(notificationId)
-    console.log(notificationContent)
-    console.log(notificationURL)
 
     const notificationsPanelContainer = document.getElementById("notificationsPanelContainer");
 
