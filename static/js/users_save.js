@@ -33,7 +33,12 @@ saveButton.addEventListener("click", () => {
     const userEmail = document.getElementById("userEmail");
     const userZendeskUserId = document.getElementsByClassName("zendesk-users-id-chosen-value");
     const userZendeskScheduleId = document.getElementsByClassName("zendesk-schedules-id-chosen-value");
+
     const latamUser = document.getElementsByName("latam-user");
+    const rockStarUser = document.getElementsByName("rock-star-user");
+    const jnjContestationUser = document.getElementsByName("jnj-contestation-user");
+    const jnjHomologationUser = document.getElementsByName("jnj-homologation-user");
+
 
     const CSRFToken = document.getElementById("CSRFToken");
 
@@ -69,7 +74,45 @@ saveButton.addEventListener("click", () => {
         }
     }
 
-    // Alert that the routeName field is mandatory
+
+    let rockStarUserValue
+    for (let i = 0; i < rockStarUser.length; i++) {
+        if (rockStarUser[i].checked) {
+            let rockStarUserOption = rockStarUser[i].id
+            if (rockStarUserOption === "rock-star-no") {
+                rockStarUserValue = 0
+            } else if (rockStarUserOption === "rock-star-yes") {
+                rockStarUserValue = 1
+            }
+        }
+    }
+
+
+    let jnjContestationUserValue
+    for (let i = 0; i < jnjContestationUser.length; i++) {
+        if (jnjContestationUser[i].checked) {
+            let jnjContestationUserOption = jnjContestationUser[i].id
+            if (jnjContestationUserOption === "jnj-contestation-no") {
+                jnjContestationUserValue = 0
+            } else if (jnjContestationUserOption === "jnj-contestation-yes") {
+                jnjContestationUserValue = 1
+            }
+        }
+    }
+
+
+    let jnjHomologationUserValue
+    for (let i = 0; i < jnjHomologationUser.length; i++) {
+        if (jnjHomologationUser[i].checked) {
+            let jnjHomologationUserOption = jnjHomologationUser[i].id
+            if (jnjHomologationUserOption === "jnj-homologation-no") {
+                jnjHomologationUserValue = 0
+            } else if (jnjHomologationUserOption === "jnj-homologation-yes") {
+                jnjHomologationUserValue = 1
+            }
+        }
+    }
+
     if (userName.value === "") {
         userName.placeholder = "Este campo é obrigatório";
         userName.style.borderColor = "red";
@@ -77,7 +120,6 @@ saveButton.addEventListener("click", () => {
         return;
     }
 
-    // Alert that the routeName field is mandatory
     if (userEmail.value === "") {
         userEmail.placeholder = "Este campo é obrigatório";
         userEmail.style.borderColor = "red";
@@ -85,7 +127,6 @@ saveButton.addEventListener("click", () => {
         return;
     }
 
-    // Get the value of the User status, true or false
     const userStatusValue = $("#editUserStatus").prop("checked");
 
     // If the ID of the route is empty, that means we"re on the NEW page, if it has a value, that means we"re on the EDIT page
@@ -97,7 +138,6 @@ saveButton.addEventListener("click", () => {
                 }
             }
         });
-        // Send the selected values to your Flask app using an AJAX request
         $.ajax({
             type: "POST",
             url: "/users/new",
@@ -108,18 +148,17 @@ saveButton.addEventListener("click", () => {
                 zendesk_users_id: userZendeskUserIdValue,
                 zendesk_schedules_id: userZendeskScheduleIdValue,
                 latam_user: latamUserValue,
+                rock_star_user: rockStarUserValue,
+                jnj_contestation_user: jnjContestationUserValue,
+                jnj_homologation_user: jnjHomologationUserValue,
             }),
             contentType: "application/json",
 
             success: function (response) {
-                // Provide feedback to the users that the data was processed successfully
-                console.log(this.data);
                 alert("Cadastro realizado com sucesso!");
                 window.location.href = "/users";
             },
             error: function (xhr, status, error) {
-                // Provide feedback to the users that an error occurred during the processing of the data
-                console.log(this.data);
                 alert("Ocorreu um erro ao realizar o cadastro: " + error);
             }
         });
@@ -145,17 +184,17 @@ saveButton.addEventListener("click", () => {
                 zendesk_users_id: userZendeskUserIdValue,
                 zendesk_schedules_id: userZendeskScheduleIdValue,
                 latam_user: latamUserValue,
+                rock_star_user: rockStarUserValue,
+                jnj_contestation_user: jnjContestationUserValue,
+                jnj_homologation_user: jnjHomologationUserValue,
             }),
             contentType: "application/json",
 
             success: function (response) {
-                // Provide feedback to the users that the data was processed successfully
                 alert("Cadastro alterado com sucesso!");
                 window.location.href = "/users";
             },
             error: function (xhr, status, error) {
-                // Provide feedback to the users that an error occurred during the processing of the data
-                console.log(this.data);
                 alert("Ocorreu um erro ao alterar o cadastro: " + error);
             }
         });

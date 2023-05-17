@@ -1071,6 +1071,9 @@ class Users(Base):
     zendesk_users_id: Mapped[int] = mapped_column(ForeignKey('zendesk_users.id'))
     zendesk_schedules_id: Mapped[int] = mapped_column(ForeignKey('zendesk_schedules.id'))
     latam_user: Mapped[int] = mapped_column(nullable=False)  # 0 = no | 1 = yes | 2 = both
+    rock_star_user: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    jnj_contestation_user: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    jnj_homologation_user: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
     @staticmethod
     def get_all_users(db_session):
@@ -1107,6 +1110,9 @@ class Users(Base):
                     ZendeskUsers.zendesk_user_id,
                     Users.zendesk_schedules_id,
                     Users.latam_user,  # 0 = no | 1 = yes | 2 = both
+                    Users.rock_star_user,
+                    Users.jnj_contestation_user,
+                    Users.jnj_homologation_user,
                 ).where(Users.id == user_id)
                 .join(ZendeskUsers, isouter=True)
             ).first()
@@ -1194,7 +1200,8 @@ class Users(Base):
             return f'There was an error: {error_info}'
 
     @staticmethod
-    def insert_new_user(db_session, name, email, active, zendesk_users_id, zendesk_schedules_id, latam_user):
+    def insert_new_user(db_session, name, email, active, zendesk_users_id, zendesk_schedules_id,
+                        latam_user, rock_star_user, jnj_contestation_user, jnj_homologation_user):
         new_user = Users(
             name=name,
             email=email,
@@ -1206,6 +1213,9 @@ class Users(Base):
             zendesk_users_id=zendesk_users_id,
             zendesk_schedules_id=zendesk_schedules_id,
             latam_user=latam_user,
+            rock_star_user=rock_star_user,
+            jnj_contestation_user=jnj_contestation_user,
+            jnj_homologation_user=jnj_homologation_user,
         )
         try:
             db_session.add(new_user)
@@ -1233,7 +1243,8 @@ class Users(Base):
             return f'There was an error: {error_info}'
 
     @staticmethod
-    def update_user(db_session, user_id, name, email, active, zendesk_users_id, zendesk_schedules_id, latam_user):
+    def update_user(db_session, user_id, name, email, active, zendesk_users_id, zendesk_schedules_id,
+                    latam_user, rock_star_user, jnj_contestation_user, jnj_homologation_user):
         try:
             db_session.execute(
                 update(Users), [{
@@ -1244,6 +1255,9 @@ class Users(Base):
                     'zendesk_users_id': zendesk_users_id,
                     'zendesk_schedules_id': zendesk_schedules_id,
                     'latam_user': latam_user,
+                    'rock_star_user': rock_star_user,
+                    'jnj_contestation_user': jnj_contestation_user,
+                    'jnj_homologation_user': jnj_homologation_user,
                 }],
             )
             return True
@@ -1297,6 +1311,10 @@ class Users(Base):
                     Users.zendesk_users_id,
                     Users.zendesk_schedules_id,
                     Users.latam_user,  # 0 = no | 1 = yes | 2 = both
+                    Users.rock_star_user,
+                    Users.jnj_contestation_user,
+                    Users.jnj_homologation_user,
+
                 ).where(Users.zendesk_users_id == zendesk_users_id)
             ).first()
             return user

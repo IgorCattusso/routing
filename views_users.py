@@ -26,7 +26,7 @@ def new_user():
             zendesk_schedules = ZendeskSchedules.get_schedules(session)
 
         return internal_render_template(
-            'users-new.html', zendesk_users=zendesk_users, zendesk_schedules=zendesk_schedules,
+            'user-new.html', zendesk_users=zendesk_users, zendesk_schedules=zendesk_schedules,
         )
 
     if request.method == 'POST':
@@ -41,6 +41,9 @@ def new_user():
                 data['zendesk_users_id'],
                 data['zendesk_schedules_id'],
                 data['latam_user'],
+                data['rock_star_user'],
+                data['jnj_contestation_user'],
+                data['jnj_homologation_user'],
             )
             session.commit()
 
@@ -80,6 +83,8 @@ def get_user(user_id):
     if request.method == 'PUT':
         data = request.get_json()
 
+        print(data)
+
         with Session(engine) as session:
             Users.update_user(
                 session,
@@ -90,6 +95,9 @@ def get_user(user_id):
                 data['zendesk_users_id'],
                 data['zendesk_schedules_id'],
                 data['latam_user'],
+                data['rock_star_user'],
+                data['jnj_contestation_user'],
+                data['jnj_homologation_user'],
             )
             session.commit()
 

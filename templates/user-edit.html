@@ -14,7 +14,7 @@
                 <h2>Dados do usuário</h2>
                 <div class="user-data-wrapper">
                     <div onclick="toggleCheckbox()" class="user-status-container user-data-container" id="userStatusContainer">
-                        <h3 class="user-status-title subtitle-container">Status do usuário</h3>
+                        <h3 class="user-status-title subtitle-container">Status</h3>
                         <div class="user-status-slider-container">
                             {% if kwargs['user'].active %}
                                 <input type="checkbox" id="editUserStatus" class="active-input" checked="checked"/>
@@ -89,6 +89,50 @@
                             </div>
                         </div>
                     </div>
+
+                    <div id="rockStarWrapper" class="rock-star-user-filter-container filter-container">
+                        <h3 class="zendesk-bind-sub-title">Usuário Rock Star?</h3>
+                        <div class="selector-container">
+                            <div class="selector-option-container">
+                                <input class="radio-selector" type="radio" id="rock-star-yes" name="rock-star-user" value="rock-star-yes" {{ 'checked="checked"' if kwargs['user'].rock_star_user == 1 else '' }}>
+                                <label class="radio-selector-label" for="rock-star-yes">Sim</label>
+                            </div>
+                            <div class="selector-option-container">
+                                <input class="radio-selector" type="radio" id="rock-star-no" name="rock-star-user" value="rock-star-no" {{ 'checked="checked"' if kwargs['user'].rock_star_user == 0 else '' }}>
+                                <label class="radio-selector-label" for="rock-star-no">Não</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="jnjContestationWrapper" class="jnj-contestation-user-filter-container filter-container">
+                        <h3 class="zendesk-bind-sub-title">Atende contestações da J&J?</h3>
+                        <div class="selector-container">
+                            <div class="selector-option-container">
+                                <input class="radio-selector" type="radio" id="jnj-contestation-yes" name="jnj-contestation-user" value="jnj-contestation-yes" {{ 'checked="checked"' if kwargs['user'].jnj_contestation_user == 1 else '' }}>
+                                <label class="radio-selector-label" for="jnj-contestation-yes">Sim</label>
+                            </div>
+                            <div class="selector-option-container">
+                                <input class="radio-selector" type="radio" id="jnj-contestation-no" name="jnj-contestation-user" value="jnj-contestation-no" {{ 'checked="checked"' if kwargs['user'].jnj_contestation_user == 0 else '' }}>
+                                <label class="radio-selector-label" for="jnj-contestation-no">Não</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="jnjHomologationWrapper" class="jnj-homologation-user-filter-container filter-container">
+                        <h3 class="zendesk-bind-sub-title">Atende homologações da J&J?</h3>
+                        <div class="selector-container">
+                            <div class="selector-option-container">
+                                <input class="radio-selector" type="radio" id="jnj-homologation-yes" name="jnj-homologation-user" value="jnj-homologation-yes" {{ 'checked="checked"' if kwargs['user'].jnj_homologation_user == 1 else '' }}>
+                                <label class="radio-selector-label" for="jnj-homologation-yes">Sim</label>
+                            </div>
+                            <div class="selector-option-container">
+                                <input class="radio-selector" type="radio" id="jnj-homologation-no" name="jnj-homologation-user" value="jnj-homologation-no" {{ 'checked="checked"' if kwargs['user'].jnj_homologation_user == 0 else '' }}>
+                                <label class="radio-selector-label" for="jnj-homologation-no">Não</label>
+                            </div>
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
         </div>

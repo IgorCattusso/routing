@@ -218,7 +218,6 @@ h5 {
 }
 
 .zendesk-users-filter-container {
-    margin-left: 1em;
     display: grid;
 }
 
@@ -227,8 +226,8 @@ h5 {
     flex-direction: column;
 }
 
-.filter-container:nth-child(n+2) {
-    margin-left: 2em;
+.filter-container {
+    margin-right: 2em;
 }
 
 .dropdown-menu-button-container {
@@ -237,6 +236,8 @@ h5 {
 
 .zendesk-settings-wrapper {
     display: flex;
+    flex-wrap: wrap;
+    margin-left: 1em;
 }
 
 .dropdown-menu-title-container {
@@ -272,10 +273,14 @@ h5 {
 }
 
 .values-list {
+    position: fixed;
     list-style: none;
-    box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2);
     max-height: 0;
     transition: .3s ease-in-out;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+    z-index:1000;
 }
 
 .values-list.open {
