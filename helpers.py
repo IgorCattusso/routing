@@ -5,7 +5,7 @@ import requests
 from models import Users, Notifications
 from sqlalchemy.orm import Session
 from app import engine, app
-from flask import send_from_directory
+from flask_wtf import FlaskForm
 
 
 def generate_zendesk_headers():

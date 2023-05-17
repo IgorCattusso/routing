@@ -4,8 +4,8 @@ function toggleCheckbox() {
 }
 
 const userInputField = document.querySelector(".zendesk-users-id-chosen-value");
-const userDropdown = document.querySelector(".users-values-list");
-const userDropdownArray = [...document.getElementsByClassName("users-dropdown-menu-option")];
+const userDropdown = document.querySelector(".user-values-list");
+const userDropdownArray = [...document.getElementsByClassName("user-dropdown-menu-option")];
 const zendeskUsersFieldsWrapper = document.getElementById("zendeskUsersWrapper")
 
 let userValueArray = [];

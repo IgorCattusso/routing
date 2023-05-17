@@ -50,6 +50,14 @@ deleteButton.addEventListener("click", function () {
     if (selectedRowIDs.length === 1) {
         const route = document.querySelector(".std-tr.selected");
         const routeId = route.getAttribute("data-id");
+        const CSRFToken = document.getElementById("CSRFToken");
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken.value);
+                }
+            }
+        });
         $.ajax({
             type: "DELETE",
             url: "/routes/delete/" + routeId,
@@ -83,6 +91,14 @@ deactivateButton.addEventListener("click", function () {
     if (selectedRowIDs.length === 1) {
         const route = document.querySelector(".std-tr.selected");
         const routeId = route.getAttribute("data-id");
+        const CSRFToken = document.getElementById("CSRFToken");
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken.value);
+                }
+            }
+        });
         $.ajax({
             type: "PUT",
             url: "/routes/deactivate/" + routeId,

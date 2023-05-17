@@ -16,6 +16,8 @@ saveButton.addEventListener("click", () => {
 
     const hourlyLimit = document.getElementById("hourlyLimit");
 
+    const CSRFToken = document.getElementById("CSRFToken");
+
     let useRoutes;
     if (useRoutesInput.checked === true && dontUseRoutesInput.checked === false) {
         useRoutes = true; // assign the value inside the if statement
@@ -42,6 +44,13 @@ saveButton.addEventListener("click", () => {
 
     // If the ID of the route is empty, that means we"re on the NEW page, if it has a value, that means we"re on the EDIT page
     // Send the selected values to your Flask app using an AJAX request
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", CSRFToken.value);
+            }
+        }
+    });
 
     $.ajax({
         type: "PUT",

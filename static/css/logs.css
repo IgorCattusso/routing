@@ -161,7 +161,7 @@
     padding-left: 1em;
     padding-top: 1em;
     padding-bottom: 1em;
-    max-width: 99%;
+    max-width: 100%;
     line-height: 1em;
     border-radius: 10px;
 }
@@ -243,6 +243,7 @@ pre {
 
 .full-message-container {
     height: 100%;
+    max-width: calc(100% - 20px);
 }
 
 #tbody {

@@ -35,6 +35,8 @@ saveButton.addEventListener("click", () => {
     const userZendeskScheduleId = document.getElementsByClassName("zendesk-schedules-id-chosen-value");
     const latamUser = document.getElementsByName("latam-user");
 
+    const CSRFToken = document.getElementById("CSRFToken");
+
     var userZendeskUserIdValue = ""
     for (let i = 0; i < userZendeskUserId.length; i++) {
         userZendeskUserIdValue = userZendeskUserId[i].id
@@ -88,6 +90,13 @@ saveButton.addEventListener("click", () => {
 
     // If the ID of the route is empty, that means we"re on the NEW page, if it has a value, that means we"re on the EDIT page
     if (userId.value === "") {
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken.value);
+                }
+            }
+        });
         // Send the selected values to your Flask app using an AJAX request
         $.ajax({
             type: "POST",
@@ -117,6 +126,14 @@ saveButton.addEventListener("click", () => {
     }
 
     if (userId.value !== "") {
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken.value);
+                }
+            }
+        });
+
         $.ajax({
             type: "PUT",
             url: "/user/edit/" + userId.value,

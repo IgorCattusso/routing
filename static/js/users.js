@@ -49,6 +49,14 @@ deleteButton.addEventListener("click", function () {
     if (selectedRowIDs.length === 1) {
         const user = document.querySelector(".std-tr.selected");
         const userId = user.getAttribute("data-id");
+        const CSRFToken = document.getElementById("CSRFToken");
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken.value);
+                }
+            }
+        });
         $.ajax({
             type: "DELETE",
             url: "/users/delete/" + userId,
@@ -82,6 +90,14 @@ changeUserStatus.addEventListener("click", function () {
     if (selectedRowIDs.length === 1) {
         const user = document.querySelector(".std-tr.selected");
         const userId = user.getAttribute("data-id");
+        const CSRFToken = document.getElementById("CSRFToken");
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken.value);
+                }
+            }
+        });
         $.ajax({
             type: "PATCH",
             url: "/users/change-user-status/" + userId,

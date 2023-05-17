@@ -24,6 +24,8 @@ saveButton.addEventListener("click", () => {
     const selectedTicketGroups = document.querySelectorAll(".js-ticket-group-option-container.selected");
     const selectedTags = document.querySelectorAll(".js-tag-option-container.selected");
 
+    const CSRFToken = document.getElementById("CSRFToken");
+
     // If there are no selected option containers, do nothing
     if (selectedUsers.length === 0 && selectedGroups.length === 0) {
         alert("Selecione usuários ou grupos como Destinatários da rota");
@@ -99,6 +101,13 @@ saveButton.addEventListener("click", () => {
 
     // If the ID of the route is empty, that means we"re on the NEW page, if it has a value, that means we"re on the EDIT page
     if (routeId.value === "") {
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken.value);
+                }
+            }
+        });
         // Send the selected values to your Flask app using an AJAX request
         $.ajax({
             type: "POST",
@@ -129,6 +138,13 @@ saveButton.addEventListener("click", () => {
     }
 
     if (routeId.value !== "") {
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken.value);
+                }
+            }
+        });
         $.ajax({
             type: "PUT",
             url: "/routes/update-existing-route/" + routeId.value,

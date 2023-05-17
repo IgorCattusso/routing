@@ -28,10 +28,13 @@ searchButton.addEventListener("click", async () => {
 
     $(".row-container").remove();
 
+    const CSRFToken = document.getElementById("CSRFToken");
+
     fetch("/search-logs", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "X-CSRFToken": CSRFToken.value
         },
         body: JSON.stringify(json)
     })

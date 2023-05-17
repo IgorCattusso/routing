@@ -29,6 +29,7 @@ function notify() {
 
 // Get the notification sound file
 const newTicketNotificationSound = new Audio("/static/snd/new_ticket_notification.wav");
+const CSRFToken = document.getElementById("CSRFToken");
 
 // Get a users"s notifications, one at a time, then marks it as received.
 // After that, displays the notification and flags it as received
@@ -42,6 +43,13 @@ function notification(userId) {
                     body: get_notification_response["content"],
                     icon: "/static/img/favicon.png",
                 }
+                $.ajaxSetup({
+                    beforeSend: function(xhr, settings) {
+                        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                            xhr.setRequestHeader("X-CSRFToken", CSRFToken.value);
+                        }
+                    }
+                });
 
                 $.ajax({
                     type: "POST", // Sets the notification as received
@@ -75,6 +83,13 @@ function notification(userId) {
                                 }
                             }
                             // Sets the notification as received
+                            $.ajaxSetup({
+                                beforeSend: function(xhr, settings) {
+                                    if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                                        xhr.setRequestHeader("X-CSRFToken", CSRFToken.value);
+                                    }
+                                }
+                            });
                             $.ajax({
                                 type: "POST",
                                 url: "/flag-notification-as-received/" + get_notification_response["id"],
@@ -105,6 +120,13 @@ function flagNotificationAsRead(notification_id) {
     let isNotificationAlreadyRead = document.getElementById(_notification_id)
 
     if (isNotificationAlreadyRead) {
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken.value);
+                }
+            }
+        });
         $.ajax({
             type: "POST",
             url: "/flag-notification-as-read/" + notification_id,
@@ -137,6 +159,13 @@ function flagAllNotificationsAsRead(user_id) {
     const numberOfUnreadNotifications = numberOfUnreadNotificationsElement.textContent
 
     if (unreadNotifications) {
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken.value);
+                }
+            }
+        });
         $.ajax({
             type: "POST",
             url: "/flag-all-notifications-as-read/" + user_id,
