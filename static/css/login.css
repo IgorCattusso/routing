@@ -62,3 +62,23 @@ input:focus-visible {
 .title-container {
     margin-bottom: 2em;
 }
+
+#messages {
+    background-color: #FFA500;
+    padding: 10px 25px;
+    width: 200px;
+    height: 50px;
+    border-radius: 10px;
+    border: 1px solid #b67500;
+    color: #111111;
+    box-shadow: 0 0 10px rgb(0 0 0 / 25%);
+        position: fixed;
+    top: 50px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.alert {
+    width: 200px;
+}

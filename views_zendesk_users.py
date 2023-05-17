@@ -12,7 +12,7 @@ import time
 @app.route('/get-zendesk-users')
 def get_zendesk_users():
     zendesk_endpoint_url = 'api/v2/search.json?page=1'
-    zendesk_search_query = 'query=type:user routing_user:true'
+    zendesk_search_query = 'query=type:users routing_user:true'
     api_url = ZENDESK_BASE_URL + zendesk_endpoint_url + '&' + zendesk_search_query
 
     inserted_users = []

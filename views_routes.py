@@ -326,7 +326,7 @@ def update_existing_route(route_id):
                     ).scalar()
 
                     # If it does not exist, then it must be a different recipient_type because this is the edit route,
-                    # so update the type from group (1) to user (0)
+                    # so update the type from group (1) to users (0)
                     if not route_recipient_type_group_exists:
                         session.execute(update(RouteRecipientType)
                                         .where(RouteRecipientType.routes_id == route_recipient_type.routes_id)
@@ -349,7 +349,7 @@ def update_existing_route(route_id):
 
                 with Session(engine) as session:
                     # List of users received on the POST
-                    # Check if each user already exists on the table
+                    # Check if each users already exists on the table
                     for user in data['recipient_users']:
                         existing_recipient_user = session.execute(
                             select(RouteRecipientUsers)
@@ -405,7 +405,7 @@ def update_existing_route(route_id):
                         ).scalar()
 
                         # If it does not exist, then it must be a different recipient_type because this is the edit route,
-                        # so update the type from user (1) to group (0)
+                        # so update the type from users (1) to group (0)
                         if not route_recipient_type_group_exists:
                             session.execute(update(RouteRecipientType)
                                             .where(RouteRecipientType.routes_id == route_id)

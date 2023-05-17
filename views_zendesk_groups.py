@@ -221,23 +221,21 @@ def get_zendesk_users_in_group(group_id):
         group_memberships = db_session.execute(stmt).all()
         group = db_session.execute(stmt).first()
 
+    stmt = select(ZendeskGroups.name).where(ZendeskGroups.id == group_id)
+    group_name = db_session.execute(stmt).scalar()
+
     time.sleep(.35)
 
     if group:
         return internal_render_template(
             'zendesk-users-in-group.html',
-            titulo='Groups',
             group_memberships=group_memberships,
-            group_name=group.group_name,
+            group_name=group_name,
             group_id=group_id,
         )
     else:
-        with Session(engine) as db_session:
-            stmt = select(ZendeskGroups.name).where(ZendeskGroups.id == group_id)
-            group_name = db_session.execute(stmt).scalar()
         return internal_render_template(
             'zendesk-users-in-group.html',
-            titulo='Groups',
             group_memberships=group_memberships,
             group_name=group_name,
             group_id=group_id,

@@ -2,71 +2,82 @@
 // Pop-up the Options menu //
 //-------------------------//
 function toggleOptions() {
-  var options = document.getElementById("options-list");
-  var optionsStyle = window.getComputedStyle(options)
-  if (optionsStyle.display === "none") {
-    options.style.display = "block";
-  } else {
-    options.style.display = "none";
-  }
+    var options = document.getElementById("options-list");
+    var optionsStyle = window.getComputedStyle(options)
+    if (optionsStyle.display === "none") {
+        options.style.display = "block";
+    } else {
+        options.style.display = "none";
+    }
 }
 
 
 //--------------------------//
 // Accordion menu navigator //
 //------------------------- //
-$(function() {
-  var Accordion = function(el, multiple) {
-    this.el = el || {};
-    // more then one submenu open?
-    this.multiple = multiple || false;
+$(function () {
+    var Accordion = function (el, multiple) {
+        this.el = el || {};
+        // more then one submenu open?
+        this.multiple = multiple || false;
 
-    var dropdownlink = this.el.find('.dropdown-link');
-    dropdownlink.on('click',
-                    { el: this.el, multiple: this.multiple },
-                    this.dropdown);
-  };
+        var dropdownlink = this.el.find(".dropdown-link");
+        dropdownlink.on("click",
+            {el: this.el, multiple: this.multiple},
+            this.dropdown);
+    };
 
-  Accordion.prototype.dropdown = function(e) {
-    var $el = e.data.el,
-        $this = $(this),
-        //this is the ul.submenuItems
-        $next = $this.next();
+    Accordion.prototype.dropdown = function (e) {
+        var $el = e.data.el,
+            $this = $(this),
+            //this is the ul.submenuItems
+            $next = $this.next();
 
-    $next.slideToggle();
-    $this.parent().toggleClass('open');
+        $next.slideToggle();
+        $this.parent().toggleClass("open");
 
-    if(!e.data.multiple) {
-      $el.find('.submenu-Items').not($next).slideUp().parent().removeClass('open');
+        if (!e.data.multiple) {
+            $el.find(".submenu-Items").not($next).slideUp().parent().removeClass("open");
+        }
     }
-  }
-  var accordion = new Accordion($('.accordion-menu'), false);
+    var accordion = new Accordion($(".accordion-menu"), false);
 })
 
 
 //--------------------//
 // Sort table content //
 //--------------------//
-var originalRows = $('#tbody .std-tr').toArray();
-$('.std-th').on('click', function() {
-  var column = $(this).index();
-  var $tbody = $('#tbody');
-  var $rows = originalRows.slice(0);
-  $rows.sort(function(a, b) {
-    var aVal = $(a).find('.std-td').eq(column).text();
-    var bVal = $(b).find('.std-td').eq(column).text();
-    if (column === -1 || column === 3) {
-      return parseInt(aVal) - parseInt(bVal);
+var originalRows = $("#tbody .std-tr").toArray();
+$(".std-th").on("click", function () {
+    var column = $(this).index();
+    var $tbody = $("#tbody");
+    var $rows = originalRows.slice(0);
+    $rows.sort(function (a, b) {
+        var aVal = $(a).find(".std-td").eq(column).text();
+        var bVal = $(b).find(".std-td").eq(column).text();
+        if (column === -1 || column === 3) {
+            return parseInt(aVal) - parseInt(bVal);
+        } else {
+            return aVal.localeCompare(bVal);
+        }
+    });
+    if ($(this).hasClass("asc")) {
+        $rows.reverse();
+        $(this).removeClass("asc").addClass("desc");
     } else {
-      return aVal.localeCompare(bVal);
+        $(this).removeClass("desc").addClass("asc");
     }
-  });
-  if ($(this).hasClass('asc')) {
-    $rows.reverse();
-    $(this).removeClass('asc').addClass('desc');
-  } else {
-    $(this).removeClass('desc').addClass('asc');
-  }
-  $tbody.empty().append($rows);
+    $tbody.empty().append($rows);
 });
 
+
+const userInfoContainer = document.getElementById("userInfoContainer");
+const userOptionsContainer = document.getElementById("userOptionsContainer");
+userInfoContainer.addEventListener("click", function () {
+    const userOptionsContainerStyle = window.getComputedStyle(userOptionsContainer)
+    if (userOptionsContainerStyle.display === "none") {
+        userOptionsContainer.style.display = "block";
+    } else {
+        userOptionsContainer.style.display = "none";
+    }
+});

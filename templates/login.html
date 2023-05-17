@@ -7,15 +7,7 @@
 </head>
     <body>
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul id="messages" class="list-unstyled">
-                    {% for message in messages %}
-                        <li class="alert alert-success">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
+
 
         <div class="wrapper">
             <div class="title-container">
@@ -35,9 +27,22 @@
                 <div class="submit-container">
                     {{ form.submit() }}
                 </div>
+
             </form>
 
         </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div id="messages" class="list-unstyled">
+                    {% for message in messages %}
+                        <p class="alert alert-success">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+
 
 
     </body>

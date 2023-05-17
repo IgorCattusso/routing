@@ -1,28 +1,11 @@
 import base64
-from flask_wtf import FlaskForm
 from flask import render_template, session
-from wtforms import validators, StringField, SubmitField, PasswordField
 from config import *
 import requests
 from models import Users, Notifications
 from sqlalchemy.orm import Session
-from app import engine
-
-
-class UserForm(FlaskForm):
-    email = StringField(
-        'E-mail',
-        [validators.DataRequired(),
-         validators.Length(min=1, max=150)],
-        render_kw={"placeholder": "E-mail"}
-    )
-    password = PasswordField(
-        'Senha',
-        [validators.DataRequired(),
-         validators.Length(min=1, max=150)],
-        render_kw={"placeholder": "Senha"}
-    )
-    submit = SubmitField('LOGIN')
+from app import engine, app
+from flask import send_from_directory
 
 
 def generate_zendesk_headers():
@@ -54,7 +37,17 @@ def get_ticket_requester_locale(requester_id):
 
     api_response = requests.get(api_url, headers=generate_zendesk_headers()).json()
 
-    return str(api_response['user']['locale'])
+    return str(api_response['users']['locale'])
+
+
+def get_user_profile_picture(user_id):
+    profile_picture = '/static/assets/users/placeholder.png'
+
+    for file_name in os.listdir(app.config['USER_PROFILE_PICTURE_UPLOAD_PATH']):
+        if f"{user_id}-" in file_name:
+            profile_picture = f'/static/assets/users/{file_name}'
+
+    return profile_picture
 
 
 def internal_render_template(template, **kwargs):
@@ -63,13 +56,16 @@ def internal_render_template(template, **kwargs):
         if session['_user_id']:
             with Session(engine) as db_session:
                 user = Users.get_user(db_session, session['_user_id'])
-                notification_count = Notifications.count_user_unread_notifications(db_session, session['_user_id'])
+                unread_notifications_count = Notifications.count_user_unread_notifications(db_session, session['_user_id'])
                 user_notifications = Notifications.get_user_last_hundred_notifications(db_session, session['_user_id'])
 
             kwargs['routing_status'] = user.routing_status
             kwargs['authenticated'] = user.authenticated
             kwargs['user_id'] = user.id
-            kwargs['notification_count'] = notification_count
+            kwargs['user_name'] = user.name
+            kwargs['unread_notifications_count'] = unread_notifications_count
             kwargs['user_notifications'] = user_notifications
 
-    return render_template(template, kwargs=kwargs)
+    profile_picture = get_user_profile_picture(session['_user_id'])
+
+    return render_template(template, kwargs=kwargs, profile_picture=profile_picture)

@@ -12,6 +12,8 @@ USERNAME = 'igor.cattusso@involves.com'
 
 ZENDESK_API_KEY = str(os.getenv('ZENDESK_API_KEY'))
 
+USER_PROFILE_PICTURE_UPLOAD_PATH = os.path.dirname(os.path.abspath(__file__)) + '/static/assets/users/'
+
 SQLALCHEMY_DATABASE_URI = \
     '{SGBD}://{user}:{password}@{server}/{database}'.format(
         SGBD='mysql+mysqlconnector',

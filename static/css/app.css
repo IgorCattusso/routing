@@ -90,17 +90,27 @@ a {
 }
 
 #messages {
+    display: flex;
+    flex-direction: column;
     position: absolute;
-    right: 10px;
-    width: 200px;
+    top: 6px;
+    left: 50%;
+    max-width: 100%;
     list-style-type: none;
     line-height: 3rem;
     background-color: #8ada8a;
     color: green;
-    padding-left: 20px;
     border: 1px solid green;
     border-radius: 4px;
+    padding: 0 20px;
     box-shadow: 0 6px 12px rgb(0 0 0 / 18%);
+    justify-content: space-between;
+}
+
+#geen-x-object {
+    height: 20px;
+    margin-right: 3px;
+    margin-top: 3px;
 }
 
 .alert-success {
@@ -294,7 +304,7 @@ a {
 }
 
 .no-dropdown-link-text {
-    padding: 0 0 0 15px;
+    margin-left: 15px;
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -302,7 +312,7 @@ a {
 }
 
 .dropdown-link-text {
-    padding: 0 0 0 15px;
+    margin-left: 15px;
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -357,11 +367,9 @@ a {
 
 .login-logout {
     margin-bottom: 0;
+    cursor: pointer;
 }
 
-.login-logout:hover {
-    background-color: #54618D;
-}
 
 #notificationBell {
     width: 50px;
@@ -435,7 +443,7 @@ a {
     padding-bottom: 10px;
     width: 500px;
     max-height: calc(100dvh - 220px);
-    box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
 }
 
 .notification-container {
@@ -516,4 +524,67 @@ a {
     color: #222222;
     margin-top: 1em;
     margin-bottom: 1em;
+}
+
+.user-info-container {
+    display: flex;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    align-items: center;
+}
+
+#userProfilePicture {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    margin-left: 16px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+#navBarUserName {
+    color: #eeeeee;
+    margin-left: 15px;
+    font-weight: bold;
+}
+
+.submenu-item-link-container {
+    display: flex !important;
+}
+
+.submenu-item-text {
+    align-self: center;
+    margin-left: 10px;
+}
+
+.nav-bar-status-img {
+    width: 20px;
+}
+
+.user-options-container {
+    position: absolute;
+    bottom: 60px;
+    left: 20px;
+    background-color: #fcfcfd;
+    color: #242e47;
+    width: 220px;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    display: none;
+}
+
+.user-option {
+    text-decoration: none;
+    padding: 15px 10px;
+    display: block;
+}
+
+.user-option:hover {
+    background-color: #f4f5f6;
+    border-radius: 4px;
 }

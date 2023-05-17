@@ -2,6 +2,8 @@ from flask import Flask
 from sqlalchemy import create_engine
 from config import url_object
 from flask_login import LoginManager
+from flask_bcrypt import Bcrypt
+from flask_wtf.csrf import CSRFProtect
 
 
 app = Flask(__name__)
@@ -11,6 +13,10 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 engine = create_engine(url_object)
+
+bcrypt = Bcrypt(app)
+
+csrf = CSRFProtect(app)
 
 from views import *
 from views_login import *

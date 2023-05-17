@@ -73,9 +73,9 @@ def assign_ticket_route():
 
     with Session(engine) as db_session:
         ticket = ZendeskTickets.get_next_ticket_to_be_assigned(db_session)  # ticket that will be assigned
-        recipient_user_for_ticket = get_recipient_user_for_ticket()  # get the next user that can receive ticket
+        recipient_user_for_ticket = get_recipient_user_for_ticket()  # get the next users that can receive ticket
         if recipient_user_for_ticket:
-            user = Users.get_user(db_session, recipient_user_for_ticket.users_id)  # create an object with the user info
+            user = Users.get_user(db_session, recipient_user_for_ticket.users_id)  # create an object with the users info
         settings = GeneralSettings.get_settings(db_session)
 
     if not ticket:

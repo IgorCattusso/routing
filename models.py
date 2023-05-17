@@ -518,7 +518,7 @@ class RouteRecipientType(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"))
-    recipient_type: Mapped[int] = mapped_column(nullable=False)  # 0 = user | 1 = group
+    recipient_type: Mapped[int] = mapped_column(nullable=False)  # 0 = users | 1 = group
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.routes_id}, {self.recipient_type}'
@@ -1117,6 +1117,24 @@ class Users(Base):
             return f'There was an error: {error_info}'
 
     @staticmethod
+    def get_user_profile(db_session, user_id):
+        try:
+            user = db_session.execute(
+                select(
+                    Users.id,
+                    Users.name,
+                    Users.email,
+                    Users.password,
+                ).where(Users.id == user_id)
+            ).first()
+
+            return user
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
     def login_user(db_session, user_id):
         try:
             db_session.execute(
@@ -1156,6 +1174,20 @@ class Users(Base):
                 }],
             )
             return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_user_status(db_session, user_id):
+        try:
+            status = db_session.execute(
+                select(
+                    Users.routing_status,  # 0 = offline | 1 = online | 2 = away
+                ).where(Users.id == user_id)
+            ).scalar()
+            return status
 
         except (IntegrityError, FlushError) as error:
             error_info = error.orig.args
@@ -1212,6 +1244,36 @@ class Users(Base):
                     'zendesk_users_id': zendesk_users_id,
                     'zendesk_schedules_id': zendesk_schedules_id,
                     'latam_user': latam_user,
+                }],
+            )
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def update_user_password_from_profile(db_session, user_id, password):
+        try:
+            db_session.execute(
+                update(Users), [{
+                    'id': user_id,
+                    'password': password,
+                }],
+            )
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def update_user_name_from_profile(db_session, user_id, name):
+        try:
+            db_session.execute(
+                update(Users), [{
+                    'id': user_id,
+                    'name': name,
                 }],
             )
             return True
@@ -1675,7 +1737,7 @@ class UsersQueue(Base):
                     select(UsersQueue.id, UsersQueue.users_id, UsersQueue.position).order_by(UsersQueue.position.desc())
                 ).first()
 
-                ''' Get the users ahead of the current user one position down '''
+                ''' Get the users ahead of the current users one position down '''
                 for user in users_ahead_of_current_user:
                     if user.position != 1:
                         db_session.execute(
@@ -1686,7 +1748,7 @@ class UsersQueue(Base):
                             }],
                         )
 
-                ''' Get current user to the end of the queue '''
+                ''' Get current users to the end of the queue '''
                 if current_user.position != last_user_in_the_queue.position and last_user_in_the_queue.position != 0:
                     db_session.execute(
                         update(UsersQueue), [{

@@ -35,6 +35,4 @@ def search_logs():
         with Session(engine) as db_session:
             logs = AssignedTicketsLog.get_logs(db_session, data=data)
 
-        print((logs_as_list(logs)))
-
         return logs_as_list(logs)

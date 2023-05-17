@@ -1,10 +1,28 @@
-from app import app, login_manager, engine
+from app import app, login_manager, engine, bcrypt
 from models import Users, UsersQueue
 from flask import flash, redirect, url_for, session, render_template
 from flask_login import login_user, UserMixin, login_required, logout_user
-from helpers import UserForm, internal_render_template
+from helpers import internal_render_template
+from wtforms import validators, StringField, SubmitField, PasswordField
+from flask_wtf import FlaskForm
 from sqlalchemy.orm import Session
 from sqlalchemy import select
+
+
+class UserForm(FlaskForm):
+    email = StringField(
+        'E-mail',
+        [validators.DataRequired(),
+         validators.Length(min=1, max=150)],
+        render_kw={"placeholder": "E-mail"}
+    )
+    password = PasswordField(
+        'Senha',
+        [validators.DataRequired(),
+         validators.Length(min=1, max=150)],
+        render_kw={"placeholder": "Senha"}
+    )
+    submit = SubmitField('LOGIN')
 
 
 class User(UserMixin):
@@ -48,10 +66,12 @@ def check_user(id):
 def check_user_credentials(email, password):
     with Session(engine) as db_session:
         db_user = db_session.execute(
-            select(Users).where(Users.email == email).where(Users.password == password)
+            select(Users).where(Users.email == email)
         ).first()
 
-        if db_user:
+        is_password_correct = bcrypt.check_password_hash(db_user.Users.password, password)
+
+        if db_user and is_password_correct:
             return User(db_user.Users.id, db_user.Users.name, db_user.Users.email, db_user.Users.password)
         else:
             return None
@@ -100,8 +120,6 @@ def login():
                         UsersQueue.insert_user_at_queue_end(db_session, user_id)
 
                 db_session.commit()
-
-            flash('Logado com sucesso!')
 
             return redirect(url_for('home'))
 

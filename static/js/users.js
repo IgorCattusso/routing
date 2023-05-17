@@ -30,7 +30,7 @@ editButton.addEventListener("click", function () {
         }
     }
     if (selectedRowIDs.length === 1) {
-        window.location.href = `/users/edit/${selectedRowIDs[0]}`;
+        window.location.href = `/user/edit/${selectedRowIDs[0]}`;
     } else {
         editButton.setAttribute("disabled", true);
     }
@@ -47,22 +47,22 @@ deleteButton.addEventListener("click", function () {
         }
     }
     if (selectedRowIDs.length === 1) {
-        const user = document.querySelector('.std-tr.selected');
-        const userId = user.getAttribute('data-id');
-          $.ajax({
-            type: 'DELETE',
-            url: '/users/delete/' + userId,
+        const user = document.querySelector(".std-tr.selected");
+        const userId = user.getAttribute("data-id");
+        $.ajax({
+            type: "DELETE",
+            url: "/users/delete/" + userId,
 
-            success: function(response) {
-              // Provide feedback to the user that the data was processed successfully
-              alert('Usuário excluído com sucesso!');
-              window.location.href = '/users';
+            success: function (response) {
+                // Provide feedback to the users that the data was processed successfully
+                alert("Usuário excluído com sucesso!");
+                window.location.href = "/users";
             },
-            error: function(xhr, status, error) {
-              // Provide feedback to the user that an error occurred during the processing of the data
-              alert('Ocorreu um erro ao excluir o usuário: ' + error);
+            error: function (xhr, status, error) {
+                // Provide feedback to the users that an error occurred during the processing of the data
+                alert("Ocorreu um erro ao excluir o usuário: " + error);
             }
-          });
+        });
     } else {
         deleteButton.setAttribute("disabled", true);
     }
@@ -80,22 +80,22 @@ changeUserStatus.addEventListener("click", function () {
     }
 
     if (selectedRowIDs.length === 1) {
-        const user = document.querySelector('.std-tr.selected');
-        const userId = user.getAttribute('data-id');
-          $.ajax({
-            type: 'PATCH',
-            url: '/users/change-user-status/' + userId,
+        const user = document.querySelector(".std-tr.selected");
+        const userId = user.getAttribute("data-id");
+        $.ajax({
+            type: "PATCH",
+            url: "/users/change-user-status/" + userId,
 
-            success: function(response) {
-              // Provide feedback to the user that the data was processed successfully
-              alert('Status alterado com sucesso!');
-              window.location.href = '/users';
+            success: function (response) {
+                // Provide feedback to the users that the data was processed successfully
+                alert("Status alterado com sucesso!");
+                window.location.href = "/users";
             },
-            error: function(xhr, status, error) {
-              // Provide feedback to the user that an error occurred during the processing of the data
-              alert('Ocorreu um erro ao alterar o status do usuário: ' + error);
+            error: function (xhr, status, error) {
+                // Provide feedback to the users that an error occurred during the processing of the data
+                alert("Ocorreu um erro ao alterar o status do usuário: " + error);
             }
-          });
+        });
     } else if (selectedRowIDs.length === 0) {
         alert("Por favor, selecione algum usuário");
     } else {

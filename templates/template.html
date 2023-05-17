@@ -9,7 +9,7 @@
     </head>
     <body>
         <div class="wrapper">
-            <div class="nav-bar">
+            <div class="nav-bar scrollable">
                 <ul class="accordion-menu">
                     {% if kwargs['authenticated'] %}
                         <label for="userId"></label>
@@ -18,25 +18,9 @@
                             <a href="/change-status">
                                 <div class="dropdown-link">
                                     {% if kwargs['routing_status'] == 1 %}
-                                        <svg viewBox="0 0 210 210" width="24px" height="24px" xmlns="http://www.w3.org/2000/svg">
-                                            <defs>
-                                                <radialGradient gradientUnits="userSpaceOnUse" cx="105" cy="105" r="100" id="gradient-0" gradientTransform="matrix(-0.88656, 0, 0, -1, 198.088773, 210.000024)">
-                                                    <stop offset="0" style="stop-color: rgba(187, 218, 85, 1)"></stop>
-                                                    <stop offset="1" style="stop-color: rgb(0, 128, 0);"></stop>
-                                                </radialGradient>
-                                            </defs>
-                                            <ellipse style="stroke: rgb(0, 0, 0); paint-order: fill; fill-rule: nonzero; fill: url(#gradient-0);" cx="105" cy="105" rx="100" ry="100"></ellipse>
-                                        </svg>
+                                        <img src="/static/svg/status-online.svg" alt="Status" class="nav-bar-status-img">
                                         {% else %}
-                                        <svg viewBox="0 0 210 210" width="24px" height="24px" xmlns="http://www.w3.org/2000/svg">
-                                            <defs>
-                                                <radialGradient gradientUnits="userSpaceOnUse" cx="105" cy="105" r="100" id="gradient-1" gradientTransform="matrix(-0.849568, -0.006165, 0.007257, -0.999974, 193.442734, 210.644584)">
-                                                    <stop offset="0" style="stop-color: rgba(255, 187, 0, 1)"></stop>
-                                                    <stop offset="1" style="stop-color: rgba(153, 112, 0, 1)"></stop>
-                                                </radialGradient>
-                                            </defs>
-                                            <ellipse style="stroke: rgb(0, 0, 0); fill: url(#gradient-1); paint-order: stroke;" cx="105" cy="105" rx="100" ry="100"></ellipse>
-                                        </svg>
+                                        <img src="/static/svg/status-away.svg" alt="Status" class="nav-bar-status-img">
                                     {% endif %}
 
                                     {% if kwargs['routing_status'] == 1 %}
@@ -51,31 +35,31 @@
 
                     <li onclick="window.location.href='/'">
                         <div class="no-dropdown-link">
-                            <div><img src="/static/img/home.png" alt="Home" class="menu-img"></div>
+                            <div><img src="/static/svg/home.svg" alt="Home" class="menu-img"></div>
                             <div><span class="no-dropdown-link-text">Home</span></div>
                         </div>
                     </li>
                     <li onclick="window.location.href='/routes'">
                         <div class="no-dropdown-link">
-                            <div><img src="/static/img/star.png" alt="Rotas" class="menu-img"></div>
+                            <div><img src="/static/svg/routes.svg" alt="Rotas" class="menu-img"></div>
                             <div><span class="no-dropdown-link-text">Rotas</span></div>
                         </div>
                     </li>
                     <li onclick="window.location.href='/users'">
                         <div class="dropdown-link">
-                            <div><img src="/static/img/person.png" alt="Usuários" class="menu-img"></div>
+                            <div><img src="/static/svg/user.svg" alt="Usuários" class="menu-img"></div>
                             <div><span class="dropdown-link-text">Usuários</span></div>
                         </div>
                     </li>
                     <li onclick="window.location.href='/routing-settings'">
                         <div class="dropdown-link">
-                            <div><img src="/static/img/settings.png" alt="Configurações" class="menu-img"></div>
+                            <div><img src="/static/svg/settings.svg" alt="Configurações" class="menu-img"></div>
                             <div><span class="dropdown-link-text">Configurações</span></div>
                         </div>
                     </li>
                     <li onclick="window.location.href='/logs'">
                         <div class="dropdown-link">
-                            <div><img src="/static/img/error.png" alt="Logs" class="menu-img"></div>
+                            <div><img src="/static/svg/logs.svg" alt="Logs" class="menu-img"></div>
                             <div><span class="dropdown-link-text">Logs</span></div>
                         </div>
                     </li>
@@ -87,28 +71,88 @@
                             <div><span class="dropdown-link-text">Zendesk</span></div>
                         </div>
                         <ul class="submenu-Items">
-                            <li><a href="/zendesk-ticket-forms">Formulários</a></li>
-                            <li><a href="/zendesk-locales">Localidades</a></li>
-                            <li><a href="/zendesk-schedules">Programação</a></li>
-                            <li><a href="/zendesk-tags">Tags</a></li>
-                            <li><a href="/zendesk-users">Usuários</a></li>
-                            <li><a href="/zendesk-groups">Grupos</a></li>
+                            <li>
+                                <a href="/zendesk-ticket-forms" class="submenu-item-link-container">
+                                    <img src="/static/svg/forms.svg" alt="Formulários" class="menu-img">
+                                    <span class="submenu-item-text">Formulários</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/zendesk-locales" class="submenu-item-link-container">
+                                    <img src="/static/svg/locales.svg" alt="Localidades" class="menu-img">
+                                    <span class="submenu-item-text">Localidades</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/zendesk-schedules" class="submenu-item-link-container">
+                                    <img src="/static/svg/clock.svg" alt="Programações" class="menu-img">
+                                    <span class="submenu-item-text">Programações</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/zendesk-tags" class="submenu-item-link-container">
+                                    <img src="/static/svg/tag.svg" alt="Tags" class="menu-img">
+                                    <span class="submenu-item-text">Tags</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/zendesk-users" class="submenu-item-link-container">
+                                    <img src="/static/svg/user-zendesk.svg" alt="Usuários" class="menu-img">
+                                    <span class="submenu-item-text">Usuários</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/zendesk-groups" class="submenu-item-link-container">
+                                    <img src="/static/svg/users.svg" alt="Grupos" class="menu-img">
+                                    <span class="submenu-item-text">Grupos</span>
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 </ul>
 
+
+
+
                 <div class="accordion-menu login-logout">
+{#                    {% if kwargs['authenticated'] == True %}#}
+{#                        <ul>#}
+{#                            <li>#}
+{#                                <a href="/logout">#}
+{#                                    <div class="dropdown-link">#}
+{#                                        <div><img src="/static/img/key.png" alt="Logout" class="menu-img"></div>#}
+{#                                        <div><span class="dropdown-link-text">Logout</span></div>#}
+{#                                    </div>#}
+{#                                </a>#}
+{#                            </li>#}
+{#                        </ul>#}
+{#                    {% else %}#}
+{#                        <ul>#}
+{#                            <li>#}
+{#                                <a href="/login">#}
+{#                                    <div class="dropdown-link">#}
+{#                                        <div><img src="/static/img/key.png" alt="Login" class="menu-img"></div>#}
+{#                                        <div><span class="dropdown-link-text">Login</span></div>#}
+{#                                    </div>#}
+{#                                </a>#}
+{#                            </li>#}
+{#                        </ul>#}
+{#                    {% endif %}#}
+
                     {% if kwargs['authenticated'] == True %}
-                        <ul>
-                            <li>
-                                <a href="/logout">
-                                    <div class="dropdown-link">
-                                        <div><img src="/static/img/key.png" alt="Logout" class="menu-img"></div>
-                                        <div><span class="dropdown-link-text">Logout</span></div>
-                                    </div>
-                                </a>
-                            </li>
-                        </ul>
+
+                        <div id="userOptionsContainer" class="user-options-container">
+                            <ul class="user-options-list">
+                                <li><a href="/profile/{{ kwargs['user_id'] }}" class="user-option">Perfil</a></li>
+                                <li><a href="/logout" class="user-option">Sair</a></li>
+                            </ul>
+                        </div>
+
+                        <div id="userInfoContainer" class="user-info-container">
+                            <img id="userProfilePicture" src="{{ profile_picture }}" alt="User Profile Pictures"/>
+                            <span id="navBarUserName">{{ kwargs['user_name'] }}</span>
+                        </div>
+
                     {% else %}
                         <ul>
                             <li>
@@ -120,20 +164,12 @@
                                 </a>
                             </li>
                         </ul>
+
                     {% endif %}
+
                 </div>
             </div>
-
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <ul id="messages" class="list-unstyled">
-                        {% for message in messages %}
-                            <li class="alert alert-success">{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            {% endwith %}
-
+        
             {% if kwargs['authenticated'] %}
 
                 <svg id="notificationBell" fill="#a6a6a6" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-2.4 -2.4 28.80 28.80" xml:space="preserve" width="256px" height="256px" stroke="#a6a6a6" stroke-width="0.00024000000000000003">
@@ -153,11 +189,11 @@
                     <g><circle fill="#5e78ff" cx="18" cy="18" r="18"></circle></g>
                 </svg>
 
-                {% if kwargs['notification_count'] < 10 %}
-                    <span id="newNotificationCounter" class="notification-counter">{{ kwargs['notification_count'] }}</span>
+                {% if kwargs['unread_notifications_count'] < 10 %}
+                    <span id="newNotificationCounter" class="notification-counter">{{ kwargs['unread_notifications_count'] }}</span>
                 {% endif %}
-                {% if kwargs['notification_count'] >= 10 %}
-                    <span id="newNotificationCounterMoreThanTen" class="notification-counter">{{ kwargs['notification_count'] }}</span>
+                {% if kwargs['unread_notifications_count'] >= 10 %}
+                    <span id="newNotificationCounterMoreThanTen" class="notification-counter">{{ kwargs['unread_notifications_count'] }}</span>
                 {% endif %}
 
 

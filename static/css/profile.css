@@ -1,0 +1,160 @@
+h1 {
+    font-size: 2rem;
+}
+
+.rule-input {
+    background-color: #e5e8eb;
+    -webkit-box-flex: 1;
+    flex: 1 1 auto;
+    font-size: 14px;
+    border-radius: 4px;
+    min-height: 3em;
+    max-height: 3em;
+    min-width: 30em;
+    outline: none;
+    padding: 0 16px;
+    line-height: normal;
+    transition: background-color 0.1s ease-in-out;
+    box-sizing: border-box;
+    border: 2px solid transparent;
+    margin-top: 10px;
+}
+
+.img-fluid {
+    width: 250px;
+    border-radius: 125px;
+}
+
+.user-photo-segment {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 50px;
+    align-items: center;
+}
+
+#save {
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
+    min-height: 40px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: #38853d;
+    color: white;
+}
+
+.user-general-info-wrapper {
+    margin-top: 20px;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid lightgray;
+}
+
+.user-general-info-wrapper {
+    display: flex;
+
+}
+
+.user-data-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 30em;
+}
+
+.password-eye-icon {
+    width: 25px;
+    margin-left: -100px;
+    align-self: center;
+    margin-top: 24px;
+}
+
+.password-information-segment {
+    display: flex;
+}
+
+.current-password-hide-password,
+.new-password-hide-password,
+.new-password-confirmation-hide-password {
+    display: none;
+}
+
+.current-password-wrapper,
+.new-password-wrapper,
+.new-password-confirmation-wrapper {
+    flex-direction: row;
+}
+
+.show-hide-password-icon-container {
+    display: flex;
+}
+
+.user-name-container {
+    margin-bottom: 20px;
+}
+
+.user-information-segment {
+    margin-left: 64px;
+}
+
+.field-label {
+    font-weight: bold;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.file-container {
+    padding: 10px 0;
+    width: 200px;
+    background-color: #e5e8eb;
+    color: #1e1e1e;
+    text-align: center;
+    display: block;
+    margin-top: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 27px;
+    font-size: 14px;
+}
+
+.file-container:hover {
+    background-color: #9fa2a4;
+}
+
+figure {
+    display: flex;
+    flex-direction: column;
+}
+
+figcaption {
+    align-self: center;
+}
+
+#userEmail {
+    pointer-events: none;
+ }
+
+#userEmail:hover {
+    cursor: not-allowed;;
+ }
+
+.different-password-alert {
+    color: red;
+    font-size: 14px;
+    margin-left: 10px;
+    display: none;
+}
+
+h2 {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}

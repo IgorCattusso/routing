@@ -134,17 +134,18 @@ def zendesk_schedules():
 @app.route('/change-status')
 def change_user_status():
 
-    user_status = session['routing_status']
-
-    if user_status == 1:
-        session['routing_status'] = 2
-    elif user_status == 2:
-        session['routing_status'] = 1
-    else:
-        session['routing_status'] = 0
-
     with Session(engine) as db_session:
-        Users.change_routing_status(db_session, session['_user_id'], session['routing_status'])
+        user_status = Users.get_user_status(db_session, session['_user_id'])
+
+        if user_status == 1:
+            new_user_status = 2
+        elif user_status == 2:
+            new_user_status = 1
+        else:
+            new_user_status = 0
+
+        session['routing_status'] = new_user_status
+        Users.change_routing_status(db_session, session['_user_id'], new_user_status)
         db_session.commit()
 
     time.sleep(.35)

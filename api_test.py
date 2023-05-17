@@ -78,9 +78,9 @@ zendesk_default_user_group(11490525550747)
 #
 # inserted_users_and_groups = []
 #
-# for user in results:
-#     test = match_false_true(user['default'])
-#     print(type(user['default']))
+# for users in results:
+#     test = match_false_true(users['default'])
+#     print(type(users['default']))
 
 # get_zendesk_users_id('11490525550747')
 
@@ -255,8 +255,8 @@ zendesk_default_user_group(11490525550747)
 #     print(times_list)
 #
 # with Session(engine) as session:
-#     user = User.get_user(session, 'igor.cattusso@involves.com')
-#     print(str(user.User.id))
+#     users = User.get_user(session, 'igor.cattusso@involves.com')
+#     print(str(users.User.id))
 #
 # a = User.get_id(1)
 # print(a)
@@ -326,25 +326,25 @@ zendesk_default_user_group(11490525550747)
 #         users_ahead_of_current_user = session.execute(
 #             select(UsersQueue.id, UsersQueue.users_id, UsersQueue.position).where(UsersQueue.position > current_user.position)
 #         ).all()
-#         for user in users_ahead_of_current_user:
-#             print('users_ahead_of_current_user: ' + str(user.id))
+#         for users in users_ahead_of_current_user:
+#             print('users_ahead_of_current_user: ' + str(users.id))
 #
 #         last_user_in_the_queue = session.execute(
 #             select(UsersQueue.id, UsersQueue.users_id, UsersQueue.position).order_by(UsersQueue.position.desc())
 #         ).first()
 #         print('last_user_in_the_queue: ' + str(last_user_in_the_queue.id))
 #
-#         ''' Get the users ahead of the current user one position down '''
-#         for user in users_ahead_of_current_user:
+#         ''' Get the users ahead of the current users one position down '''
+#         for users in users_ahead_of_current_user:
 #             session.execute(
 #                 update(UsersQueue),
 #                 [
-#                     {'id': user.id, 'position': user.position - 1, 'updated_at': datetime.now()}
+#                     {'id': users.id, 'position': users.position - 1, 'updated_at': datetime.now()}
 #                 ],
 #             )
 #             session.commit()
 #
-#         ''' Get current user to the end of the queue '''
+#         ''' Get current users to the end of the queue '''
 #         if current_user.position != last_user_in_the_queue.position:
 #             session.execute(
 #                 update(UsersQueue),

@@ -36,9 +36,9 @@ button.addEventListener("click", function () {
 });
 
 
-document.addEventListener('DOMContentLoaded', function () {
-    const updateGroups = document.getElementById('updateForms');
-    updateGroups.addEventListener('click', function () {
-        window.location.href = '/get-ticket-forms';
+document.addEventListener("DOMContentLoaded", function () {
+    const updateGroups = document.getElementById("updateForms");
+    updateGroups.addEventListener("click", function () {
+        window.location.href = "/get-ticket-forms";
     });
 });

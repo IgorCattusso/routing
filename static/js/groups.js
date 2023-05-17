@@ -36,14 +36,14 @@ button.addEventListener("click", function () {
 });
 
 
-document.addEventListener('DOMContentLoaded', function () {
-    const updateGroups = document.getElementById('updateGroups');
-    updateGroups.addEventListener('click', function () {
-        window.location.href = '/get-zendesk-groups';
+document.addEventListener("DOMContentLoaded", function () {
+    const updateGroups = document.getElementById("updateGroups");
+    updateGroups.addEventListener("click", function () {
+        window.location.href = "/get-zendesk-groups";
     });
 
-    const updateGroupMemberships = document.getElementById('updateGroupMemberships');
-    updateGroupMemberships.addEventListener('click', function () {
-        window.location.href = '/get-zendesk-group-memberships';
+    const updateGroupMemberships = document.getElementById("updateGroupMemberships");
+    updateGroupMemberships.addEventListener("click", function () {
+        window.location.href = "/get-zendesk-group-memberships";
     });
 });

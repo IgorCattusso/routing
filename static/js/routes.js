@@ -48,22 +48,22 @@ deleteButton.addEventListener("click", function () {
         }
     }
     if (selectedRowIDs.length === 1) {
-        const route = document.querySelector('.std-tr.selected');
-        const routeId = route.getAttribute('data-id');
-          $.ajax({
-            type: 'DELETE',
-            url: '/routes/delete/' + routeId,
+        const route = document.querySelector(".std-tr.selected");
+        const routeId = route.getAttribute("data-id");
+        $.ajax({
+            type: "DELETE",
+            url: "/routes/delete/" + routeId,
 
-            success: function(response) {
-              // Provide feedback to the user that the data was processed successfully
-              alert('Rota excluída com sucesso!');
-              window.location.href = '/routes';
+            success: function (response) {
+                // Provide feedback to the users that the data was processed successfully
+                alert("Rota excluída com sucesso!");
+                window.location.href = "/routes";
             },
-            error: function(xhr, status, error) {
-              // Provide feedback to the user that an error occurred during the processing of the data
-              alert('Ocorreu um erro ao excluir a rota: ' + error);
+            error: function (xhr, status, error) {
+                // Provide feedback to the users that an error occurred during the processing of the data
+                alert("Ocorreu um erro ao excluir a rota: " + error);
             }
-          });
+        });
     } else {
         deleteButton.setAttribute("disabled", true);
     }
@@ -81,22 +81,22 @@ deactivateButton.addEventListener("click", function () {
         }
     }
     if (selectedRowIDs.length === 1) {
-        const route = document.querySelector('.std-tr.selected');
-        const routeId = route.getAttribute('data-id');
-          $.ajax({
-            type: 'PUT',
-            url: '/routes/deactivate/' + routeId,
+        const route = document.querySelector(".std-tr.selected");
+        const routeId = route.getAttribute("data-id");
+        $.ajax({
+            type: "PUT",
+            url: "/routes/deactivate/" + routeId,
 
-            success: function(response) {
-              // Provide feedback to the user that the data was processed successfully
-              alert('Rota inativada com sucesso!');
-              window.location.href = '/routes';
+            success: function (response) {
+                // Provide feedback to the users that the data was processed successfully
+                alert("Rota inativada com sucesso!");
+                window.location.href = "/routes";
             },
-            error: function(xhr, status, error) {
-              // Provide feedback to the user that an error occurred during the processing of the data
-              alert('Ocorreu um erro ao excluir a rota: ' + error);
+            error: function (xhr, status, error) {
+                // Provide feedback to the users that an error occurred during the processing of the data
+                alert("Ocorreu um erro ao excluir a rota: " + error);
             }
-          });
+        });
     } else {
         deactivateButton.setAttribute("disabled", true);
     }

@@ -1,0 +1,128 @@
+{% extends "template.html" %}
+{% block conteudo %}
+
+    <label>
+        <input id="editUserId" hidden="hidden" value="{{ kwargs['user'].id }}">
+    </label>
+
+    <link rel="stylesheet" href="/static/css/profile.css">
+
+    <div class="container">
+        <div class="main-content">
+            <h1>Perfil</h1>
+            <div id="contentTable" class="content-table scrollable">
+
+                <h2>Dados pessoais</h2>
+                <form action="{{ url_for('user_profile', user_id=kwargs['user'].id) }}" method="POST" enctype="multipart/form-data">
+
+                    <input type="hidden" name="id" value="{{ kwargs['user'].id }}">
+
+                    <fieldset class="profile-fieldset">
+
+                        <div class="user-general-info-wrapper">
+                            <div class="user-photo-segment">
+                                <figure>
+                                    <img src="{{ url_for('get_profile_picture', user_id=kwargs['user'].id) }}" class="img-fluid" alt="Imagem de perfil" id="userPhoto">
+                                    <figcaption>
+                                        <label class="file-container">
+                                            Alterar foto
+                                            <input type="file" name="profile-picture" class="form-control file-input" accept=".jpg">
+                                        </label>
+                                    </figcaption>
+                                </figure>
+                            </div>
+
+                            <div class="user-information-segment">
+
+                                {{ kwargs['form'].csrf_token }} <!-- Cross Site Request Forgery prevention -->
+                                <div class="user-name-container user-data-container" id="userNameContainer">
+                                    {{ kwargs['form'].name.label(class="user-name-title field-label", for="userName") }}
+                                    {{ kwargs['form'].name(class="form-item-input-text rule-input", type="text", id="userName") }}
+                                </div>
+                                <div class="user-email-container user-data-container" id="userEmailContainer">
+                                    {{ kwargs['form'].email.label(class="user-email-title field-label", for="userEmail") }}
+                                    {{ kwargs['form'].email(class="form-item-input-text rule-input", type="text", id="userEmail") }}
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <h2>Alterar senha</h2>
+
+                        <div class="password-information-segment">
+
+                            <div class="current-password-wrapper user-data-container" id="currentPasswordContainer">
+                                <div class="current-password-input-container">
+                                    {{ kwargs['form'].current_password.label(class="current-password-label field-label", for="currentPassword") }}
+                                    {{ kwargs['form'].current_password(type="password", id="currentPassword", class="form-item-input-text rule-input") }}
+                                </div>
+                                <div class="show-hide-password-icon-container">
+                                    <img src="/static/svg/eye.svg" alt="Mostrar senha" class="current-password-show-password password-eye-icon" id="currentPasswordShow">
+                                    <img src="/static/svg/eye-off.svg" alt="Esconder senha" class="current-password-hide-password password-eye-icon" id="currentPasswordHide">
+                                </div>
+                            </div>
+
+                            <div class="new-password-wrapper user-data-container" id="newPasswordContainer">
+                                <div class="new-password-input-container">
+                                    {{ kwargs['form'].new_password.label(class="new-password-label field-label", for="newPassword") }} <span class="different-password-alert">As senhas não coincidem</span>
+                                    {{ kwargs['form'].new_password(type="password", id="newPassword", class="form-item-input-text rule-input") }}
+                                </div>
+                                <div class="show-hide-password-icon-container">
+                                    <img src="/static/svg/eye.svg" alt="Mostrar senha" class="new-password-show-password password-eye-icon" id="newPasswordShow">
+                                    <img src="/static/svg/eye-off.svg" alt="Esconder senha" class="new-password-hide-password password-eye-icon" id="newPasswordHide">
+                                </div>
+                            </div>
+
+                            <div class="new-password-confirmation-wrapper user-data-container" id="newPasswordConfirmationContainer">
+                                <div class="new-password-confirmation-input-container">
+                                    {{ kwargs['form'].new_password_confirmation.label(class="new-password-confirmation-label field-label", for="newPasswordConfirmation") }} <span class="different-password-alert">As senhas não coincidem</span>
+                                    {{ kwargs['form'].new_password_confirmation(type="password", id="newPasswordConfirmation", class="form-item-input-text rule-input") }}
+                                </div>
+                                <div class="show-hide-password-icon-container">
+                                    <img src="/static/svg/eye.svg" alt="Mostrar senha" class="new-password-confirmation-show-password password-eye-icon" id="newPasswordConfirmationShow">
+                                    <img src="/static/svg/eye-off.svg" alt="Esconder senha" class="new-password-confirmation-hide-password password-eye-icon" id="newPasswordConfirmationHide">
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+                        <div class="form-group buttons">
+                            {{ kwargs['form'].save(class="btn btn-primary", id="save") }}
+                        </div>
+
+                    </fieldset>
+
+                </form>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-items">
+                <div class="options">
+                    <div></div>
+                </div>
+                <div class="page-actions">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul id="messages" class="list-unstyled">
+            {% for message in messages %}
+                <li class="alert alert-success">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+
+    <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
+    <script src="/static/js/profile.js"></script>
+
+
+{% endblock %}

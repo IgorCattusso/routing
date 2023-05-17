@@ -5,12 +5,12 @@ setInterval(function () {
     notify();
 }, 5000);
 
-// Check for notifications permission and prompts the user for it if it's not allowed
-// Checks if the user is logged in before calling the notification function
+// Check for notifications permission and prompts the users for it if it"s not allowed
+// Checks if the users is logged in before calling the notification function
 function notify() {
-    const userId = document.getElementById("userId"); // Checks if the user id is present (logged in)
-    const userStatus = document.getElementById("userStatus").innerHTML; // Checks if the user id is present (logged in)
-    if (userId && userStatus === "Online") { // If the user id is present, then calls the notification function
+    const userId = document.getElementById("userId"); // Checks if the users id is present (logged in)
+    const userStatus = document.getElementById("userStatus").innerHTML; // Checks if the users id is present (logged in)
+    if (userId && userStatus === "Online") { // If the users id is present, then calls the notification function
         if (!("Notification" in window)) { // Checks if the browser supports notifications
             alert("This browser does not support desktop notification");
         } else if (Notification.permission === "granted") { // Checks if the browser allows notifications
@@ -19,7 +19,7 @@ function notify() {
             console.log("Nofications are disabled!"); // Logs to the console
             Notification.requestPermission().then((permission) => { // Prompts for permission
                 if (permission === "granted") { // If granted
-                        notification(userId) // Calls the notification function
+                    notification(userId) // Calls the notification function
                 }
             });
         }
@@ -30,7 +30,7 @@ function notify() {
 // Get the notification sound file
 const newTicketNotificationSound = new Audio("/static/snd/new_ticket_notification.wav");
 
-// Get a user's notifications, one at a time, then marks it as received.
+// Get a users"s notifications, one at a time, then marks it as received.
 // After that, displays the notification and flags it as received
 function notification(userId) {
     $.ajax({
@@ -50,23 +50,23 @@ function notification(userId) {
                         if (textStatus.status === 200) {  // If a notification was successfully flagged as received
                             // Displays a notification
                             if (get_notification_response["type"] === 0) {
-                                const notification = new Notification("Novo ticket atribuído!", options);
+                                new Notification("Novo ticket atribuído!", options);
                                 addNewNotificationToList(
                                     get_notification_response["id"],
                                     get_notification_response["content"],
                                     get_notification_response["url"]
                                 )
                             } else {
-                                const notification = new Notification("Operação concluída!", options)
+                                new Notification("Operação concluída!", options)
                             }
 
                             // Plays a sound. To play the sound is either necessary:
-                            // 1. That the user interacts with the page, any interaction like changing the status or
+                            // 1. That the users interacts with the page, any interaction like changing the status or
                             //    loggin in. After reloading the page, it"s necessary to perform an interaction again.
                             // 2. It"s possible to get around the interaction thing by granting access to the page
                             //    to Sound instead of "automatic".
                             newTicketNotificationSound.play();
-                            // Sets an onclick event to redirect the user to the ticket when clicking the notification
+                            // Sets an onclick event to redirect the users to the ticket when clicking the notification
                             if (get_notification_response["url"]) {
                                 notification.onclick = function (event) {
                                     event.preventDefault();
@@ -99,7 +99,7 @@ function notification(userId) {
     });
 }
 
-function flagNotificationAsRead(notification_id){
+function flagNotificationAsRead(notification_id) {
 
     let _notification_id = "notificationUnreadIcon-" + notification_id
     let isNotificationAlreadyRead = document.getElementById(_notification_id)
@@ -126,7 +126,7 @@ function flagNotificationAsRead(notification_id){
 }
 
 
-function flagAllNotificationsAsRead(user_id){
+function flagAllNotificationsAsRead(user_id) {
 
     const unreadNotifications = document.getElementsByClassName("unread-notification-icon");
     let numberOfUnreadNotificationsElement = document.getElementById("newNotificationCounter");
@@ -156,20 +156,20 @@ function flagAllNotificationsAsRead(user_id){
     }
 }
 
-function updateUnreadNotificationCounter(operation, numberOfReadNotifications){
-    let newNotificationCounter = document.getElementById( "newNotificationCounter");
-    let newNotificationCounterMoreThanTen = document.getElementById( "newNotificationCounterMoreThanTen");
+function updateUnreadNotificationCounter(operation, numberOfReadNotifications) {
+    let newNotificationCounter = document.getElementById("newNotificationCounter");
+    let newNotificationCounterMoreThanTen = document.getElementById("newNotificationCounterMoreThanTen");
 
     if (newNotificationCounter) {
         if (operation === "subtract" && parseInt(newNotificationCounter.textContent) > 0) {
             newNotificationCounter.textContent = parseInt(newNotificationCounter.textContent) - numberOfReadNotifications;
-            if (newNotificationCounter.textContent < 10 ) {
+            if (newNotificationCounter.textContent < 10) {
                 newNotificationCounter.classList.add("fix-alignment-less-than-ten")
                 newNotificationCounter.classList.remove("fix-alignment-more-than-ten")
             }
         } else if (operation === "add") {
             newNotificationCounter.textContent = parseInt(newNotificationCounter.textContent) + numberOfReadNotifications;
-            if (newNotificationCounter.textContent >= 10 ) {
+            if (newNotificationCounter.textContent >= 10) {
                 newNotificationCounter.classList.add("fix-alignment-more-than-ten")
                 newNotificationCounter.classList.remove("fix-alignment-less-than-ten")
             }
@@ -179,13 +179,13 @@ function updateUnreadNotificationCounter(operation, numberOfReadNotifications){
     if (newNotificationCounterMoreThanTen) {
         if (operation === "subtract" && parseInt(newNotificationCounterMoreThanTen.textContent) > 0) {
             newNotificationCounterMoreThanTen.textContent = (parseInt(newNotificationCounterMoreThanTen.textContent) - numberOfReadNotifications);
-            if (newNotificationCounterMoreThanTen.textContent < 10 ) {
+            if (newNotificationCounterMoreThanTen.textContent < 10) {
                 newNotificationCounterMoreThanTen.classList.add("fix-alignment-less-than-ten")
                 newNotificationCounterMoreThanTen.classList.remove("fix-alignment-more-than-ten")
             }
         } else if (operation === "add") {
             newNotificationCounterMoreThanTen.textContent = (parseInt(newNotificationCounterMoreThanTen.textContent) + numberOfReadNotifications);
-            if (newNotificationCounterMoreThanTen.textContent >= 10 ) {
+            if (newNotificationCounterMoreThanTen.textContent >= 10) {
                 newNotificationCounterMoreThanTen.classList.add("fix-alignment-more-than-ten")
                 newNotificationCounterMoreThanTen.classList.remove("fix-alignment-less-than-ten")
             }
@@ -196,23 +196,23 @@ function updateUnreadNotificationCounter(operation, numberOfReadNotifications){
 
 const notificationBell = document.getElementById("notificationBell");
 const notificationWrapper = document.getElementById("notificationPanelWrapper");
-notificationBell.addEventListener("click", function() {
-  const notificationWrapperStyle = window.getComputedStyle(notificationWrapper);
-  if (notificationWrapperStyle.display === "none") {
-    notificationWrapper.style.display = "flex";
-  } else {
-    notificationWrapper.style.display = "none";
-  }
+notificationBell.addEventListener("click", function () {
+    const notificationWrapperStyle = window.getComputedStyle(notificationWrapper);
+    if (notificationWrapperStyle.display === "none") {
+        notificationWrapper.style.display = "flex";
+    } else {
+        notificationWrapper.style.display = "none";
+    }
 });
 
-document.addEventListener("click", function(event) {
-  const isClickInside = notificationWrapper.contains(event.target) || notificationBell.contains(event.target);
-  if (!isClickInside) {
-    notificationWrapper.style.display = "none";
-  }
+document.addEventListener("click", function (event) {
+    const isClickInside = notificationWrapper.contains(event.target) || notificationBell.contains(event.target);
+    if (!isClickInside) {
+        notificationWrapper.style.display = "none";
+    }
 });
 
-function addNewNotificationToList(notificationId, notificationContent, notificationURL=null) {
+function addNewNotificationToList(notificationId, notificationContent, notificationURL = null) {
 
     const notificationsPanelContainer = document.getElementById("notificationsPanelContainer");
 
