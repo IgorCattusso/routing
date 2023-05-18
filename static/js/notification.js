@@ -9,8 +9,8 @@ setInterval(function () {
 // Checks if the users is logged in before calling the notification function
 function notify() {
     const userId = document.getElementById("userId"); // Checks if the users id is present (logged in)
-    const userStatus = document.getElementById("userStatus").innerHTML; // Checks if the users id is present (logged in)
-    if (userId && userStatus === "Online") { // If the users id is present, then calls the notification function
+    const userStatus = document.getElementById("userStatus"); // Checks if the users id is present (logged in)
+    if (userId && userStatus.innerHTML === "Online") { // If the users id is present, then calls the notification function
         if (!("Notification" in window)) { // Checks if the browser supports notifications
             alert("This browser does not support desktop notification");
         } else if (Notification.permission === "granted") { // Checks if the browser allows notifications
@@ -225,21 +225,26 @@ function updateUnreadNotificationCounter(operation, numberOfReadNotifications) {
 
 const notificationBell = document.getElementById("notificationBell");
 const notificationWrapper = document.getElementById("notificationPanelWrapper");
-notificationBell.addEventListener("click", function () {
-    const notificationWrapperStyle = window.getComputedStyle(notificationWrapper);
-    if (notificationWrapperStyle.display === "none") {
-        notificationWrapper.style.display = "flex";
-    } else {
-        notificationWrapper.style.display = "none";
-    }
-});
+if (notificationBell) {
+    notificationBell.addEventListener("click", function () {
+        const notificationWrapperStyle = window.getComputedStyle(notificationWrapper);
+        if (notificationWrapperStyle.display === "none") {
+            notificationWrapper.style.display = "flex";
+        } else {
+            notificationWrapper.style.display = "none";
+        }
+    });
 
-document.addEventListener("click", function (event) {
+    document.addEventListener("click", function (event) {
     const isClickInside = notificationWrapper.contains(event.target) || notificationBell.contains(event.target);
     if (!isClickInside) {
-        notificationWrapper.style.display = "none";
-    }
-});
+            notificationWrapper.style.display = "none";
+        }
+    });
+
+}
+
+
 
 function addNewNotificationToList(notificationId, notificationContent, notificationURL = null) {
 

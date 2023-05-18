@@ -73,11 +73,13 @@ $(".std-th").on("click", function () {
 
 const userInfoContainer = document.getElementById("userInfoContainer");
 const userOptionsContainer = document.getElementById("userOptionsContainer");
-userInfoContainer.addEventListener("click", function () {
-    const userOptionsContainerStyle = window.getComputedStyle(userOptionsContainer)
-    if (userOptionsContainerStyle.display === "none") {
-        userOptionsContainer.style.display = "block";
-    } else {
-        userOptionsContainer.style.display = "none";
-    }
-});
+if (userInfoContainer) {
+    userInfoContainer.addEventListener("click", function () {
+        const userOptionsContainerStyle = window.getComputedStyle(userOptionsContainer)
+        if (userOptionsContainerStyle.display === "none") {
+            userOptionsContainer.style.display = "block";
+        } else {
+            userOptionsContainer.style.display = "none";
+        }
+    });
+}
