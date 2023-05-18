@@ -5,7 +5,6 @@ import requests
 from models import Users, Notifications
 from sqlalchemy.orm import Session
 from app import engine, app
-from flask_wtf import FlaskForm
 
 
 def generate_zendesk_headers():
@@ -51,6 +50,11 @@ def get_user_profile_picture(user_id):
 
 
 def internal_render_template(template, **kwargs):
+
+    if '_user_id' in session:
+        print('hey')
+    else:
+        session['_user_id'] = 0
 
     if session:
         if session['_user_id']:
