@@ -14,9 +14,9 @@ def send_password_reset_email(email_receiver, receiver_name, password_reset_url)
     body = \
         f"""
             Olá, {receiver_name}!
-            
+
             Segue link para redefinição da sua senha:
-            
+
             {password_reset_url}
         """
 
@@ -45,9 +45,11 @@ def send_password_reset_email(email_receiver, receiver_name, password_reset_url)
                     <p style="color:black">Segue o link para redefinição da sua senha 🤘</p>
                 </div>
                 <br>
-                <div style="text-align:center;margin-top:50px">
-                    <a href="{password_reset_url}" class="link"><button style="padding:20px 60px;border-radius:40px;border:none;cursor:pointer;background-color:#040C26;color:white;font-weight:bold;font-size:16px">Redefinir senha</button></a>
-                </div>
+                <a href="{password_reset_url}" class="link" style="cursor:pointer">
+                    <div style="text-align:center;margin-top:50px;cursor:pointer">
+                        <button style="padding:20px 60px;border-radius:40px;border:none;cursor:pointer;background-color:#040C26;color:white;font-weight:bold;font-size:16px">Redefinir senha</button>
+                    </div>
+                </a>
             </div>
         </body>
     </html>

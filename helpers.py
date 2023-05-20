@@ -43,7 +43,7 @@ def get_user_profile_picture(user_id):
     profile_picture = '/static/assets/users/placeholder.png'
 
     for file_name in os.listdir(app.config['USER_PROFILE_PICTURE_UPLOAD_PATH']):
-        if f"{user_id}-" in file_name:
+        if f'{user_id}-' in file_name:
             profile_picture = f'/static/assets/users/{file_name}'
 
     return profile_picture

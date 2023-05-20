@@ -486,7 +486,7 @@ zendesk_default_user_group(11490525550747)
 #
 # email_sender = str(os.getenv('GMAIL_ACCOUNT_EMAIL'))
 # email_password = str(os.getenv('GMAIL_APP_PASSWORD'))
-# email_receiver = 'igor.cattusso@involves.com'
+# email_recipient = 'igor.cattusso@involves.com'
 #
 # subject = 'Definição de nova senha'
 # body = """
@@ -497,7 +497,7 @@ zendesk_default_user_group(11490525550747)
 #
 # msg = EmailMessage()
 # msg['From'] = Address('Zendesk Routing', domain=email_sender)
-# msg['To'] = email_receiver
+# msg['To'] = email_recipient
 # msg['Subject'] = subject
 # msg.set_content(body)
 #
