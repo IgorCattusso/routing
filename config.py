@@ -32,3 +32,7 @@ url_object = URL.create(  # Creating connection string
 )
 
 ZENDESK_TICKET_LEVEL_ID = 11490675185819  # Campo atendimento no Zendesk
+
+EMAIL_SENDER = str(os.getenv('GMAIL_ACCOUNT_EMAIL'))
+EMAIL_PASSWORD = str(os.getenv('GMAIL_APP_PASSWORD'))
+

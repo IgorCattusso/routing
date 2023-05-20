@@ -196,7 +196,7 @@ def assign_ticket_route():
 
                         elif not UserBacklog.get_agent_backlog_count(db_session, user.id) < settings.agent_backlog_limit:
                             print('if 4')
-                            log.message = 'Usuário possui mais tickets em análise que o máximo configurado! ' \
+                            log.message = 'Usuário possui mais tickets msg análise que o máximo configurado! ' \
                                           'O próximo usuário disponível será encontrado.'
                             AssignedTicketsLog.insert_new_log(
                                 db_session,
@@ -254,7 +254,7 @@ def assign_ticket_route():
 
                         elif not Users.is_user_on_working_hours(db_session, user.id):
                             print('if 7 - OK')
-                            log.message = 'Usuário não está mais em horário de trabalho! ' \
+                            log.message = 'Usuário não está mais msg horário de trabalho! ' \
                                           'O usuário foi removido da fila e o próximo usuário disponível ' \
                                           'será encontrado.'
                             AssignedTicketsLog.insert_new_log(

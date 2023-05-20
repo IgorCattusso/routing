@@ -1,12 +1,12 @@
-from app import app, login_manager, engine, bcrypt
-from models import Users, UsersQueue
-from flask import flash, redirect, url_for, session, render_template
+from app import login_manager, app, engine, bcrypt
+from models import UsersQueue
+from flask import session, render_template, redirect, url_for, flash
 from flask_login import login_user, UserMixin, login_required, logout_user
-from helpers import internal_render_template
-from wtforms import validators, StringField, SubmitField, PasswordField
 from flask_wtf import FlaskForm
-from sqlalchemy.orm import Session
+from wtforms import validators, StringField, SubmitField, PasswordField
 from sqlalchemy import select
+from sqlalchemy.orm import Session
+from models import Users
 
 
 class UserForm(FlaskForm):
@@ -22,7 +22,7 @@ class UserForm(FlaskForm):
          validators.Length(min=1, max=150)],
         render_kw={"placeholder": "Senha"}
     )
-    submit = SubmitField('LOGIN')
+    submit = SubmitField('Login')
 
 
 class User(UserMixin):

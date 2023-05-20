@@ -10,6 +10,8 @@ from sqlalchemy import create_engine
 from config import url_object, ZENDESK_BASE_URL
 import json
 import ast
+from dotenv import *
+import os
 
 
 '''
@@ -27,7 +29,7 @@ base64_string = base64_bytes.decode('ascii')
 # Montando Headers
 headers = {'Authorization': 'Basic ' + base64_string}
 
-# Enviando request e armazenando response em uma variável
+# Enviando request e armazenando response msg uma variável
 api_response = requests.get(api_url, headers=headers).json()
 
 # print(str(json.dumps(response, sort_keys=False, indent=4, ensure_ascii=False)))
@@ -465,8 +467,70 @@ zendesk_default_user_group(11490525550747)
 # print(type(result))
 # print(result)
 
-with Session(engine) as db_session:
-       a = AssignedTicketsLog.get_last_ten_logs(db_session)
+# with Session(engine) as db_session:
+#        a = AssignedTicketsLog.get_last_ten_logs(db_session)
+#
+# for b in a:
+#        print(str(b))
 
-for b in a:
-       print(str(b))
+
+# from dotenv import load_dotenv
+# import os
+# from email.message import EmailMessage
+# from email.headerregistry import Address
+# import ssl
+# import smtplib
+# from email.utils import make_msgid
+#
+# load_dotenv()
+#
+# email_sender = str(os.getenv('GMAIL_ACCOUNT_EMAIL'))
+# email_password = str(os.getenv('GMAIL_APP_PASSWORD'))
+# email_receiver = 'igor.cattusso@involves.com'
+#
+# subject = 'Definição de nova senha'
+# body = """
+# Segue link para redefinição de senha: aaa.aaa.com
+# """
+#
+# asparagus_cid = make_msgid()
+#
+# msg = EmailMessage()
+# msg['From'] = Address('Zendesk Routing', domain=email_sender)
+# msg['To'] = email_receiver
+# msg['Subject'] = subject
+# msg.set_content(body)
+#
+# msg.add_alternative("""\
+# <html lang="pt_BR">
+#     <head>
+#         <title>Redefinição de senha</title>
+#     </head>
+#     <body style="background-color:#040C26;padding:50px;text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:14px">
+#         <div style="background-color:white;padding:50px;text-align:left;width:20%;margin:auto;border-radius:30px">
+#             <div style="text-align:center">
+#                 <img src="cid:{asparagus_cid}" />
+#             </div>
+#             <br>
+#             <div style="text-align:center">
+#                 <h2>Olá, {user_name}!</h2>
+#                 <br>
+#                 <p>Segue o link para redefinição da sua senha 🤘</p>
+#             </div>
+#             <br>
+#             <div style="text-align:center;margin-top:50px">
+#                 <a href="{password_reset_link}" class="link"><button style="padding:20px 60px;border-radius:40px;border:none;cursor:pointer;background-color:#040C26;color:white;font-weight:bold;font-size:16px">Redefinir senha</button></a>
+#             </div>
+#         </div>
+#     </body>
+# </html>
+# """.format(asparagus_cid=asparagus_cid[1:-1], user_name='Igor Cattusso', password_reset_link=''), subtype='html')
+#
+# with open("static/img/favicon.png", 'rb') as img:
+#     msg.get_payload()[1].add_related(img.read(), 'image', 'png', cid=asparagus_cid)
+#
+# context = ssl.create_default_context()
+#
+# with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+#     smtp.login(email_sender, email_password)
+#     smtp.send_message(msg)

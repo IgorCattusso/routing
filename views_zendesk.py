@@ -152,9 +152,9 @@ def get_zendesk_ticket_forms():
     Essa rota é um pouco complexa.
     Primeiro, é realizada a inserção dos Campos ativos,
     Em seguida, é realizada a inserção dos Formulários ativos,
-    Em seguida, é realizada a inserção do vínculo entre Campos e Formulários, ou seja, quais Campos estão em quais Forms
+    Em seguida, é realizada a inserção do vínculo entre Campos e Formulários, ou seja, quais Campos estão msg quais Forms
     Em seguida, é realizada a inserção das Opções dos Campos. As Opções dos Campos estão relacionadas aos Campos,
-       mas não necessitam de uma tabela auxiliar para vinculá-las, visto que uma Opção não estará em mais de um Campo
+       mas não necessitam de uma tabela auxiliar para vinculá-las, visto que uma Opção não estará msg mais de um Campo
     """
     '''
     Inserção dos Campos ativos no zendesk

@@ -1,5 +1,5 @@
 from app import app, engine, bcrypt
-from models import ZendeskUsers, Users, ZendeskSchedules
+from models import ZendeskUsers, Users, ZendeskSchedules, PasswordResetRequests
 from sqlalchemy.orm import Session
 from flask import request, redirect, url_for, send_from_directory, flash
 from helpers import internal_render_template
@@ -7,12 +7,24 @@ import os
 from flask_wtf import FlaskForm
 from wtforms import validators, StringField, SubmitField, PasswordField
 import time
+from email_sender import send_email
 
 
 class ProfileForm(FlaskForm):
     name = StringField('Nome', [validators.DataRequired(), validators.Length(min=1, max=100)])
     email = StringField('E-mail', [validators.DataRequired(), validators.Length(min=1, max=100)])
     current_password = PasswordField('Senha atual', [validators.Length(min=0, max=100)])
+    new_password = PasswordField('Nova senha', [validators.Length(min=0, max=100)])
+    new_password_confirmation = PasswordField('Confirme a nova senha', [validators.Length(min=0, max=100)])
+    save = SubmitField('Salvar')
+
+
+class ForgotPasswordForm(FlaskForm):
+    email = StringField('E-mail', [validators.DataRequired(), validators.Length(min=1, max=100)])
+    save = SubmitField('Enviar')
+
+
+class ResetPasswordForm(FlaskForm):
     new_password = PasswordField('Nova senha', [validators.Length(min=0, max=100)])
     new_password_confirmation = PasswordField('Confirme a nova senha', [validators.Length(min=0, max=100)])
     save = SubmitField('Salvar')
@@ -135,13 +147,10 @@ def user_profile(user_id):
         form.new_password.data = password.new_password
         form.new_password_confirmation.data = password.new_password_confirmation
 
-        profile_picture = get_profile_picture(user_id)
-
         return internal_render_template(
             'profile.html',
             user=user,
             form=form,
-            profile_picture=profile_picture,
         )
 
     if request.method == 'POST':
@@ -156,7 +165,7 @@ def user_profile(user_id):
                 new_name = form.name.data
 
                 if new_password != '' and bcrypt.check_password_hash(user.password, current_password):
-                    Users.update_user_password_from_profile(
+                    Users.update_user_password(
                         db_session,
                         user_id,
                         bcrypt.generate_password_hash(new_password).decode('utf-8'),
@@ -208,3 +217,104 @@ def get_profile_picture(user_id):
             return send_from_directory(app.config['USER_PROFILE_PICTURE_UPLOAD_PATH'], str(file_name))
 
     return send_from_directory(app.config['USER_PROFILE_PICTURE_UPLOAD_PATH'], 'placeholder.png')
+
+
+@app.route('/forgot-password', methods=['GET', 'POST', ])
+def forgot_password():
+    if request.method == 'GET':
+        form = ForgotPasswordForm()
+        form.email.data = ''
+
+        return internal_render_template(
+            'forgot-password.html',
+            form=form,
+        )
+
+    if request.method == 'POST':
+        form = ForgotPasswordForm(request.form)
+
+        if form.validate_on_submit():
+            with Session(engine) as db_session:
+                user = Users.get_user_from_email(db_session, form.email.data)
+
+            if user:
+                new_password_request = PasswordResetRequests.create_new_request_returning_uuid(db_session, user.id)
+                send_password_reset_email = send_email(
+                    user.email,
+                    user.name,
+                    request.base_url.replace('/forgot-password', '') + '/reset-password/' + new_password_request
+                )   # TODO think of a better way to create this URL
+
+                if not send_password_reset_email:
+                    db_session.commit()
+                    flash('E-mail enviado com sucesso!', 'success')
+                    return redirect(url_for('login'))
+
+                else:
+                    flash('Ocorreu um erro ao enviar o e-mail de recuperação de senha!')
+                    return redirect(url_for('login'))
+
+            else:
+                flash('E-mail não cadastrado!')
+                return redirect(url_for('forgot_password'))
+
+        else:
+            flash('Ocorreum um erro!')
+            return redirect(url_for('login'))
+
+
+@app.route('/reset-password/<request_uuid>', methods=['GET', 'POST', ])
+def reset_password(request_uuid):
+    if request.method == 'GET':
+        with Session(engine) as db_session:
+            reset_password_request_data = PasswordResetRequests.is_request_valid(db_session, request_uuid)
+            if not reset_password_request_data.used:
+                form = ResetPasswordForm()
+
+                class Password:
+                    def __init__(self, new_password, new_password_confirmation):
+                        self.new_password = new_password
+                        self.new_password_confirmation = new_password_confirmation
+
+                password = Password('', '')
+
+                form.new_password.data = password.new_password
+                form.new_password_confirmation.data = password.new_password_confirmation
+
+                return internal_render_template(
+                    'reset-password.html',
+                    form=form,
+                    current_request_uuid=request_uuid,
+                )
+
+            else:
+                flash('Este link de recuperação de senha já foi utilizado!')
+                return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        form = ResetPasswordForm(request.form)
+
+        if form.validate_on_submit():
+            with Session(engine) as db_session:
+                reset_password_request_data = PasswordResetRequests.is_request_valid(db_session, request_uuid)
+
+                if not reset_password_request_data.used:
+                    new_password = form.new_password.data
+                    user_id = reset_password_request_data.users_id
+
+                    Users.update_user_password(
+                        db_session,
+                        user_id,
+                        bcrypt.generate_password_hash(new_password).decode('utf-8'),
+                    )
+
+                    PasswordResetRequests.flag_request_as_used(db_session, reset_password_request_data.id)
+
+                    db_session.commit()
+
+                    flash('Senha alterada com sucesso!', 'success')
+                    return redirect(url_for('login'))
+
+                else:
+                    flash('Este link de recuperação de senha já foi utilizado!')
+                    return redirect(url_for('login'))

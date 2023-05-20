@@ -8,8 +8,8 @@ import time
 from flask_login import login_required
 from models import Users
 from helpers import internal_render_template
-import ast
 from views_logs import logs_as_list
+from email_sender import send_email
 
 
 @app.route('/')
@@ -172,3 +172,9 @@ def logs():
     list_of_logs = logs_as_list(last_ten_logs)
 
     return internal_render_template('logs.html', list_of_logs=list_of_logs, users=log_users)
+
+
+@app.route('/send-email')
+def send_mail():
+    sent_email_response = send_email('igor_catusso@hotmail.com', 'Igor Cattusso', 'https://google.com')
+    return sent_email_response

@@ -6,6 +6,7 @@ from sqlalchemy.orm.exc import FlushError
 from datetime import datetime, timedelta, date, time
 from sqlalchemy import create_engine
 from config import url_object, ZENDESK_BASE_URL
+import uuid
 
 engine = create_engine(url_object)
 
@@ -1063,7 +1064,7 @@ class Users(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(150), nullable=False)
     email: Mapped[str] = mapped_column(String(150), nullable=False)
-    password: Mapped[str] = mapped_column(String(50), nullable=False)
+    password: Mapped[str] = mapped_column(String(500))
     active: Mapped[bool] = mapped_column(Boolean, nullable=False)
     deleted: Mapped[bool] = mapped_column(Boolean, nullable=False)
     authenticated: Mapped[bool] = mapped_column(Boolean, nullable=False)
@@ -1134,6 +1135,24 @@ class Users(Base):
                 ).where(Users.id == user_id)
             ).first()
 
+            return user
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_user_from_email(db_session, user_email):
+        try:
+            user = db_session.execute(
+                select(
+                    Users.id,
+                    Users.name,
+                    Users.email,
+                    Users.active,
+                    Users.deleted,
+                ).where(Users.email == user_email)
+            ).first()
             return user
 
         except (IntegrityError, FlushError) as error:
@@ -1267,7 +1286,7 @@ class Users(Base):
             return f'There was an error: {error_info}'
 
     @staticmethod
-    def update_user_password_from_profile(db_session, user_id, password):
+    def update_user_password(db_session, user_id, password):
         try:
             db_session.execute(
                 update(Users), [{
@@ -1874,6 +1893,69 @@ class UsersQueue(Base):
                 return next_agent_in_queue
             else:
                 return None
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+
+class PasswordResetRequests(Base):
+    __tablename__ = 'password_reset_requests'
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    users_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
+    uuid: Mapped[str] = mapped_column(String(500), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    used_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    used: Mapped[bool] = mapped_column(Boolean, nullable=False)
+
+    @staticmethod
+    def create_new_request_returning_uuid(db_session, users_id):
+        new_request_obj = PasswordResetRequests(
+            users_id=users_id,
+            uuid=str(uuid.uuid4()),
+            used_at=None,
+            used=False
+        )
+
+        try:
+            db_session.add(new_request_obj)
+            return new_request_obj.uuid
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def is_request_valid(db_session, request_uuid):
+        try:
+            password_request = db_session.execute(
+                select(
+                    PasswordResetRequests.id,
+                    PasswordResetRequests.users_id,
+                    PasswordResetRequests.used
+                ).where(PasswordResetRequests.uuid == request_uuid)
+            ).first()
+
+            return password_request
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def flag_request_as_used(db_session, request_id):
+        try:
+            db_session.execute(
+                update(PasswordResetRequests), [{
+                    'id': request_id,
+                    'used_at': datetime.now(),
+                    'used': True,
+                }],
+            )
+
+            return True
 
         except (IntegrityError, FlushError) as error:
             error_info = error.orig.args

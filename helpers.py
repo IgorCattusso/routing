@@ -51,9 +51,7 @@ def get_user_profile_picture(user_id):
 
 def internal_render_template(template, **kwargs):
 
-    if '_user_id' in session:
-        print('hey')
-    else:
+    if '_user_id' not in session:
         session['_user_id'] = 0
 
     if session:
