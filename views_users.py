@@ -300,20 +300,26 @@ def reset_password(request_uuid):
 
                 if not reset_password_request_data.used:
                     new_password = form.new_password.data
-                    user_id = reset_password_request_data.users_id
+                    new_password_confirmation = form.new_password_confirmation.data
+                    if new_password == new_password_confirmation:
+                        user_id = reset_password_request_data.users_id
 
-                    Users.update_user_password(
-                        db_session,
-                        user_id,
-                        bcrypt.generate_password_hash(new_password).decode('utf-8'),
-                    )
+                        Users.update_user_password(
+                            db_session,
+                            user_id,
+                            bcrypt.generate_password_hash(new_password).decode('utf-8'),
+                        )
 
-                    PasswordResetRequests.flag_request_as_used(db_session, reset_password_request_data.id)
+                        PasswordResetRequests.flag_request_as_used(db_session, reset_password_request_data.id)
 
-                    db_session.commit()
+                        db_session.commit()
 
-                    flash('Senha alterada com sucesso!', 'success')
-                    return redirect(url_for('login'))
+                        flash('Senha alterada com sucesso!', 'success')
+                        return redirect(url_for('login'))
+
+                    else:
+                        flash('As senhas inseridas não coincidem!')
+                        return redirect(request.url)
 
                 else:
                     flash('Este link de recuperação de senha já foi utilizado!')
