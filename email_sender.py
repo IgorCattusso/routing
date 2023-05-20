@@ -6,7 +6,7 @@ from email.utils import make_msgid
 from config import EMAIL_SENDER, EMAIL_PASSWORD
 
 
-def send_email(email_receiver, receiver_name, password_reset_url):
+def send_password_reset_email(email_receiver, receiver_name, password_reset_url):
     email_sender = EMAIL_SENDER
     email_password = EMAIL_PASSWORD
 

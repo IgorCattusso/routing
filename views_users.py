@@ -7,7 +7,7 @@ import os
 from flask_wtf import FlaskForm
 from wtforms import validators, StringField, SubmitField, PasswordField
 import time
-from email_sender import send_email
+from email_sender import send_password_reset_email
 
 
 class ProfileForm(FlaskForm):
@@ -25,8 +25,8 @@ class ForgotPasswordForm(FlaskForm):
 
 
 class ResetPasswordForm(FlaskForm):
-    new_password = PasswordField('Nova senha', [validators.Length(min=0, max=100)])
-    new_password_confirmation = PasswordField('Confirme a nova senha', [validators.Length(min=0, max=100)])
+    new_password = PasswordField('Nova senha', [validators.DataRequired(), validators.Length(min=0, max=100)])
+    new_password_confirmation = PasswordField('Confirme a nova senha', [validators.DataRequired(), validators.Length(min=0, max=100)])
     save = SubmitField('Salvar')
 
 
@@ -239,13 +239,13 @@ def forgot_password():
 
             if user:
                 new_password_request = PasswordResetRequests.create_new_request_returning_uuid(db_session, user.id)
-                send_password_reset_email = send_email(
+                password_reset_email = send_password_reset_email(
                     user.email,
                     user.name,
                     request.base_url.replace('/forgot-password', '') + '/reset-password/' + new_password_request
                 )   # TODO think of a better way to create this URL
 
-                if not send_password_reset_email:
+                if not password_reset_email:
                     db_session.commit()
                     flash('E-mail enviado com sucesso!', 'success')
                     return redirect(url_for('login'))
