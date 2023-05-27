@@ -66,7 +66,7 @@ searchButton.addEventListener("click", async () => {
                 tableRow.append(tableColumnTicketId);
 
                 const tableColumnUserName = document.createElement("span");
-                tableColumnUserName.setAttribute("class", "std-td std-td-users-name");
+                tableColumnUserName.setAttribute("class", "std-td std-td-user-name");
                 tableColumnUserName.innerText = data[i]["user_name"];
                 tableRow.append(tableColumnUserName);
 

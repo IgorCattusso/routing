@@ -73,12 +73,10 @@
     opacity: 0;
 }
 
-.std-td-short-message, .th-short-message {
-    min-width: 60% !important
-}
 
 .th-created-at {
-    min-width: 160px;
+    min-width: 196px;
+    max-width: 196px;
 }
 
 .th-id, .std-td-id {
@@ -248,4 +246,14 @@ pre {
 
 #tbody {
     min-height: calc(100vh - 400px);
+}
+
+.std-td-created-at {
+    min-width: 180px;
+    max-width: 180px;
+}
+
+.std-td-user-name, .th-user-name {
+    min-width: 250px;
+    max-width: 250px;
 }
