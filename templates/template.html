@@ -114,34 +114,7 @@
                     </li>
                 </ul>
 
-
-
-
                 <div class="accordion-menu login-logout">
-{#                    {% if kwargs['authenticated'] == True %}#}
-{#                        <ul>#}
-{#                            <li>#}
-{#                                <a href="/logout">#}
-{#                                    <div class="dropdown-link">#}
-{#                                        <div><img src="/static/img/key.png" alt="Logout" class="menu-img"></div>#}
-{#                                        <div><span class="dropdown-link-text">Logout</span></div>#}
-{#                                    </div>#}
-{#                                </a>#}
-{#                            </li>#}
-{#                        </ul>#}
-{#                    {% else %}#}
-{#                        <ul>#}
-{#                            <li>#}
-{#                                <a href="/login">#}
-{#                                    <div class="dropdown-link">#}
-{#                                        <div><img src="/static/img/key.png" alt="Login" class="menu-img"></div>#}
-{#                                        <div><span class="dropdown-link-text">Login</span></div>#}
-{#                                    </div>#}
-{#                                </a>#}
-{#                            </li>#}
-{#                        </ul>#}
-{#                    {% endif %}#}
-
                     {% if kwargs['authenticated'] == True %}
 
                         <div id="userOptionsContainer" class="user-options-container">
@@ -186,7 +159,7 @@
                     </g>
                 </svg>
 
-                <svg id="newNotificationBellIcon" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" fill="#000000">
+                <svg id="newNotificationBellIcon" height="24px" width="24px" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" fill="#000000">
                     <g stroke-width="0"></g>
                     <g stroke-linecap="round" stroke-linejoin="round"></g>
                     <g><circle fill="#5e78ff" cx="18" cy="18" r="18"></circle></g>
