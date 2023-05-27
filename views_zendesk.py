@@ -9,9 +9,11 @@ from sqlalchemy.orm import Session
 from flask import flash, redirect, url_for, session
 import time
 from datetime import datetime, timedelta
+from flask_login import login_required
 
 
 @app.route('/get-zendesk-schedules')
+@login_required
 def get_zendesk_schedules():
     zendesk_endpoint_url = '/api/v2/business_hours/schedules'
     api_url = ZENDESK_BASE_URL + zendesk_endpoint_url
@@ -64,6 +66,7 @@ def get_zendesk_schedules():
 
 
 @app.route('/zendesk-schedule/<int:schedule_id>')
+@login_required
 def get_zendesk_schedule_hours(schedule_id):
     with Session(engine) as db_session:
         schedule = ZendeskSchedules.get_schedule(db_session, schedule_id)
@@ -90,6 +93,7 @@ def get_zendesk_schedule_hours(schedule_id):
 
 
 @app.route('/get-zendesk-locales')
+@login_required
 def get_zendesk_locales():
     zendesk_endpoint_url = '/api/v2/locales.json?page=1'
     api_url = ZENDESK_BASE_URL + zendesk_endpoint_url
@@ -147,6 +151,7 @@ def get_zendesk_locales():
 
 
 @app.route('/get-zendesk-ticket-forms')
+@login_required
 def get_zendesk_ticket_forms():
     """
     Essa rota é um pouco complexa.
@@ -336,6 +341,7 @@ def get_zendesk_ticket_forms():
 
 
 @app.route('/get-zendesk-tags')
+@login_required
 def get_zendesk_tags():
     zendesk_endpoint_url = '/api/v2/tags.json?page=1'
     api_url = ZENDESK_BASE_URL + zendesk_endpoint_url

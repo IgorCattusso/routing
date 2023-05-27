@@ -7,9 +7,11 @@ from sqlalchemy import select, case
 from sqlalchemy.orm import Session
 from flask import flash, redirect, url_for, session
 import time
+from flask_login import login_required
 
 
 @app.route('/get-zendesk-groups')
+@login_required
 def get_zendesk_groups():
     zendesk_endpoint_url = '/api/v2/groups.json?page=1'
     api_url = ZENDESK_BASE_URL + zendesk_endpoint_url
@@ -64,6 +66,7 @@ def get_zendesk_groups():
 
 
 @app.route('/get-all-zendesk-group-memberships')
+@login_required
 def get_all_zendesk_group_memberships():
     zendesk_endpoint_url = f'/api/v2/group_memberships.json?page=1'
     api_url = ZENDESK_BASE_URL + zendesk_endpoint_url
@@ -130,6 +133,7 @@ def get_all_zendesk_group_memberships():
 
 
 @app.route('/get-zendesk-group-memberships/<int:group_id>')
+@login_required
 def get_zendesk_group_memberships(group_id):
     with Session(engine) as db_session:
         stmt = select(ZendeskGroups.zendesk_group_id) \
@@ -201,6 +205,7 @@ def get_zendesk_group_memberships(group_id):
 
 
 @app.route('/zendesk-users-in-group/<int:group_id>')
+@login_required
 def get_zendesk_users_in_group(group_id):
     stmt = select(
         ZendeskGroupMemberships.id,

@@ -5,9 +5,11 @@ from sqlalchemy.orm import Session
 from flask import render_template, request, abort
 import time
 from helpers import internal_render_template
+from flask_login import login_required
 
 
 @app.route('/routes/new')
+@login_required
 def new_route():
     recipient_groups_stmt = select(
         ZendeskGroups.id,
@@ -78,6 +80,7 @@ def new_route():
 
 
 @app.route('/routes/insert_new', methods=['POST', ])
+@login_required
 def insert_new_route():
     if request.method == 'POST':
         data = request.get_json()
@@ -155,6 +158,7 @@ def insert_new_route():
 
 
 @app.route('/routes/delete/<int:route_id>', methods=['DELETE'])
+@login_required
 def deactivate_route(route_id):
     delete_route_stmt = update(Routes).where(Routes.id == route_id).values(deleted=1)
     with Session(engine) as session:
@@ -165,6 +169,7 @@ def deactivate_route(route_id):
 
 
 @app.route('/routes/deactivate/<int:route_id>', methods=['PUT'])
+@login_required
 def delete_route(route_id):
     deactivate_route_stmt = update(Routes).where(Routes.id == route_id).values(active=0)
     with Session(engine) as session:
@@ -175,6 +180,7 @@ def delete_route(route_id):
 
 
 @app.route('/routes/edit/<int:route_id>')
+@login_required
 def edit_route(route_id):
     routes_stmt = select(
         Routes.id,
@@ -294,6 +300,7 @@ def edit_route(route_id):
 
 
 @app.route('/routes/update-existing-route/<int:route_id>', methods=['PUT', ])
+@login_required
 def update_existing_route(route_id):
     if request.method == 'PUT':
         data = request.get_json()
@@ -559,6 +566,7 @@ def update_existing_route(route_id):
 
 
 @app.route('/forms/get-form-fields/<int:form_id>')
+@login_required
 def get_form_fields(form_id):
     with Session(engine) as session:
         ticket_fields_in_form = ZendeskTicketFieldsInForms.get_form_fields(session, form_id)

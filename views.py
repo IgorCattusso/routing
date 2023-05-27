@@ -9,16 +9,17 @@ from flask_login import login_required
 from models import Users
 from helpers import internal_render_template
 from views_logs import logs_as_list
-from email_sender import send_password_reset_email
 
 
 @app.route('/')
+@login_required
 def home():
     time.sleep(.35)
     return internal_render_template('home.html')
 
 
 @app.route('/zendesk-users')
+@login_required
 def zendesk_users():
     stmt = select(ZendeskUsers).order_by(ZendeskUsers.name)
     with Session(engine) as db_session:
@@ -29,6 +30,7 @@ def zendesk_users():
 
 
 @app.route('/zendesk-groups')
+@login_required
 def zendesk_groups():
     stmt = select(ZendeskGroups.id, ZendeskGroups.zendesk_group_id, ZendeskGroups.name,
                   func.count(ZendeskGroupMemberships.zendesk_users_id).label('count')) \
@@ -43,6 +45,7 @@ def zendesk_groups():
 
 
 @app.route('/zendesk-locales')
+@login_required
 def zendesk_locales():
     stmt = select(ZendeskLocales.id,
                   ZendeskLocales.zendesk_locale_id,
@@ -61,6 +64,7 @@ def zendesk_locales():
 
 
 @app.route('/zendesk-tags')
+@login_required
 def zendesk_tags():
     stmt = select(ZendeskTags.id, ZendeskTags.tag)
 
@@ -72,6 +76,7 @@ def zendesk_tags():
 
 
 @app.route('/zendesk-ticket-forms')
+@login_required
 def zendesk_ticket_forms():
     stmt = select(ZendeskTicketForms.id,
                   ZendeskTicketForms.zendesk_ticket_form_id,
@@ -129,6 +134,7 @@ def routing_settings():
 
 
 @app.route('/zendesk-schedules')
+@login_required
 def zendesk_schedules():
     with Session(engine) as db_session:
         all_schedules = ZendeskSchedules.get_schedules(db_session)
@@ -138,6 +144,7 @@ def zendesk_schedules():
 
 
 @app.route('/change-status')
+@login_required
 def change_user_status():
 
     with Session(engine) as db_session:
@@ -160,6 +167,7 @@ def change_user_status():
 
 
 @app.route('/users')
+@login_required
 def users():
     with Session(engine) as db_session:
         all_users = Users.get_all_users(db_session)
@@ -170,6 +178,7 @@ def users():
 
 
 @app.route('/logs')
+@login_required
 def logs():
     with Session(engine) as db_session:
         last_ten_logs = AssignedTicketsLog.get_last_ten_logs(db_session)
@@ -178,9 +187,3 @@ def logs():
     list_of_logs = logs_as_list(last_ten_logs)
 
     return internal_render_template('logs.html', list_of_logs=list_of_logs, users=log_users)
-
-
-@app.route('/send-email')
-def send_mail():
-    sent_email_response = send_password_reset_email('igor_catusso@hotmail.com', 'Igor Cattusso', 'https://google.com')
-    return sent_email_response

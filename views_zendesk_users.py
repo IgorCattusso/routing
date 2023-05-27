@@ -7,9 +7,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from flask import flash, redirect, url_for, session
 import time
+from flask_login import login_required
 
 
 @app.route('/get-zendesk-users')
+@login_required
 def get_zendesk_users():
     zendesk_endpoint_url = 'api/v2/search.json?page=1'
     zendesk_search_query = 'query=type:users routing_user:true'

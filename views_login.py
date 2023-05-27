@@ -77,6 +77,12 @@ def check_user_credentials(email, password):
             return None
 
 
+@login_manager.unauthorized_handler
+def unauthorized():
+    # do stuff
+    return redirect(url_for('login'))
+
+
 def user_is_already_logged_in(users_id):
     with Session(engine) as db_session:
         already_logged_in = db_session.execute(
