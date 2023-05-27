@@ -33,4 +33,4 @@ from views_notifications import *
 from scheduler import *
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    csrf.init_app(app)
