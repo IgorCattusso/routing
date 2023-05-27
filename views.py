@@ -107,9 +107,12 @@ def routes():
 
 
 @app.route('/routing-settings')
+@login_required
 def routing_settings():
     with Session(engine) as db_session:
         all_settings = GeneralSettings.get_settings(db_session)
+        all_schedules = ZendeskSchedules.get_schedules(db_session)
+        schedule_name = ZendeskSchedules.get_zendesk_schedule_name_by_id(db_session, all_settings.zendesk_schedules_id)
 
     time.sleep(.35)
     return internal_render_template(
@@ -119,6 +122,9 @@ def routing_settings():
         agent_backlog_limit=all_settings.agent_backlog_limit,
         daily_assignment_limit=all_settings.daily_assignment_limit,
         hourly_assignment_limit=all_settings.hourly_assignment_limit,
+        zendesk_schedules_id=all_settings.zendesk_schedules_id,
+        all_schedules=all_schedules,
+        selected_schedule_name=schedule_name[0],
     )
 
 

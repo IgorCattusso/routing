@@ -138,3 +138,70 @@ h5 {
     margin-top: 1em;
 }
 
+.filter-container {
+    margin-right: 2em;
+    display: flex;
+    flex-direction: column;
+}
+
+.dropdown-menu-button-container {
+    margin-top: 1em;
+}
+
+.chosen-value, .values-list {
+    width: 30rem;
+    overflow: auto;
+}
+
+.values-list {
+    position: fixed;
+    list-style: none;
+    max-height: 0;
+    transition: .3s ease-in-out;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+
+}
+
+.dropdown-menu-option {
+    background-color: #fafcfd;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color .3s;
+    opacity: 1;
+}
+
+.values-list.open {
+    max-height: 60em;
+    overflow: auto;
+}
+
+.chosen-value {
+    background-color: #e5e8eb;
+    -webkit-box-flex: 1;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    border-radius: 4px;
+    min-height: 3em;
+    min-width: 30em;
+    outline: none;
+    padding: 0 16px;
+    line-height: normal;
+    -webkit-transition: background-color 0.1s ease-in-out;
+    transition: background-color 0.1s ease-in-out;
+    box-sizing: border-box;
+    border: 2px solid transparent;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.zendesk-bind-sub-title {
+    margin-top: 1.5em;
+}
+
+.zendesk-schedules-filter-container  {
+    margin-left: 1em;
+}

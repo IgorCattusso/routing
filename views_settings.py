@@ -32,6 +32,7 @@ def update_general_settings():
                 agent_backlog_limit,
                 daily_assignment_limit,
                 hourly_assignment_limit,
+                zendesk_schedules_id=data['zendesk_schedules_id'],
             )
             session.commit()
 

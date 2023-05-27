@@ -11,10 +11,10 @@ saveButton.addEventListener("click", () => {
     const roundRobinInput = document.getElementById("roundRobin");
 
     const ticketLimit = document.getElementById("ticketLimit");
-
     const dailyLimit = document.getElementById("dailyLimit");
-
     const hourlyLimit = document.getElementById("hourlyLimit");
+
+    const userZendeskScheduleId = document.getElementsByClassName("zendesk-schedules-id-chosen-value");
 
     const CSRFToken = document.getElementById("CSRFToken");
 
@@ -42,6 +42,15 @@ saveButton.addEventListener("click", () => {
         hourlyLimit.value = ""
     }
 
+    let userZendeskScheduleIdValue = "";
+    for (let i = 0; i < userZendeskScheduleId.length; i++) {
+        userZendeskScheduleIdValue = userZendeskScheduleId[i].id
+    }
+
+    if (userZendeskScheduleIdValue === "userZendeskSchedulesId") {
+        userZendeskScheduleIdValue = null
+    }
+
     // If the ID of the route is empty, that means we"re on the NEW page, if it has a value, that means we"re on the EDIT page
     // Send the selected values to your Flask app using an AJAX request
     $.ajaxSetup({
@@ -61,6 +70,7 @@ saveButton.addEventListener("click", () => {
             agent_backlog_limit: ticketLimit.value,
             daily_assignment_limit: dailyLimit.value,
             hourly_assignment_limit: hourlyLimit.value,
+            zendesk_schedules_id: userZendeskScheduleIdValue,
         }),
         contentType: "application/json",
 
@@ -75,4 +85,66 @@ saveButton.addEventListener("click", () => {
         }
     });
 
+});
+
+
+const scheduleInputField = document.querySelector(".zendesk-schedules-id-chosen-value");
+const scheduleDropdown = document.querySelector(".schedule-values-list");
+const scheduleDropdownArray = [...document.getElementsByClassName("schedule-dropdown-menu-option")];
+const zendeskschedulesFieldsWrapper = document.getElementById("zendeskSchedulesWrapper")
+
+let scheduleValueArray = [];
+scheduleDropdownArray.forEach(item => {
+    scheduleValueArray.push(item.textContent);
+});
+
+
+scheduleInputField.addEventListener("input", () => {
+    scheduleDropdown.classList.add("open");
+    let inputValue = scheduleInputField.value.toLowerCase();
+    if (inputValue.length > 0) {
+        for (let j = 0; j < scheduleValueArray.length; j++) {
+            if (!(inputValue.substring(0, inputValue.length) === scheduleValueArray[j].substring(0, inputValue.length).toLowerCase())) {
+                scheduleDropdownArray[j].classList.add("closed");
+            } else {
+                scheduleDropdownArray[j].classList.remove("closed");
+            }
+        }
+    } else {
+        for (let j = 0; j < scheduleDropdownArray.length; j++) {
+            scheduleDropdownArray[j].classList.remove("closed");
+        }
+    }
+});
+
+scheduleDropdownArray.forEach(item => {
+    item.addEventListener("click", (evt) => {
+        scheduleInputField.value = item.textContent;
+        scheduleInputField.id = item.value
+        scheduleDropdownArray.forEach(dropdown => {
+            dropdown.classList.add("closed");
+        });
+        zendeskschedulesFieldsWrapper.style.display = "flex";
+    });
+})
+
+scheduleInputField.addEventListener("focus", () => {
+    scheduleInputField.placeholder = "Selecione";
+    scheduleDropdown.classList.add("open");
+    scheduleDropdownArray.forEach(dropdown => {
+        dropdown.classList.remove("closed");
+    });
+});
+
+scheduleInputField.addEventListener("blur", () => {
+    scheduleInputField.placeholder = "Selecione";
+    scheduleDropdown.classList.remove("open");
+});
+
+document.addEventListener("click", (evt) => {
+    const isDropdown = scheduleDropdown.contains(evt.target);
+    const isInput = scheduleInputField.contains(evt.target);
+    if (!isDropdown && !isInput) {
+        scheduleDropdown.classList.remove("open");
+    }
 });
