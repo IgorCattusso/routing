@@ -5,7 +5,7 @@ from models import ZendeskUsers, Notifications
 from app import app, engine
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from flask import flash, redirect, url_for, session
+from flask import redirect, url_for, session
 import time
 from flask_login import login_required
 

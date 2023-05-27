@@ -5,7 +5,7 @@ import requests
 from app import app, engine
 from sqlalchemy import select, case
 from sqlalchemy.orm import Session
-from flask import flash, redirect, url_for, session
+from flask import redirect, url_for, session
 import time
 from flask_login import login_required
 
@@ -153,22 +153,26 @@ def get_zendesk_group_memberships(group_id):
             stmt = select(ZendeskGroupMemberships) \
                 .where(ZendeskGroupMemberships.user_id_on_zendesk == user['user_id']) \
                 .where(ZendeskGroupMemberships.group_id_on_zendesk == user['group_id'])
+
             with Session(engine) as db_session:
                 query_result = db_session.execute(stmt).first()
+
                 if not query_result:
-                    user_in_database = \
-                        db_session.execute(select(ZendeskUsers)
-                                        .where(ZendeskUsers.zendesk_user_id == str(user['user_id']))).scalar()
-                    group_in_database = \
-                        db_session.execute(select(ZendeskGroups)
-                                        .where(ZendeskGroups.zendesk_group_id == str(user['group_id']))).scalar()
+                    user_in_database = db_session.execute(
+                        select(ZendeskUsers).where(ZendeskUsers.zendesk_user_id == str(user['user_id']))
+                    ).scalar()
+                    group_in_database = db_session.execute(
+                        select(ZendeskGroups).where(ZendeskGroups.zendesk_group_id == str(user['group_id']))
+                    ).scalar()
+
                     if user_in_database and group_in_database:
-                        new_user_group = ZendeskGroupMemberships(zendesk_users_id=user_in_database.id,
-                                                                 user_id_on_zendesk=user['user_id'],
-                                                                 zendesk_groups_id=group_in_database.id,
-                                                                 group_id_on_zendesk=user['group_id'],
-                                                                 default=match_false_true(user['default']),
-                                                                 )
+                        new_user_group = ZendeskGroupMemberships(
+                            zendesk_users_id=user_in_database.id,
+                            user_id_on_zendesk=user['user_id'],
+                            zendesk_groups_id=group_in_database.id,
+                            group_id_on_zendesk=user['group_id'],
+                            default=match_false_true(user['default']),
+                        )
                         db_session.add(new_user_group)
                         db_session.commit()
                         inserted_users_and_groups.append(user['user_id'])
@@ -187,7 +191,7 @@ def get_zendesk_group_memberships(group_id):
                 db_session,
                 user_id,
                 1,
-                f'Grupos inseridos: {inserted_users_and_groups}',
+                f'Relação inserida: {inserted_users_and_groups}',
             )
             db_session.commit()
         return redirect(url_for('get_zendesk_users_in_group', group_id=group_id))
@@ -198,7 +202,7 @@ def get_zendesk_group_memberships(group_id):
                 db_session,
                 user_id,
                 1,
-                f'Não há novos usuários para inserir ou alterar!',
+                f'Não há novas relações para inserir ou alterar!',
             )
             db_session.commit()
         return redirect(url_for('get_zendesk_users_in_group', group_id=group_id))

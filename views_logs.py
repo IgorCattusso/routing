@@ -3,7 +3,6 @@ from app import app, engine
 from sqlalchemy.orm import Session
 from flask import request
 import ast
-from helpers import internal_render_template
 
 
 def logs_as_list(logs):
