@@ -38,11 +38,17 @@ saveButton.addEventListener("click", () => {
     const rockStarUser = document.getElementsByName("rock-star-user");
     const jnjContestationUser = document.getElementsByName("jnj-contestation-user");
     const jnjHomologationUser = document.getElementsByName("jnj-homologation-user");
+    const chatbotNoServiceUser = document.getElementsByName("chatbot-no-service-user");
 
+    const backlogLimit = document.getElementById("ticketLimit");
+    const dailyLimit = document.getElementById("dailyLimit");
+    const hourlyLimit = document.getElementById("hourlyLimit");
 
     const CSRFToken = document.getElementById("CSRFToken");
 
-    var userZendeskUserIdValue = ""
+
+
+    let userZendeskUserIdValue = ""
     for (let i = 0; i < userZendeskUserId.length; i++) {
         userZendeskUserIdValue = userZendeskUserId[i].id
     }
@@ -74,7 +80,6 @@ saveButton.addEventListener("click", () => {
         }
     }
 
-
     let rockStarUserValue
     for (let i = 0; i < rockStarUser.length; i++) {
         if (rockStarUser[i].checked) {
@@ -100,7 +105,6 @@ saveButton.addEventListener("click", () => {
         }
     }
 
-
     let jnjHomologationUserValue
     for (let i = 0; i < jnjHomologationUser.length; i++) {
         if (jnjHomologationUser[i].checked) {
@@ -112,6 +116,30 @@ saveButton.addEventListener("click", () => {
             }
         }
     }
+
+    let chatbotNoServiceValue
+    for (let i = 0; i < chatbotNoServiceUser.length; i++) {
+        if (chatbotNoServiceUser[i].checked) {
+            let chatbotNoServiceUserOption = chatbotNoServiceUser[i].id
+            if (chatbotNoServiceUserOption === "chatbot-no-service-no") {
+                chatbotNoServiceValue = 0
+            } else if (chatbotNoServiceUserOption === "chatbot-no-service-yes") {
+                chatbotNoServiceValue = 1
+            }
+        }
+    }
+
+
+    if (backlogLimit.value === 0) {
+        backlogLimit.value = null
+    }
+    if (dailyLimit.value === 0) {
+        dailyLimit.value = null
+    }
+    if (hourlyLimit.value === 0) {
+        hourlyLimit.value = null
+    }
+
 
     if (userName.value === "") {
         userName.placeholder = "Este campo é obrigatório";
@@ -151,6 +179,10 @@ saveButton.addEventListener("click", () => {
                 rock_star_user: rockStarUserValue,
                 jnj_contestation_user: jnjContestationUserValue,
                 jnj_homologation_user: jnjHomologationUserValue,
+                chatbot_no_service_user: chatbotNoServiceValue,
+                backlog_limit: backlogLimit.value,
+                hourly_ticket_assignment_limit: hourlyLimit.value,
+                daily_ticket_assignment_limit: dailyLimit.value,
             }),
             contentType: "application/json",
 
@@ -187,6 +219,10 @@ saveButton.addEventListener("click", () => {
                 rock_star_user: rockStarUserValue,
                 jnj_contestation_user: jnjContestationUserValue,
                 jnj_homologation_user: jnjHomologationUserValue,
+                chatbot_no_service_user: chatbotNoServiceValue,
+                backlog_limit: backlogLimit.value,
+                hourly_ticket_assignment_limit: hourlyLimit.value,
+                daily_ticket_assignment_limit: dailyLimit.value,
             }),
             contentType: "application/json",
 

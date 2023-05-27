@@ -1078,6 +1078,10 @@ class Users(Base):
     rock_star_user: Mapped[bool] = mapped_column(Boolean, nullable=False)
     jnj_contestation_user: Mapped[bool] = mapped_column(Boolean, nullable=False)
     jnj_homologation_user: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    chatbot_no_service_user: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    backlog_limit: Mapped[int] = mapped_column(nullable=False)
+    hourly_ticket_assignment_limit: Mapped[int] = mapped_column(nullable=False)
+    daily_ticket_assignment_limit: Mapped[int] = mapped_column(nullable=False)
 
     @staticmethod
     def get_all_users(db_session):
@@ -1117,6 +1121,10 @@ class Users(Base):
                     Users.rock_star_user,
                     Users.jnj_contestation_user,
                     Users.jnj_homologation_user,
+                    Users.chatbot_no_service_user,
+                    Users.backlog_limit,
+                    Users.hourly_ticket_assignment_limit,
+                    Users.daily_ticket_assignment_limit,
                 ).where(Users.id == user_id)
                 .join(ZendeskUsers, isouter=True)
             ).first()
@@ -1223,11 +1231,15 @@ class Users(Base):
 
     @staticmethod
     def insert_new_user(db_session, name, email, active, zendesk_users_id, zendesk_schedules_id,
-                        latam_user, rock_star_user, jnj_contestation_user, jnj_homologation_user):
+                        latam_user, rock_star_user, jnj_contestation_user, jnj_homologation_user,
+                        chatbot_no_service_user, backlog_limit, hourly_ticket_assignment_limit,
+                        daily_ticket_assignment_limit):
         new_user = Users(
             name=name,
             email=email,
-            password='',
+            password=bcrypt.generate_password_hash(
+                ''.join(random.choice(string.ascii_lowercase) for _ in range(8))
+            ).decode('utf-8'),
             active=active,
             deleted=False,
             authenticated=0,
@@ -1238,6 +1250,10 @@ class Users(Base):
             rock_star_user=rock_star_user,
             jnj_contestation_user=jnj_contestation_user,
             jnj_homologation_user=jnj_homologation_user,
+            chatbot_no_service_user=chatbot_no_service_user,
+            backlog_limit=backlog_limit,
+            hourly_ticket_assignment_limit=hourly_ticket_assignment_limit,
+            daily_ticket_assignment_limit=daily_ticket_assignment_limit,
         )
         try:
             db_session.add(new_user)
@@ -1266,7 +1282,8 @@ class Users(Base):
 
     @staticmethod
     def update_user(db_session, user_id, name, email, active, zendesk_users_id, zendesk_schedules_id,
-                    latam_user, rock_star_user, jnj_contestation_user, jnj_homologation_user):
+                    latam_user, rock_star_user, jnj_contestation_user, jnj_homologation_user, chatbot_no_service_user,
+                    backlog_limit, hourly_ticket_assignment_limit, daily_ticket_assignment_limit):
         try:
             db_session.execute(
                 update(Users), [{
@@ -1280,6 +1297,10 @@ class Users(Base):
                     'rock_star_user': rock_star_user,
                     'jnj_contestation_user': jnj_contestation_user,
                     'jnj_homologation_user': jnj_homologation_user,
+                    'chatbot_no_service_user': chatbot_no_service_user,
+                    'backlog_limit': backlog_limit,
+                    'hourly_ticket_assignment_limit': hourly_ticket_assignment_limit,
+                    'daily_ticket_assignment_limit': daily_ticket_assignment_limit,
                 }],
             )
             return True
@@ -1336,7 +1357,10 @@ class Users(Base):
                     Users.rock_star_user,
                     Users.jnj_contestation_user,
                     Users.jnj_homologation_user,
-
+                    Users.chatbot_no_service_user,
+                    Users.backlog_limit,
+                    Users.hourly_ticket_assignment_limit,
+                    Users.daily_ticket_assignment_limit,
                 ).where(Users.zendesk_users_id == zendesk_users_id)
             ).first()
             return user

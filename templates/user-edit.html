@@ -132,8 +132,76 @@
                         </div>
                     </div>
 
+                    <div id="chatbotNoServiceUser" class="chatbot-no-service-user-filter-container filter-container">
+                        <h3 class="zendesk-bind-sub-title">Destina tickets de Chatbot sem atendimento?</h3>
+                        <div class="selector-container">
+                            <div class="selector-option-container">
+                                <input class="radio-selector" type="radio" id="chatbot-no-service-yes" name="chatbot-no-service-user" value="chatbot-no-service-yes" {{ 'checked="checked"' if kwargs['user'].chatbot_no_service_user == 1 else '' }}>
+                                <label class="radio-selector-label" for="chatbot-no-service-yes">Sim</label>
+                            </div>
+                            <div class="selector-option-container">
+                                <input class="radio-selector" type="radio" id="chatbot-no-service-no" name="chatbot-no-service-user" value="chatbot-no-service-no" {{ 'checked="checked"' if kwargs['user'].chatbot_no_service_user == 0 else '' }}>
+                                <label class="radio-selector-label" for="chatbot-no-service-no">Não</label>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
+
+                <h2 class="assigment-rules-title">Limites de distribuição</h2>
+                <div id="assignmentRules" class="content-form-body">
+                    <div class="assignment-rules-wrapper">
+                        <div class="assignment-rules-container">
+                            <div class="rule-wrapper ticket-limit-rule-wrapper">
+                                <div class="subtitle-container use-routes-subtitle-icon-container" title="Agentes com essa quantidade de tickets em análise não receberão mais tickets. Aqui contam tickets em aberto e pendentes, sendo que 2 pendentes valem 1 aberto. Deixe em branco para não aplicar a configuração">
+                                    <h3 class="rule-title ticket-limit-title">Limite de tickets em análise</h3>
+                                    <div class="subtitle-icon-container">
+                                        <svg id="useRoutesInformationIcon" width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="black-information-icon information-icon">
+                                            <path d="M12 7.01001V7.00002M12 17L12 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="rule-container ticket-limit-container" id="ticketLimitContainer">
+                                    <label class="rule-label" for="ticketLimit"></label>
+                                    <input type="number" id="ticketLimit" class="rule-input ticket-limit-input" value="{{ kwargs['user'].backlog_limit if kwargs['user'].backlog_limit else '' }}">
+                                </div>
+                            </div>
+
+                            <div class="rule-wrapper hourly-limit-rule-wrapper">
+                                <div class="subtitle-container use-routes-subtitle-icon-container" title="Número máximo de tickets que serão atribuídos a um único agente dentro de uma hora">
+                                    <h3 class="rule-title hourly-limit-title">Limite de tickets por hora</h3>
+                                    <div class="subtitle-icon-container">
+                                        <svg id="useRoutesInformationIcon" width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="black-information-icon information-icon">
+                                            <path d="M12 7.01001V7.00002M12 17L12 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="rule-container daily-limit-container" id="dailyLimitContainer">
+                                    <label class="rule-label" for="hourlyLimit"></label>
+                                    <input type="number" id="hourlyLimit" class="rule-input hourly-limit-input" value="{{ kwargs['user'].hourly_ticket_assignment_limit if kwargs['user'].hourly_ticket_assignment_limit else '' }}">
+                                </div>
+                            </div>
+
+                            <div class="rule-wrapper daily-limit-rule-wrapper">
+                                <div class="subtitle-container use-routes-subtitle-icon-container" title="Agentes que atingirem essa quantidade de tickets distribuídos no dia não receberão mais tickets. Deixe em branco para não aplicar a configuração">
+                                    <h3 class="rule-title daily-limit-title">Limite diário de tickets</h3>
+                                    <div class="subtitle-icon-container">
+                                        <svg id="useRoutesInformationIcon" width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="black-information-icon information-icon">
+                                            <path d="M12 7.01001V7.00002M12 17L12 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="rule-container daily-limit-container" id="dailyLimitContainer">
+                                    <label class="rule-label" for="dailyLimit"></label>
+                                    <input type="number" id="dailyLimit" class="rule-input daily-limit-input" value="{{ kwargs['user'].daily_ticket_assignment_limit if kwargs['user'].daily_ticket_assignment_limit else '' }}">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
             </div>
         </div>
 

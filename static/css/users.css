@@ -322,3 +322,17 @@ h5 {
 .users-status-img {
     width: 10px;
 }
+
+.assignment-rules-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.hourly-limit-rule-wrapper, .daily-limit-rule-wrapper {
+    margin-top: 0 !important;
+    margin-left: 1em;
+}
+
+.assigment-rules-title {
+    border-top: 1px solid lightgray;
+}

@@ -8,6 +8,7 @@ from flask_wtf import FlaskForm
 from wtforms import validators, StringField, SubmitField, PasswordField
 import time
 from email_sender import send_password_reset_email
+from flask_login import login_required
 
 
 class ProfileForm(FlaskForm):
@@ -44,6 +45,21 @@ def new_user():
     if request.method == 'POST':
         data = request.get_json()
 
+        if data['backlog_limit'] == '':
+            backlog_limit = None
+        else:
+            backlog_limit = data['backlog_limit']
+
+        if data['hourly_ticket_assignment_limit'] == '':
+            hourly_ticket_assignment_limit = None
+        else:
+            hourly_ticket_assignment_limit = data['hourly_ticket_assignment_limit']
+
+        if data['daily_ticket_assignment_limit'] == '':
+            daily_ticket_assignment_limit = None
+        else:
+            daily_ticket_assignment_limit = data['daily_ticket_assignment_limit']
+
         with Session(engine) as session:
             Users.insert_new_user(
                 session,
@@ -56,6 +72,10 @@ def new_user():
                 data['rock_star_user'],
                 data['jnj_contestation_user'],
                 data['jnj_homologation_user'],
+                data['chatbot_no_service_user'],
+                backlog_limit,
+                hourly_ticket_assignment_limit,
+                daily_ticket_assignment_limit,
             )
             session.commit()
 
@@ -95,7 +115,20 @@ def get_user(user_id):
     if request.method == 'PUT':
         data = request.get_json()
 
-        print(data)
+        if data['backlog_limit'] == '':
+            backlog_limit = None
+        else:
+            backlog_limit = data['backlog_limit']
+
+        if data['hourly_ticket_assignment_limit'] == '':
+            hourly_ticket_assignment_limit = None
+        else:
+            hourly_ticket_assignment_limit = data['hourly_ticket_assignment_limit']
+
+        if data['daily_ticket_assignment_limit'] == '':
+            daily_ticket_assignment_limit = None
+        else:
+            daily_ticket_assignment_limit = data['daily_ticket_assignment_limit']
 
         with Session(engine) as session:
             Users.update_user(
@@ -110,6 +143,10 @@ def get_user(user_id):
                 data['rock_star_user'],
                 data['jnj_contestation_user'],
                 data['jnj_homologation_user'],
+                data['chatbot_no_service_user'],
+                backlog_limit,
+                hourly_ticket_assignment_limit,
+                daily_ticket_assignment_limit,
             )
             session.commit()
 
@@ -117,6 +154,7 @@ def get_user(user_id):
 
 
 @app.route('/users/change-user-status/<int:user_id>', methods=['PATCH', ])
+@login_required
 def change_another_user_status(user_id):
 
     with Session(engine) as db_session:
@@ -127,6 +165,7 @@ def change_another_user_status(user_id):
 
 
 @app.route('/profile/<int:user_id>', methods=['GET', 'POST', ])
+@login_required
 def user_profile(user_id):
     if request.method == 'GET':
         with Session(engine) as db_session:
@@ -211,6 +250,7 @@ def delete_profile_picture(user_id):
 
 
 @app.route('/get-profile-picture/<user_id>')
+@login_required
 def get_profile_picture(user_id):
     for file_name in os.listdir(app.config['USER_PROFILE_PICTURE_UPLOAD_PATH']):
         if f'{user_id}-' in file_name:
@@ -239,6 +279,7 @@ def forgot_password():
 
             if user:
                 new_password_request = PasswordResetRequests.create_new_request_returning_uuid(db_session, user.id)
+                PasswordResetRequests.invalidate_other_user_requests(db_session, new_password_request, user.id)
                 password_reset_email = send_password_reset_email(
                     user.email,
                     user.name,
@@ -264,17 +305,18 @@ def forgot_password():
 
 
 @app.route('/reset-password/<request_uuid>', methods=['GET', 'POST', ])
+@login_required
 def reset_password(request_uuid):
     if request.method == 'GET':
         with Session(engine) as db_session:
             reset_password_request_data = PasswordResetRequests.is_request_valid(db_session, request_uuid)
-            if not reset_password_request_data.used:
+            if not reset_password_request_data.used and reset_password_request_data.valid:
                 form = ResetPasswordForm()
 
                 class Password:
-                    def __init__(self, new_password, new_password_confirmation):
-                        self.new_password = new_password
-                        self.new_password_confirmation = new_password_confirmation
+                    def __init__(self, user_new_password, user_new_password_confirmation):
+                        self.new_password = user_new_password
+                        self.new_password_confirmation = user_new_password_confirmation
 
                 password = Password('', '')
 
@@ -288,7 +330,7 @@ def reset_password(request_uuid):
                 )
 
             else:
-                flash('Este link de recuperação de senha já foi utilizado!')
+                flash('Este link de recuperação de senha é inválido ou já foi utilizado!')
                 return redirect(url_for('login'))
 
     if request.method == 'POST':
