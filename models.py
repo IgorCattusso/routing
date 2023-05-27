@@ -1,5 +1,5 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, delete, update, insert, and_, or_
+from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, delete, update, insert, and_, or_, BLOB
 from sqlalchemy.sql import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import FlushError
@@ -7,6 +7,9 @@ from datetime import datetime, timedelta, date, time
 from sqlalchemy import create_engine
 from config import url_object, ZENDESK_BASE_URL
 import uuid
+from app import bcrypt
+import random
+import string
 
 engine = create_engine(url_object)
 
@@ -21,13 +24,13 @@ class ZendeskTickets(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     ticket_id: Mapped[int] = mapped_column(nullable=False)
-    subject: Mapped[str] = mapped_column(String(150), nullable=False)
-    channel: Mapped[str] = mapped_column(String(150), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    tag_pais: Mapped[str] = mapped_column(String(100))
+    ticket_subject: Mapped[str] = mapped_column(String(150), nullable=False)
+    ticket_channel: Mapped[str] = mapped_column(String(150), nullable=False)
+    ticket_tags: Mapped[str] = mapped_column(BLOB)
+    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     def __repr__(self) -> str:
-        return f'{self.id}, {self.ticket_id}, {self.subject}, {self.channel}, {self.created_at}'
+        return f'{self.id}, {self.ticket_id}, {self.ticket_subject}, {self.ticket_channel}, {self.created_at}'
 
     @staticmethod
     def get_next_ticket_to_be_assigned(db_session):
@@ -36,15 +39,15 @@ class ZendeskTickets(Base):
                 select(
                     ZendeskTickets.id,
                     ZendeskTickets.ticket_id,
-                    ZendeskTickets.subject,
-                    ZendeskTickets.channel,
-                    ZendeskTickets.created_at,
-                    ZendeskTickets.tag_pais,
+                    ZendeskTickets.ticket_subject,
+                    ZendeskTickets.ticket_channel,
+                    ZendeskTickets.received_at,
+                    ZendeskTickets.ticket_tags,
                 )
                 .join(AssignedTickets, isouter=True)
-                .where(ZendeskTickets.channel != 'chat')
-                .where(ZendeskTickets.channel != 'whatsapp')
-                .where(ZendeskTickets.channel != 'api')
+                .where(ZendeskTickets.ticket_channel != 'chat')
+                .where(ZendeskTickets.ticket_channel != 'whatsapp')
+                .where(ZendeskTickets.ticket_channel != 'api')
                 .where(AssignedTickets.zendesk_tickets_id == None)
                 .order_by(ZendeskTickets.id)
             ).first()
@@ -62,10 +65,10 @@ class ZendeskTickets(Base):
         try:
             new_ticket = ZendeskTickets(
                 ticket_id=int(json['ticket_id']),
-                subject=json['subject'],
-                channel=json['channel'],
-                created_at=json['created_at'],
-                tag_pais=json['tag_pais'],
+                ticket_subject=json['ticket_subject'],
+                ticket_channel=json['ticket_channel'],
+                ticket_tags=json['ticket_tags'],
+                received_at=json['received_at'],
             )
 
             db_session.add(new_ticket)
@@ -286,9 +289,9 @@ class AssignedTicketsLog(Base):
                 AssignedTicketsLog.log,
                 AssignedTicketsLog.created_at,
             ) \
-            .join(ZendeskTickets) \
-            .join(Users) \
-            .order_by(AssignedTicketsLog.id.desc())
+                .join(ZendeskTickets) \
+                .join(Users) \
+                .order_by(AssignedTicketsLog.id.desc())
 
             if kwargs['data']['initial_date']:
                 stmt = stmt.where(AssignedTicketsLog.created_at >= kwargs['data']['initial_date'])
@@ -1560,6 +1563,7 @@ class Notifications(Base):
                     Notifications.read,
                 ).where(Notifications.users_id == user_id)
                 .where(Notifications.sent == 0)
+                .where(Notifications.read == 0)
                 .order_by(Notifications.id)
             ).first()
             return notification
@@ -1708,6 +1712,24 @@ class UsersQueue(Base):
     users_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
     position: Mapped[int] = mapped_column(nullable=False)  # 0 = not in queue
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    @staticmethod
+    def get_queue(db_session):
+        try:
+            queue = db_session.execute(
+                select(
+                    UsersQueue.id,
+                    UsersQueue.users_id,
+                    UsersQueue.position,
+                    UsersQueue.updated_at,
+                )
+            ).all()
+
+            return queue
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
 
     @staticmethod
     def is_user_alread_in_queue(db_session, users_id):
@@ -1934,8 +1956,10 @@ class PasswordResetRequests(Base):
     users_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
     uuid: Mapped[str] = mapped_column(String(500), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    used_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     used: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    used_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    valid: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    invalidated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     @staticmethod
     def create_new_request_returning_uuid(db_session, users_id):
@@ -1943,7 +1967,8 @@ class PasswordResetRequests(Base):
             users_id=users_id,
             uuid=str(uuid.uuid4()),
             used_at=None,
-            used=False
+            used=False,
+            valid=True,
         )
 
         try:
@@ -1961,7 +1986,8 @@ class PasswordResetRequests(Base):
                 select(
                     PasswordResetRequests.id,
                     PasswordResetRequests.users_id,
-                    PasswordResetRequests.used
+                    PasswordResetRequests.used,
+                    PasswordResetRequests.valid,
                 ).where(PasswordResetRequests.uuid == request_uuid)
             ).first()
 
@@ -1980,6 +2006,28 @@ class PasswordResetRequests(Base):
                     'used_at': datetime.now(),
                     'used': True,
                 }],
+            )
+
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def invalidate_other_user_requests(db_session, request_uuid, user_id):
+        try:
+            db_session.execute(
+                update(PasswordResetRequests)
+                .values(
+                    valid=False,
+                    invalidated_at=datetime.now(),
+                )
+                .where(
+                    PasswordResetRequests.uuid != request_uuid,
+                    PasswordResetRequests.users_id == user_id,
+                    PasswordResetRequests.valid == True,
+                )
             )
 
             return True
