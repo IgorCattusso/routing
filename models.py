@@ -802,6 +802,7 @@ class GeneralSettings(Base):
     agent_backlog_limit: Mapped[int] = mapped_column(nullable=False)
     daily_assignment_limit: Mapped[int] = mapped_column(nullable=False)
     hourly_assignment_limit: Mapped[int] = mapped_column(nullable=False)
+    zendesk_schedules_id: Mapped[int] = mapped_column(ForeignKey("zendesk_schedules.id"))
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.use_routes}, {self.routing_model}, ' \
@@ -817,6 +818,7 @@ class GeneralSettings(Base):
                     GeneralSettings.agent_backlog_limit,
                     GeneralSettings.daily_assignment_limit,
                     GeneralSettings.hourly_assignment_limit,
+                    GeneralSettings.zendesk_schedules_id,
                 )
             ).first()
             return all_settings
@@ -827,7 +829,7 @@ class GeneralSettings(Base):
 
     @staticmethod
     def update_settings(db_session, use_routes, routing_model, agent_backlog_limit,
-                        daily_assignment_limit, hourly_assignment_limit):
+                        daily_assignment_limit, hourly_assignment_limit, zendesk_schedules_id):
         try:
             db_session.execute(
                 update(GeneralSettings)
@@ -837,6 +839,7 @@ class GeneralSettings(Base):
                     agent_backlog_limit=agent_backlog_limit,
                     daily_assignment_limit=daily_assignment_limit,
                     hourly_assignment_limit=hourly_assignment_limit,
+                    zendesk_schedules_id=zendesk_schedules_id,
                 )
             )
             return True
