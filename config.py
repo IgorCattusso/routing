@@ -1,10 +1,12 @@
 import os
 from dotenv import load_dotenv
 from sqlalchemy import URL
+import datetime
 
 load_dotenv()
 
 SECRET_KEY = str(os.getenv('APP_SECRET_KEY'))
+PERMANENT_SESSION_LIFETIME = datetime.timedelta(hours=12)
 
 ZENDESK_BASE_URL = 'https://agilepromoter1671733243.zendesk.com/'
 

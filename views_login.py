@@ -26,11 +26,14 @@ class UserForm(FlaskForm):
 
 
 class User(UserMixin):
-    def __init__(self, id, name, email, password):
+    def __init__(self, id, name, email, password, active, deleted, authenticated):
         self.id = id
         self.name = name
         self.email = email
         self.password = password
+        self.active = active
+        self.deleted = deleted
+        self.authenticated = authenticated
 
     @property
     def is_active(self):
@@ -54,11 +57,27 @@ class User(UserMixin):
 def check_user(id):
     with Session(engine) as db_session:
         db_user = db_session.execute(
-            select(Users).where(Users.id == id)
+            select(
+                Users.id,
+                Users.name,
+                Users.email,
+                Users.password,
+                Users.active,
+                Users.deleted,
+                Users.authenticated,
+            ).where(Users.id == id)
         ).first()
 
         if db_user:
-            return User(db_user.Users.id, db_user.Users.name, db_user.Users.email, db_user.Users.password)
+            return User(
+                Users.id,
+                Users.name,
+                Users.email,
+                Users.password,
+                Users.active,
+                Users.deleted,
+                Users.authenticated,
+            )
         else:
             return None
 
@@ -66,33 +85,36 @@ def check_user(id):
 def check_user_credentials(email, password):
     with Session(engine) as db_session:
         db_user = db_session.execute(
-            select(Users).where(Users.email == email)
+            select(
+                Users.id,
+                Users.name,
+                Users.email,
+                Users.password,
+                Users.active,
+                Users.deleted,
+                Users.authenticated,
+            ).where(Users.email == email)
         ).first()
 
-        is_password_correct = bcrypt.check_password_hash(db_user.Users.password, password)
+        is_password_correct = bcrypt.check_password_hash(db_user.password, password)
 
         if db_user and is_password_correct:
-            return User(db_user.Users.id, db_user.Users.name, db_user.Users.email, db_user.Users.password)
+            return User(
+                db_user.id,
+                db_user.name,
+                db_user.email,
+                db_user.password,
+                db_user.active,
+                db_user.deleted,
+                db_user.authenticated,
+            )
         else:
             return None
 
 
 @login_manager.unauthorized_handler
 def unauthorized():
-    # do stuff
     return redirect(url_for('login'))
-
-
-def user_is_already_logged_in(users_id):
-    with Session(engine) as db_session:
-        already_logged_in = db_session.execute(
-            select(Users).where(Users.id == users_id).where(Users.authenticated == 1)
-        ).first()
-
-        if already_logged_in:
-            return True
-        else:
-            return False
 
 
 @login_manager.user_loader
@@ -108,8 +130,14 @@ def login():
     if form.validate_on_submit():
         user = check_user_credentials(form.email.data, form.password.data)
 
-        if user and not user_is_already_logged_in(user.id):
+        if user:
+            if not user.active or user.deleted:
+                flash('Usuário não encontrado!')
+                return render_template('login.html', form=form)
+
             login_user(user)
+
+            session.permanent = True
 
             session['routing_status'] = 2
             session['logged_in'] = True
@@ -128,10 +156,6 @@ def login():
                 db_session.commit()
 
             return redirect(url_for('home'))
-
-        elif user and user_is_already_logged_in(user.id):
-            flash('Este usuário já está logado!')
-            return render_template('login.html', form=form)
 
         else:
             flash('Usuário ou senha incorretos!')
@@ -159,4 +183,4 @@ def logout():
             UsersQueue.remove_user_from_queue(db_session, user_id)
         db_session.commit()
 
-    return redirect(url_for('home'))
+    return redirect(url_for('login'))

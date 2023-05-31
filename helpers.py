@@ -1,10 +1,12 @@
 import base64
-from flask import render_template, session
+from flask import render_template, session, redirect, url_for
 from config import *
 import requests
 from models import Users, Notifications
 from sqlalchemy.orm import Session
 from app import engine, app
+from config import ZENDESK_BASE_URL
+from flask_login import logout_user
 
 
 def generate_zendesk_headers():
@@ -50,7 +52,6 @@ def get_user_profile_picture(user_id):
 
 
 def internal_render_template(template, **kwargs):
-
     if '_user_id' not in session:
         session['_user_id'] = 0
 
@@ -69,5 +70,10 @@ def internal_render_template(template, **kwargs):
             kwargs['user_notifications'] = user_notifications
 
     profile_picture = get_user_profile_picture(session['_user_id'])
+
+    # Redirects the user to the login page in case they have been inactivated, deleted or logged out
+    if not user.active or not user.authenticated or user.deleted:
+        logout_user()
+        return redirect(url_for('login'))
 
     return render_template(template, kwargs=kwargs, profile_picture=profile_picture)
