@@ -1,4 +1,3 @@
-from models import AssignedTicketsLog
 from app import engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session, aliased
 from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, delete, update, insert, and_, or_
@@ -12,6 +11,7 @@ import json
 import ast
 from dotenv import *
 import os
+from models import GeneralSettings, Users
 
 
 '''
@@ -534,3 +534,10 @@ zendesk_default_user_group(11490525550747)
 # with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
 #     smtp.login(email_sender, email_password)
 #     smtp.send_message(msg)
+
+with Session(engine) as db_session:
+    test = GeneralSettings.is_current_hour_working_hours(db_session)
+    teste = Users.is_user_on_working_hours(db_session, 13)
+
+print(test)
+print(teste)
