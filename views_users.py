@@ -305,7 +305,6 @@ def forgot_password():
 
 
 @app.route('/reset-password/<request_uuid>', methods=['GET', 'POST', ])
-@login_required
 def reset_password(request_uuid):
     if request.method == 'GET':
         with Session(engine) as db_session:

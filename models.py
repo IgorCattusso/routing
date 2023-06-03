@@ -26,11 +26,11 @@ class ZendeskTickets(Base):
     ticket_id: Mapped[int] = mapped_column(nullable=False)
     ticket_subject: Mapped[str] = mapped_column(String(150), nullable=False)
     ticket_channel: Mapped[str] = mapped_column(String(150), nullable=False)
-    ticket_tags: Mapped[str] = mapped_column(BLOB)
+    ticket_tags: Mapped[str] = mapped_column(String(21385))
     received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     def __repr__(self) -> str:
-        return f'{self.id}, {self.ticket_id}, {self.ticket_subject}, {self.ticket_channel}, {self.created_at}'
+        return f'{self.id}, {self.ticket_id}, {self.ticket_subject}, {self.ticket_channel}, {self.received_at}'
 
     @staticmethod
     def get_next_ticket_to_be_assigned(db_session):
@@ -61,19 +61,32 @@ class ZendeskTickets(Base):
             return f'There was an error: {error_info}'
 
     @staticmethod
-    def insert_new_ticket(db_session, json):
+    def insert_new_ticket(db_session, ticket):
         try:
-            new_ticket = ZendeskTickets(
-                ticket_id=int(json['ticket_id']),
-                ticket_subject=json['ticket_subject'],
-                ticket_channel=json['ticket_channel'],
-                ticket_tags=json['ticket_tags'],
-                received_at=json['received_at'],
-            )
+            new_ticket = db_session.add(ticket)
+            return new_ticket
 
-            db_session.add(new_ticket)
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
 
-            return True
+    @staticmethod
+    def get_ticket_by_ticket_id(db_session, ticket_id):
+        try:
+            ticket = db_session.execute(
+                select(
+                    ZendeskTickets.id,
+                    ZendeskTickets.ticket_id,
+                    ZendeskTickets.ticket_subject,
+                    ZendeskTickets.ticket_channel,
+                    ZendeskTickets.ticket_tags,
+                    ZendeskTickets.received_at,
+                ).where(ZendeskTickets.ticket_id == ticket_id)
+            ).first()
+            if ticket:
+                return ticket
+            else:
+                return None
 
         except (IntegrityError, FlushError) as error:
             error_info = error.orig.args
@@ -178,7 +191,7 @@ class AssignedTickets(Base):
         return f'{self.id}, {self.zendesk_tickets_id}, {self.users_id}, {self.assigned_at}'
 
     @staticmethod
-    def get_user_assigned_ticket_count_on_the_last_hour(db_session, users_id):
+    def user_tickets_in_the_last_hour(db_session, users_id):
         try:
             ticket_count = db_session.execute(
                 select(
@@ -195,7 +208,7 @@ class AssignedTickets(Base):
             return f'There was an error: {error_info}'
 
     @staticmethod
-    def get_user_assigned_ticket_count_at_today(db_session, users_id):
+    def user_tickets_today(db_session, users_id):
         try:
             today = date.today()
 
@@ -267,8 +280,8 @@ class AssignedTicketsLog(Base):
                     Users.name,
                     AssignedTicketsLog.log,
                     AssignedTicketsLog.created_at,
-                ).join(ZendeskTickets)
-                .join(Users)
+                ).join(ZendeskTickets, isouter=True)
+                .join(Users, isouter=True)
                 .limit(10)
                 .order_by(AssignedTicketsLog.id.desc())
             ).all()
@@ -289,8 +302,8 @@ class AssignedTicketsLog(Base):
                 AssignedTicketsLog.log,
                 AssignedTicketsLog.created_at,
             ) \
-                .join(ZendeskTickets) \
-                .join(Users) \
+                .join(ZendeskTickets, isouter=True) \
+                .join(Users, isouter=True) \
                 .order_by(AssignedTicketsLog.id.desc())
 
             if kwargs['data']['initial_date']:
@@ -803,13 +816,13 @@ class GeneralSettings(Base):
     use_routes: Mapped[bool] = mapped_column(Boolean, nullable=False)
     routing_model: Mapped[int] = mapped_column(nullable=False)  # 0 = Least Active | 1 = Round Robin
     agent_backlog_limit: Mapped[int] = mapped_column(nullable=False)
-    daily_assignment_limit: Mapped[int] = mapped_column(nullable=False)
-    hourly_assignment_limit: Mapped[int] = mapped_column(nullable=False)
+    daily_ticket_assignment_limit: Mapped[int] = mapped_column(nullable=False)
+    hourly_ticket_assignment_limit: Mapped[int] = mapped_column(nullable=False)
     zendesk_schedules_id: Mapped[int] = mapped_column(ForeignKey("zendesk_schedules.id"))
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.use_routes}, {self.routing_model}, ' \
-               f'{self.agent_backlog_limit}, {self.daily_assignment_limit}'
+               f'{self.agent_backlog_limit}, {self.daily_ticket_assignment_limit}'
 
     @staticmethod
     def get_settings(db_session):
@@ -819,8 +832,8 @@ class GeneralSettings(Base):
                     GeneralSettings.use_routes,
                     GeneralSettings.routing_model,
                     GeneralSettings.agent_backlog_limit,
-                    GeneralSettings.daily_assignment_limit,
-                    GeneralSettings.hourly_assignment_limit,
+                    GeneralSettings.daily_ticket_assignment_limit,
+                    GeneralSettings.hourly_ticket_assignment_limit,
                     GeneralSettings.zendesk_schedules_id,
                 )
             ).first()
@@ -832,7 +845,7 @@ class GeneralSettings(Base):
 
     @staticmethod
     def update_settings(db_session, use_routes, routing_model, agent_backlog_limit,
-                        daily_assignment_limit, hourly_assignment_limit, zendesk_schedules_id):
+                        daily_ticket_assignment_limit, hourly_ticket_assignment_limit, zendesk_schedules_id):
         try:
             db_session.execute(
                 update(GeneralSettings)
@@ -840,12 +853,116 @@ class GeneralSettings(Base):
                     use_routes=use_routes,
                     routing_model=routing_model,
                     agent_backlog_limit=agent_backlog_limit,
-                    daily_assignment_limit=daily_assignment_limit,
-                    hourly_assignment_limit=hourly_assignment_limit,
+                    daily_ticket_assignment_limit=daily_ticket_assignment_limit,
+                    hourly_ticket_assignment_limit=hourly_ticket_assignment_limit,
                     zendesk_schedules_id=zendesk_schedules_id,
                 )
             )
             return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def is_currently_hour_working_hours(db_session):
+        try:
+            current_time = datetime.now().time()
+            midnight_time = datetime.combine(datetime.today(), time.min).time()
+
+            delta_time = \
+                datetime.combine(date.today(), current_time) - \
+                datetime.combine(date.today(), midnight_time)
+
+            app_schedule_id = db_session.execute(
+                select(GeneralSettings.zendesk_schedules_id)
+            ).scalar()
+
+            if date.today().weekday() == 0:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.monday_start,
+                        ZendeskSchedules.monday_end,
+                    ).where(ZendeskSchedules.id == app_schedule_id)
+                ).first()
+                if working_hours.monday_start <= delta_time <= working_hours.monday_end:
+                    return True
+                else:
+                    return False
+
+            elif date.today().weekday() == 1:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.tuesday_start,
+                        ZendeskSchedules.tuesday_end,
+                    ).where(ZendeskSchedules.id == app_schedule_id)
+                ).first()
+                if working_hours.tuesday_start <= delta_time <= working_hours.tuesday_end:
+                    return True
+                else:
+                    return False
+
+            elif date.today().weekday() == 2:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.wednesday_start,
+                        ZendeskSchedules.wednesday_end,
+                    ).where(ZendeskSchedules.id == app_schedule_id)
+                ).first()
+                if working_hours.wednesday_start <= delta_time <= working_hours.wednesday_end:
+                    return True
+                else:
+                    return False
+
+            elif date.today().weekday() == 3:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.thursday_start,
+                        ZendeskSchedules.thursday_end,
+                    ).where(ZendeskSchedules.id == app_schedule_id)
+                ).first()
+                if working_hours.thursday_start <= delta_time <= working_hours.thursday_end:
+                    return True
+                else:
+                    return False
+
+            elif date.today().weekday() == 4:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.friday_start,
+                        ZendeskSchedules.friday_end,
+                    ).where(ZendeskSchedules.id == app_schedule_id)
+                ).first()
+                if working_hours.friday_start <= delta_time <= working_hours.friday_end:
+                    return True
+                else:
+                    return False
+
+            elif date.today().weekday() == 5:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.saturday_start,
+                        ZendeskSchedules.saturday_end,
+                    ).where(ZendeskSchedules.id == app_schedule_id)
+                ).first()
+                if working_hours.saturday_start <= delta_time <= working_hours.saturday_end:
+                    return True
+                else:
+                    return False
+
+            elif date.today().weekday() == 6:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.sunday_start,
+                        ZendeskSchedules.sunday_end,
+                    ).where(ZendeskSchedules.id == app_schedule_id)
+                ).first()
+                if working_hours.sunday_start <= delta_time <= working_hours.sunday_end:
+                    return True
+                else:
+                    return False
+            else:
+                return None
 
         except (IntegrityError, FlushError) as error:
             error_info = error.orig.args
@@ -900,7 +1017,7 @@ class ZendeskSchedules(Base):
                 select(
                     ZendeskSchedules.name,
                 ).where(ZendeskSchedules.id == id)
-            ).first()
+            ).scalar()
             return schedule_name
 
         except (IntegrityError, FlushError) as error:
@@ -1373,32 +1490,6 @@ class Users(Base):
             return f'There was an error: {error_info}'
 
     @staticmethod
-    def get_starting_hour_column(argument):
-        switcher = {
-            0: "monday_start",
-            1: "tuesday_start",
-            2: "wednesday_start",
-            3: "thursday_start",
-            4: "friday_start",
-            5: "saturday_start",
-            6: "sunday_start",
-        }
-        return switcher.get(argument, "Invalid input")
-
-    @staticmethod
-    def get_ending_hour_column(argument):
-        switcher = {
-            0: "monday_end",
-            1: "tuesday_end",
-            2: "wednesday_end",
-            3: "thursday_end",
-            4: "friday_end",
-            5: "saturday_end",
-            6: "sunday_end",
-        }
-        return switcher.get(argument, "Invalid input")
-
-    @staticmethod
     def is_user_on_working_hours(db_session, users_id):
         try:
             current_time = datetime.now().time()
@@ -1528,6 +1619,22 @@ class Users(Base):
                 .values(routing_status=new_status)
             )
 
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def disconnect_all_users(db_session):
+        try:
+            db_session.execute(
+                update(Users)
+                .values(
+                    authenticated=False,
+                    routing_status=0,
+                )
+            )
             return True
 
         except (IntegrityError, FlushError) as error:
@@ -1714,7 +1821,7 @@ class UsersQueue(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     @staticmethod
-    def get_queue(db_session):
+    def get_users_in_queue(db_session):
         try:
             queue = db_session.execute(
                 select(
@@ -1722,7 +1829,8 @@ class UsersQueue(Base):
                     UsersQueue.users_id,
                     UsersQueue.position,
                     UsersQueue.updated_at,
-                )
+                ).where(UsersQueue.position > 0)
+                .order_by(UsersQueue.position.asc())
             ).all()
 
             return queue
@@ -1761,11 +1869,29 @@ class UsersQueue(Base):
             return f'There was an error: {error_info}'
 
     @staticmethod
+    def fix_queue_after_removig_or_deleting_user(db_session, current_user):
+        users_ahead_of_current_user = db_session.execute(
+            select(UsersQueue.id, UsersQueue.users_id, UsersQueue.position).where(
+                UsersQueue.position > current_user.position)
+        ).all()
+
+        for user in users_ahead_of_current_user:
+            if user.position != 1:
+                db_session.execute(
+                    update(UsersQueue), [{
+                        'id': user.id,
+                        'position': user.position - 1,
+                        'updated_at': datetime.now(),
+                    }],
+                )
+
+    @staticmethod
     def remove_user_from_queue(db_session, users_id):
         try:
             current_user = db_session.execute(
                 select(UsersQueue.id, UsersQueue.position).where(UsersQueue.users_id == users_id)
             ).first()
+
             db_session.execute(
                 update(UsersQueue), [{
                     'id': current_user.id,
@@ -1774,20 +1900,8 @@ class UsersQueue(Base):
                 }],
             )
 
-            users_ahead_of_current_user = db_session.execute(
-                select(UsersQueue.id, UsersQueue.users_id, UsersQueue.position).where(
-                    UsersQueue.position > current_user.position)
-            ).all()
+            UsersQueue.fix_queue_after_removig_or_deleting_user(db_session, current_user)
 
-            for user in users_ahead_of_current_user:
-                if user.position != 1:
-                    db_session.execute(
-                        update(UsersQueue), [{
-                            'id': user.id,
-                            'position': user.position - 1,
-                            'updated_at': datetime.now(),
-                        }],
-                    )
             return True
 
         except (IntegrityError, FlushError) as error:
@@ -1797,9 +1911,16 @@ class UsersQueue(Base):
     @staticmethod
     def delete_user_from_queue(db_session, users_id):
         try:
+            current_user = db_session.execute(
+                select(UsersQueue.id, UsersQueue.position).where(UsersQueue.users_id == users_id)
+            ).first()
+
             db_session.execute(
-                delete(UsersQueue).where(UsersQueue.users_id == users_id)
+                delete(UsersQueue).where(UsersQueue.id == current_user.id)
             )
+
+            UsersQueue.fix_queue_after_removig_or_deleting_user(db_session, current_user)
+
             return True
 
         except (IntegrityError, FlushError) as error:
@@ -2031,6 +2152,38 @@ class PasswordResetRequests(Base):
             )
 
             return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+
+class SchedulerLogs(Base):
+    __tablename__ = 'scheduler_logs'
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    users_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
+    uuid: Mapped[str] = mapped_column(String(500), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    used: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    used_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    valid: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    invalidated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    @staticmethod
+    def create_new_request_returning_uuid(db_session, users_id):
+        new_request_obj = PasswordResetRequests(
+            users_id=users_id,
+            uuid=str(uuid.uuid4()),
+            used_at=None,
+            used=False,
+            valid=True,
+        )
+
+        try:
+            db_session.add(new_request_obj)
+            return new_request_obj.uuid
 
         except (IntegrityError, FlushError) as error:
             error_info = error.orig.args
