@@ -885,8 +885,9 @@ class GeneralSettings(Base):
                         ZendeskSchedules.monday_end,
                     ).where(ZendeskSchedules.id == app_schedule_id)
                 ).first()
-                if working_hours.monday_start <= delta_time <= working_hours.monday_end:
-                    return True
+                if working_hours.monday_start and working_hours.monday_end:
+                    if working_hours.monday_start <= delta_time <= working_hours.monday_end:
+                        return True
                 else:
                     return False
 
@@ -897,8 +898,9 @@ class GeneralSettings(Base):
                         ZendeskSchedules.tuesday_end,
                     ).where(ZendeskSchedules.id == app_schedule_id)
                 ).first()
-                if working_hours.tuesday_start <= delta_time <= working_hours.tuesday_end:
-                    return True
+                if working_hours.tuesday_start and working_hours.tuesday_end:
+                    if working_hours.tuesday_start <= delta_time <= working_hours.tuesday_end:
+                        return True
                 else:
                     return False
 
@@ -909,8 +911,9 @@ class GeneralSettings(Base):
                         ZendeskSchedules.wednesday_end,
                     ).where(ZendeskSchedules.id == app_schedule_id)
                 ).first()
-                if working_hours.wednesday_start <= delta_time <= working_hours.wednesday_end:
-                    return True
+                if working_hours.wednesday_start and working_hours.wednesday_end:
+                    if working_hours.wednesday_start <= delta_time <= working_hours.wednesday_end:
+                        return True
                 else:
                     return False
 
@@ -921,8 +924,9 @@ class GeneralSettings(Base):
                         ZendeskSchedules.thursday_end,
                     ).where(ZendeskSchedules.id == app_schedule_id)
                 ).first()
-                if working_hours.thursday_start <= delta_time <= working_hours.thursday_end:
-                    return True
+                if working_hours.thursday_start and working_hours.thursday_end:
+                    if working_hours.thursday_start <= delta_time <= working_hours.thursday_end:
+                        return True
                 else:
                     return False
 
@@ -933,8 +937,9 @@ class GeneralSettings(Base):
                         ZendeskSchedules.friday_end,
                     ).where(ZendeskSchedules.id == app_schedule_id)
                 ).first()
-                if working_hours.friday_start <= delta_time <= working_hours.friday_end:
-                    return True
+                if working_hours.friday_start and working_hours.friday_end:
+                    if working_hours.friday_start <= delta_time <= working_hours.friday_end:
+                        return True
                 else:
                     return False
 
@@ -945,8 +950,9 @@ class GeneralSettings(Base):
                         ZendeskSchedules.saturday_end,
                     ).where(ZendeskSchedules.id == app_schedule_id)
                 ).first()
-                if working_hours.saturday_start <= delta_time <= working_hours.saturday_end:
-                    return True
+                if working_hours.saturday_start and working_hours.saturday_end:
+                    if working_hours.saturday_start <= delta_time <= working_hours.saturday_end:
+                        return True
                 else:
                     return False
 
@@ -957,8 +963,9 @@ class GeneralSettings(Base):
                         ZendeskSchedules.sunday_end,
                     ).where(ZendeskSchedules.id == app_schedule_id)
                 ).first()
-                if working_hours.sunday_start <= delta_time <= working_hours.sunday_end:
-                    return True
+                if working_hours.sunday_start and working_hours.sunday_end:
+                    if working_hours.sunday_start <= delta_time <= working_hours.sunday_end:
+                        return True
                 else:
                     return False
             else:

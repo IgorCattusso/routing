@@ -361,7 +361,7 @@ def assign_ticket_round_robin(ticket):
                 db_session.commit()
                 continue
 
-    log.message = 'Fim do ciclo de distribuição'
+    log.message = 'Fim do ciclo de distribuição.'
     AssignedTicketsLog.insert_new_log(db_session, ticket.id, Log.create_log(log), user.id)
     db_session.commit()
 
