@@ -1,10 +1,22 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-import time
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+import zoneinfo
+from datetime import datetime
+import tzlocal
+from models import Users
+from sqlalchemy.orm import Session
+from app import engine
 
 
-scheduler = BackgroundScheduler()
+def disconnect_all_users():
+    with Session(engine) as db_session:
+        Users.disconnect_all_users(db_session)
+        db_session.commit()
+
+
+scheduler = BackgroundScheduler(timezone="America/Sao_Paulo")
+scheduler.add_job(disconnect_all_users, "cron", hour="23", minute="59", second="59")
+
 # scheduler.add_job(test_func, 'interval', seconds=30)
-time.sleep(1)
-# scheduler.add_job(test_func2, 'interval', seconds=30)
-scheduler.start()
 
+scheduler.start()

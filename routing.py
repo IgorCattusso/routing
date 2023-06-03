@@ -84,7 +84,10 @@ def request_ticket_assignment():
 
     assignment_request = assign_ticket(ticket_data_as_json)
 
-    return assignment_request
+# @scheduler.scheduled_job('interval', id='get_tickets_to_be_assigned', minutes=1)
+def assign_next_pending_ticket():
+    with Session(engine) as db_session:
+        is_currently_hour_working_hours = GeneralSettings.is_currently_hour_working_hours(db_session)
 
 
 def assign_ticket(ticket_data_as_json):
