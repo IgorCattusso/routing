@@ -11,7 +11,7 @@ import json
 import ast
 from dotenv import *
 import os
-from models import GeneralSettings, Users
+from models import GeneralSettings, Users, ZendeskTickets
 
 
 '''
@@ -535,9 +535,39 @@ zendesk_default_user_group(11490525550747)
 #     smtp.login(email_sender, email_password)
 #     smtp.send_message(msg)
 
-with Session(engine) as db_session:
-    test = GeneralSettings.is_current_hour_working_hours(db_session)
-    teste = Users.is_user_on_working_hours(db_session, 13)
+# with Session(engine) as db_session:
+#     test = GeneralSettings.is_currently_hour_working_hours(db_session)
+#     teste = Users.is_user_on_working_hours(db_session, 13)
+#
+# print(test)
+# print(teste)
 
-print(test)
-print(teste)
+def teste1():
+    with Session(engine) as db_session:
+        new_ticket = ZendeskTickets(
+            ticket_id=76,
+            ticket_subject='Conversa com Web User 6ee012033ccfa8dffccf31e4',
+            ticket_channel='Web',
+            ticket_tags=bytes('always_unbabel team_automatico testetag ticket_publico', 'utf-8'),
+        )
+        db_session.add(new_ticket)
+
+        teste2()
+
+        db_session.commit()
+
+
+def teste2():
+    with Session(engine) as db_session:
+        new_ticket = ZendeskTickets(
+            ticket_id=77,
+            ticket_subject='Conversa com Web User 6ee012033ccfa8dffccf31e4',
+            ticket_channel='Web',
+            ticket_tags=bytes('always_unbabel team_automatico testetag ticket_publico', 'utf-8'),
+        )
+
+        db_session.add(new_ticket)
+        db_session.commit()
+
+
+teste1()
