@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from flask import session, redirect, request
 import time
 from flask_login import login_required
-from models import Users
+from models import Users, UsersQueue
 from helpers import internal_render_template
 from views_logs import logs_as_list
 
@@ -151,14 +151,21 @@ def change_user_status():
         user_status = Users.get_user_status(db_session, session['_user_id'])
 
         if user_status == 1:
-            new_user_status = 2
+            new_user_status = 2  # away
         elif user_status == 2:
-            new_user_status = 1
+            new_user_status = 1  # online
         else:
-            new_user_status = 0
+            new_user_status = 0  # offline
 
         session['routing_status'] = new_user_status
         Users.change_routing_status(db_session, session['_user_id'], new_user_status)
+        if UsersQueue.check_if_user_has_to_be_in_queue(db_session, session['_user_id']) and new_user_status == 1:
+            if not UsersQueue.does_user_exist_in_queue(db_session, session['_user_id']):
+                UsersQueue.insert_new_user_in_queue(db_session, session['_user_id'])
+                UsersQueue.insert_user_at_queue_end(db_session, session['_user_id'])
+            elif UsersQueue.get_user_position(db_session, session['_user_id']) == 0:
+                UsersQueue.insert_user_at_queue_end(db_session, session['_user_id'])
+
         db_session.commit()
 
     time.sleep(.35)

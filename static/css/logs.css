@@ -75,8 +75,8 @@
 
 
 .th-created-at {
-    min-width: 196px;
-    max-width: 196px;
+    min-width: 220px;
+    max-width: 220px;
 }
 
 .th-id, .std-td-id {
@@ -166,7 +166,7 @@
 
 pre {
     font-family: 'Consolas', 'Menlo', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
     font-size: 12px;
 }
 
@@ -249,8 +249,8 @@ pre {
 }
 
 .std-td-created-at {
-    min-width: 180px;
-    max-width: 180px;
+    min-width: 210px;
+    max-width: 210px;
 }
 
 .std-td-user-name, .th-user-name {

@@ -96,6 +96,9 @@ def check_user_credentials(email, password):
             ).where(Users.email == email)
         ).first()
 
+        if not db_user:
+            return None
+
         is_password_correct = bcrypt.check_password_hash(db_user.password, password)
 
         if db_user and is_password_correct:
@@ -146,12 +149,12 @@ def login():
             with Session(engine) as db_session:
                 Users.login_user(db_session, user.id)
                 Users.change_routing_status(db_session, user_id, session['routing_status'])
-                if UsersQueue.check_if_user_has_to_be_in_queue(db_session, user_id):
-                    if UsersQueue.is_user_alread_in_queue(db_session, user_id):
-                        UsersQueue.insert_user_at_queue_end(db_session, user_id)
-                    else:
-                        UsersQueue.insert_new_user_in_queue(db_session, user_id)
-                        UsersQueue.insert_user_at_queue_end(db_session, user_id)
+                if UsersQueue.check_if_user_has_to_be_in_queue(db_session, session['_user_id']):
+                    if not UsersQueue.does_user_exist_in_queue(db_session, session['_user_id']):
+                        UsersQueue.insert_new_user_in_queue(db_session, session['_user_id'])
+                        UsersQueue.insert_user_at_queue_end(db_session, session['_user_id'])
+                    elif UsersQueue.get_user_position(db_session, session['_user_id']) == 0:
+                        UsersQueue.insert_user_at_queue_end(db_session, session['_user_id'])
 
                 db_session.commit()
 
@@ -180,7 +183,8 @@ def logout():
         Users.logout_user(db_session, user_id)
         Users.change_routing_status(db_session, user_id, session['routing_status'])
         if UsersQueue.check_if_user_has_to_be_in_queue(db_session, user_id):
-            UsersQueue.remove_user_from_queue(db_session, user_id)
+            if UsersQueue.does_user_exist_in_queue(db_session, user_id):
+                UsersQueue.remove_user_from_queue(db_session, user_id)
         db_session.commit()
 
     return redirect(url_for('login'))

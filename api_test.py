@@ -1,3 +1,4 @@
+import base64
 from app import engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session, aliased
 from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, delete, update, insert, and_, or_
@@ -12,7 +13,9 @@ import ast
 from dotenv import *
 import os
 from models import GeneralSettings, Users, ZendeskTickets
-
+import requests
+from helpers import generate_zendesk_headers
+import re
 
 '''
 zendesk_endpoint_url = 'api/v2/search.json'
@@ -67,6 +70,7 @@ print("------------------")
 '''
 zendesk_default_user_group(11490525550747)
 '''
+
 
 #
 # zendesk_endpoint_url = '/api/v2/group_memberships'
@@ -542,32 +546,790 @@ zendesk_default_user_group(11490525550747)
 # print(test)
 # print(teste)
 
-def teste1():
-    with Session(engine) as db_session:
-        new_ticket = ZendeskTickets(
-            ticket_id=76,
-            ticket_subject='Conversa com Web User 6ee012033ccfa8dffccf31e4',
-            ticket_channel='Web',
-            ticket_tags=bytes('always_unbabel team_automatico testetag ticket_publico', 'utf-8'),
-        )
-        db_session.add(new_ticket)
+# def teste1():
+#     with Session(engine) as db_session:
+#         new_ticket = ZendeskTickets(
+#             ticket_id=76,
+#             ticket_subject='Conversa com Web User 6ee012033ccfa8dffccf31e4',
+#             ticket_channel='Web',
+#             ticket_tags=bytes('always_unbabel team_automatico testetag ticket_publico', 'utf-8'),
+#         )
+#         db_session.add(new_ticket)
+#
+#         teste2()
+#
+#         db_session.commit()
+#
+#
+# def teste2():
+#     with Session(engine) as db_session:
+#         new_ticket = ZendeskTickets(
+#             ticket_id=77,
+#             ticket_subject='Conversa com Web User 6ee012033ccfa8dffccf31e4',
+#             ticket_channel='Web',
+#             ticket_tags=bytes('always_unbabel team_automatico testetag ticket_publico', 'utf-8'),
+#         )
+#
+#         db_session.add(new_ticket)
+#         db_session.commit()
+#
+#
+# teste1()
 
-        teste2()
 
-        db_session.commit()
+# national_ticket_tags = ['pais_brasil', 'pais_franca']
+# ticket_tags = "agente_light enterprise indústria pais_franca produto_ri " \
+#               "motivo_ajuda_nao_consigo_acessar_uma_funcionalidade_mas_consigo_manter_o_fluxo_das_atividades " \
+#               "com_fit tier_1 contrato_ativo"
+# ticket_tags_list = ticket_tags.split()
+#
+# print(set(ticket_tags))
+# print(set(national_ticket_tags))
+#
+# if 'pais_' in ticket_tags:
+#     print('Hey-oh')
+#
+# if any(tag in national_ticket_tags for tag in ticket_tags):
+#     print('Hey')
 
 
-def teste2():
-    with Session(engine) as db_session:
-        new_ticket = ZendeskTickets(
-            ticket_id=77,
-            ticket_subject='Conversa com Web User 6ee012033ccfa8dffccf31e4',
-            ticket_channel='Web',
-            ticket_tags=bytes('always_unbabel team_automatico testetag ticket_publico', 'utf-8'),
-        )
+# def zendesk_assign_ticket_test(ticket_id, zendesk_user_id):
+#     zendesk_endpoint_url = f'/api/v2/tickets/{ticket_id}'
+#     api_url = ZENDESK_BASE_URL + zendesk_endpoint_url
+#
+#     assign_ticket_json = \
+#         {
+#             "ticket": {
+#                 "status": "open",
+#                 "assignee_id": zendesk_user_id
+#             }
+#         }
+#
+#     request_json = assign_ticket_json
+#     api_response = requests.put(api_url, json=request_json, headers=generate_zendesk_headers())
+#
+#     # print(f'api_response.apparent_encoding: {api_response.apparent_encoding}')
+#     # print(f'api_response.content: {api_response.content}')
+#     # print(f'api_response.cookies: {api_response.cookies}')
+#     # print(f'api_response.elapsed: {api_response.elapsed}')
+#     # print(f'api_response.encoding: {api_response.encoding}')
+#     # print(f'api_response.headers: {api_response.headers}')
+#     # print(f'api_response.history: {api_response.history}')
+#     # print(f'api_response.is_permanent_redirect: {api_response.is_permanent_redirect}')
+#     # print(f'api_response.json(): {api_response.json()}')
+#     # print(f'api_response.links: {api_response.links}')
+#     # print(f'api_response.next: {api_response.next}')
+#     # print(f'api_response.ok: {api_response.ok}')
+#     # print(f'api_response.raise_for_status(): {api_response.raise_for_status()}')
+#     # print(f'api_response.reason: {api_response.reason}')
+#     # print(f'api_response.request: {api_response.request}')
+#     # print(f'api_response.status_code: {api_response.status_code}')
+#     # print(f'api_response.text: {api_response.text}')
+#     # print(f'api_response.url: {api_response.url}')
+#
+#     return str(api_response.status_code) + ' ' + str(api_response.reason) + ' - ' + str(api_response.text)
+#
+# api_return = zendesk_assign_ticket_test(99, 11490525550747)
+#
+# print(api_return)
+#
 
-        db_session.add(new_ticket)
-        db_session.commit()
+# def get_webhook_invocation_attempts():
+#     webhook_id = '01H2Y133W3QNZVMBYFVW8H9MQT'
+#     api_url = f'https://agilepromoter.zendesk.com/api/v2/webhooks/{webhook_id}/invocations'
+#
+#     zendesk_api_key = 'm5NAEH0rYvhBSdttLTNgdpB2t6BriAxRJMG6Nyj4'
+#     concatenate = 'igor.cattusso@involves.com' + '/token:' + zendesk_api_key
+#     concatenate_bytes = concatenate.encode('ascii')
+#     base64_bytes = base64.b64encode(concatenate_bytes)
+#     base64_string = base64_bytes.decode('ascii')
+#     headers = {'Authorization': 'Basic ' + base64_string}
+#
+#     api_response = requests.get(api_url, headers=headers).json()
+#
+#     next_url = api_url
+#
+#     all_requests = []
+#
+#     while_counter = 0
+#     for_counter = 0
+#
+#     while next_url:
+#         print(f'Beginning of While {while_counter}')
+#         while_counter += 1
+#         api_response = requests.get(next_url, headers=headers).json()
+#         for invocation in api_response['invocations']:
+#             print(f'Beginning of For {for_counter}')
+#             invocation_url = f'https://agilepromoter.zendesk.com/api/v2/webhooks/{webhook_id}/invocations/{invocation["id"]}/attempts'
+#             invocation_api_response = requests.get(invocation_url, headers=headers).json()
+#             all_requests.append(invocation_api_response['attempts'][0]['request']['payload'])
+#             print(f'End of For {for_counter}')
+#             for_counter += 1
+#
+#         if api_response['meta']['has_more']:
+#             next_url = api_response['links']['next']
+#         else:
+#             next_url = False
+#
+#         print(f'End of While {while_counter}')
+#         print(next_url)
+#         for_counter = 0
+#
+#     print(all_requests)
+#
+#
+# # get_webhook_invocation_attempts()
+#
+# ticket = {
+#     "ticket_id": "114398",
+#     "ticket_subject": "Promotora bloqueada no Involves",
+#     "ticket_channel": "E-mail",
+#     "ticket_tags": "advanced alimentos alimentos__bebidas bebidas com_fit contrato_ativo indústria pais_brasil "
+#                    "plantao_nao prospect rock_stars team_automatico ticket_publico tier_0"
+# }
+#
+# json_string = str(ticket)
+#
+# # Define a regular expression pattern to match the double quotes within "ticket_subject"
+# pattern = r'"([^"]*)"'
+#
+# # Replace the double quotes with single quotes within the "ticket_subject" value using the regular expression
+# json_string_fixed = re.sub(pattern, r"'\1'", json_string)
+#
+# # Parse the fixed JSON
+# data = json.loads(json_string_fixed)
+#
+# # Access the ticket_subject value
+# ticket_subject = data['ticket_subject']
+#
+# print(ticket_subject)
 
+tickets = [
+    {
+        "ticket_id": "113",
+        "ticket_subject": "Reportar pesquisa",
+        "ticket_channel": "Web Widget",
+        "ticket_tags": "advanced agência contrato_ativo motivo_ajuda_um_comportamento_do_sistema_esta_impedindo_a_rotina_da_minha_operacao pais_brasil plantao_nao produto_involves_stage team_automatico ticket_publico tier_6 web_widget"
+    },
+    {
+        "ticket_id": "112",
+        "ticket_subject": "Promotora bloqueada no Involves",
+        "ticket_channel": "E-mail",
+        "ticket_tags": "advanced alimentos alimentos__bebidas bebidas com_fit contrato_ativo indústria pais_brasil plantao_nao prospect rock_stars team_automatico ticket_publico tier_0"
+    },
+    {
+        "ticket_id": "110",
+        "ticket_subject": "Atualização Web e Mobile",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "admitido advanced area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_solicitacao cliente com_fit contrato_ativo cuidados_pessoais indústria lider_de_projeto modulo_processo_de_atualizacao_agendamento/atualizacao_em_massa_funcao_atualizacao_web___mobile motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao plataforma_web português produto_involves_stage team_backstage ticket_publico tier_6"
+    },
+    {
+        "ticket_id": "109",
+        "ticket_subject": "Atualização",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "agência area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_solicitacao com_fit contrato_ativo essential modulo_processo_de_atualizacao_agendamento/atualizacao_em_massa_funcao_atualizacao_web motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao plataforma_web produto_involves_stage team_backstage ticket_publico tier_6"
+    },
+    {
+        "ticket_id": "108",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_involves_stage ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "107",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "106",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_involves_stage ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "105",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "104",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "103",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "102",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "101",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "100",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "99",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "98",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_agrupamento_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "97",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_involves_stage ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "96",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "94",
+        "ticket_subject": "Atualização",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "agente_light com_fit contrato_ativo enterprise explore indústria motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri rock_stars team_automatico tier_1 usuario_involves"
+    },
+    {
+        "ticket_id": "93",
+        "ticket_subject": "Atualização do sistema",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_solicitacao com_fit contrato_ativo indústria modulo_processo_de_atualizacao_agendamento/atualizacao_em_massa_funcao_atualizacao_web___mobile motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao plataforma_web produto_involves_stage team_backstage ticket_publico tier_6"
+    },
+    {
+        "ticket_id": "92",
+        "ticket_subject": "Conversa com Guilherme Riguetto Rodrigues",
+        "ticket_channel": "Chat",
+        "ticket_tags": "advanced agência agências_e_consultoria cliente com_fit contrato_ativo pais_brasil plantao_nao team_automatico ticket_chat tier_1 zopim_chat"
+    },
+    {
+        "ticket_id": "91",
+        "ticket_subject": "Atualização",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced alimentos__bebidas area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_solicitacao cliente com_fit contrato_ativo distribuidor modulo_processo_de_atualizacao_agendamento/atualizacao_em_massa_funcao_atualizacao_web___mobile motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao plataforma_web produto_involves_stage team_backstage ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "90",
+        "ticket_subject": "Lojas sem informação de sortimento no BI de VPL",
+        "ticket_channel": "E-mail",
+        "ticket_tags": "advanced alimentos alimentos__bebidas bebidas com_fit contrato_ativo indústria pais_brasil plantao_nao prospect rock_stars team_automatico tier_0"
+    },
+    {
+        "ticket_id": "88",
+        "ticket_subject": "Conversa com Andreia Cristina",
+        "ticket_channel": "Chat",
+        "ticket_tags": "advanced cliente com_fit contrato_ativo indústria pais_brasil plantao_nao team_automatico ticket_chat tier_3 utensílios_domésticos zopim_chat"
+    },
+    {
+        "ticket_id": "87",
+        "ticket_subject": "Reprocessamento LP",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "agente_light com_fit contrato_ativo enterprise indústria motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_involves_stage team_automatico tier_1 usuario_involves"
+    },
+    {
+        "ticket_id": "86",
+        "ticket_subject": "Ticket interno - MP COlgate MX",
+        "ticket_channel": "Formulario web",
+        "ticket_tags": "agente_light agência always_unbabel baixo_fit contrato_ativo enterprise motivo_ajuda_nao_consigo_acessar_uma_funcionalidade_mas_consigo_manter_o_fluxo_das_atividades pais_mexico plantao_nao produto_ri team_automatico tier_2 usuario_involves"
+    },
+    {
+        "ticket_id": "85",
+        "ticket_subject": "Conversa com Andreia Cristina",
+        "ticket_channel": "Chat",
+        "ticket_tags": "advanced cliente com_fit contrato_ativo indústria pais_brasil plantao_nao team_automatico ticket_chat tier_3 utensílios_domésticos zopim_chat"
+    },
+    {
+        "ticket_id": "84",
+        "ticket_subject": "Conversa com Lucas Cabral",
+        "ticket_channel": "Chat",
+        "ticket_tags": "cliente com_fit contrato_ativo enterprise indústria pais_brasil pet_care plantao_nao team_automatico ticket_chat tier_4 zopim_chat"
+    },
+    {
+        "ticket_id": "85",
+        "ticket_subject": "Tarea de mantenida 2 aparece un día antes",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced com_fit contrato_ativo indústria motivo_ajuda_um_comportamento_do_sistema_esta_impedindo_a_rotina_da_minha_operacao pais_mexico plantao_nao produto_involves_stage team_automatico ticket_publico tier_2"
+    },
+    {
+        "ticket_id": "84",
+        "ticket_subject": "Reportar Atendimento Avulso e Questões de chamados",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced agência agências_e_consultoria baixo_fit contrato_ativo motivo_ajuda_nao_consigo_acessar_uma_funcionalidade_mas_consigo_manter_o_fluxo_das_atividades pais_brasil parceiro plantao_nao produto_involves_stage team_automatico ticket_publico tier_5"
+    },
+    {
+        "ticket_id": "83",
+        "ticket_subject": "Formulários Inativos aparecendo para consultores",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced baixo_fit contrato_ativo indústria motivo_ajuda_um_comportamento_do_sistema_esta_impedindo_a_rotina_da_minha_operacao pais_brasil plantao_nao produto_involves_stage team_automatico ticket_publico tier_3"
+    },
+    {
+        "ticket_id": "83",
+        "ticket_subject": "Johnson - Pergunta Informativa permitindo resposta do promotor",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced agência agências_e_consultoria cliente com_fit contrato_ativo motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_involves_stage team_automatico ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "82",
+        "ticket_subject": "Conversa com Lucas Cabral",
+        "ticket_channel": "Chat",
+        "ticket_tags": "cliente com_fit contrato_ativo enterprise indústria pais_brasil pet_care plantao_nao team_automatico ticket_chat tier_4 zopim_chat"
+    },
+    {
+        "ticket_id": "81",
+        "ticket_subject": "IDs respostas de pesquisas Involves Web x Qlik Sense",
+        "ticket_channel": "E-mail",
+        "ticket_tags": "advanced cliente com_fit contrato_ativo indústria materiais_para_construção_e_acabamento pais_brasil plantao_nao team_automatico ticket_publico tier_4"
+    },
+    {
+        "ticket_id": "80",
+        "ticket_subject": "Promotora não consegue preencher a pesquisa",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced agência agências_e_consultoria cliente com_fit contrato_ativo motivo_ajuda_um_comportamento_do_sistema_esta_impedindo_a_rotina_da_minha_operacao pais_brasil plantao_nao produto_involves_stage team_automatico ticket_publico tier_4"
+    },
+    {
+        "ticket_id": "79",
+        "ticket_subject": "Conversa com Giovanna Tagliari",
+        "ticket_channel": "Chat",
+        "ticket_tags": "contrato_ativo mdm_redirect pais_brasil plantao_nao team_automatico ticket_chat tier_involves zopim_chat"
+    },
+    {
+        "ticket_id": "78",
+        "ticket_subject": "Conversa com Lucas Cabral",
+        "ticket_channel": "Chat",
+        "ticket_tags": "cliente com_fit contrato_ativo enterprise indústria pais_brasil pet_care plantao_nao team_automatico ticket_chat tier_4 zopim_chat"
+    },
+    {
+        "ticket_id": "77",
+        "ticket_subject": "Erros Involves",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced agência agências_e_consultoria baixo_fit cliente inativo motivo_ajuda_um_comportamento_do_sistema_esta_impedindo_a_rotina_da_minha_operacao pais_brasil plantao_nao produto_involves_stage team_automatico ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "76",
+        "ticket_subject": "Conversa com Carolina Mesquita de Mello",
+        "ticket_channel": "Chat",
+        "ticket_tags": "advanced automotivo_/_autopeças baixo_fit cliente contrato_ativo indústria pais_brasil plantao_nao team_automatico ticket_chat tier_5 zopim_chat"
+    },
+    {
+        "ticket_id": "75",
+        "ticket_subject": "Atendimento Chatbot",
+        "ticket_channel": "Serviço Web",
+        "ticket_tags": "advanced area_chatbot atendimento_chatbot atendimento_relacionado_produto_nao baixo_fit causa_raiz_chatbot-usuario_sem_acesso cesta_higiene chat_app cliente cliente_sem_acesso_wpp contrato_ativo indústria pais_brasil plantao_nao team_automatico ticket_publico tier_1 ubots"
+    },
+    {
+        "ticket_id": "73",
+        "ticket_subject": "Atualização involves",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "motivo_ajuda_um_comportamento_do_sistema_esta_impedindo_a_rotina_da_minha_operacao plantao_nao produto_involves_stage team_automatico ticket_publico"
+    },
+    {
+        "ticket_id": "72",
+        "ticket_subject": "Conversa com Zair Perroni",
+        "ticket_channel": "Chat",
+        "ticket_tags": "advanced baixo_fit cesta_higiene cliente contrato_ativo indústria pais_brasil plantao_nao team_automatico ticket_chat tier_1 zopim_chat"
+    },
+    {
+        "ticket_id": "71",
+        "ticket_subject": "Conversa com Lucas Cabral",
+        "ticket_channel": "Chat",
+        "ticket_tags": "cliente com_fit contrato_ativo enterprise indústria pais_brasil pet_care plantao_nao team_automatico ticket_chat tier_4 zopim_chat"
+    },
+    {
+        "ticket_id": "70",
+        "ticket_subject": "Conversa com Marcelo Frazão",
+        "ticket_channel": "Chat",
+        "ticket_tags": "agente_light contrato_ativo fit_involves involves organização_involves pais_brasil parceiro plantao_nao ramo_negocio_involves software team_automatico ticket_chat tier_involves zopim_chat"
+    },
+    {
+        "ticket_id": "69",
+        "ticket_subject": "Conversa com Emanuelly Evellyn de Oliveira",
+        "ticket_channel": "Chat",
+        "ticket_tags": "advanced agência contrato_ativo pais_brasil plantao_nao team_automatico ticket_chat tier_4 zopim_chat"
+    },
+    {
+        "ticket_id": "68",
+        "ticket_subject": "Conversa com leonardo",
+        "ticket_channel": "Chat",
+        "ticket_tags": "advanced com_fit contrato_ativo distribuidor pais_brasil plantao_nao team_automatico ticket_chat tier_6 zopim_chat"
+    },
+    {
+        "ticket_id": "67",
+        "ticket_subject": "Conversa com Leandro Florentino De Andrade",
+        "ticket_channel": "Chat",
+        "ticket_tags": "advanced alimentos alimentos__bebidas bebidas cliente com_fit contrato_ativo distribuidor pais_brasil plantao_nao team_automatico ticket_chat tier_6 zopim_chat"
+    },
+    {
+        "ticket_id": "65",
+        "ticket_subject": "Conversa com Carolina Mesquita de Mello",
+        "ticket_channel": "Chat",
+        "ticket_tags": "advanced automotivo_/_autopeças baixo_fit cliente contrato_ativo indústria pais_brasil plantao_nao team_automatico ticket_chat tier_5 zopim_chat"
+    },
+    {
+        "ticket_id": "64",
+        "ticket_subject": "Conversa com Paulo Henrique",
+        "ticket_channel": "Chat",
+        "ticket_tags": "advanced agência agências_e_consultoria cliente com_fit contrato_ativo pais_brasil plantao_nao team_automatico ticket_chat tier_1 zopim_chat"
+    },
+    {
+        "ticket_id": "63",
+        "ticket_subject": "Inativação Justificativas de visitas - WEB",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced alimentos__bebidas cliente com_fit contrato_ativo indústria motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_involves_stage team_automatico ticket_publico tier_6"
+    },
+    {
+        "ticket_id": "62",
+        "ticket_subject": "DESLIGAMENTO SISTEMA - PROMOTOR CLT",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced com_fit contrato_ativo indústria motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_involves_stage rock_stars team_automatico ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "61",
+        "ticket_subject": "Conversa com Lays",
+        "ticket_channel": "Chat",
+        "ticket_tags": "advanced agência com_fit contrato_ativo pais_brasil plantao_nao team_automatico ticket_chat tier_4 zopim_chat"
+    },
+    {
+        "ticket_id": "60",
+        "ticket_subject": "RES: [102681] Re: CNPJ - Importação de pontos de venda",
+        "ticket_channel": "Ticket fechado",
+        "ticket_tags": "advanced alimentos__bebidas area_suporte causa_raiz_duvida cliente com_fit contrato_ativo distribuidor f_funcao_importacoes i_modulo_cadastro_de_pontos_de_venda motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao plataforma_web produto_involves_stage team_automatico ticket_publico tier_6 tier_8"
+    },
+    {
+        "ticket_id": "59",
+        "ticket_subject": "Conversa com Luan Santos",
+        "ticket_channel": "Chat",
+        "ticket_tags": "advanced alimentos__bebidas cliente com_fit contrato_ativo distribuidor pais_brasil plantao_nao team_automatico ticket_chat tier_6 zopim_chat"
+    },
+    {
+        "ticket_id": "58",
+        "ticket_subject": "MUDANÇA DE ROTEIRO",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced com_fit contrato_ativo indústria motivo_ajuda_nao_consigo_acessar_meu_sistema_indisponibilidade_geral pais_brasil plantao_nao produto_involves_stage team_automatico ticket_publico tier_3"
+    },
+    {
+        "ticket_id": "57",
+        "ticket_subject": "Conversa com Suporte Repor Brasil",
+        "ticket_channel": "Chat",
+        "ticket_tags": "advanced agência baixo_fit contrato_ativo pais_brasil plantao_nao team_automatico ticket_chat tier_3 zopim_chat"
+    },
+    {
+        "ticket_id": "56",
+        "ticket_subject": "Cancelar: Atualização Mês Junho - Painel Presença",
+        "ticket_channel": "E-mail",
+        "ticket_tags": "advanced cesta_higiene cliente com_fit contrato_ativo cosméticos indústria pais_brasil plantao_nao team_automatico ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "55",
+        "ticket_subject": "Cancelar: Atualização Mês Junho - Painel Presença",
+        "ticket_channel": "E-mail",
+        "ticket_tags": "advanced cesta_higiene cliente com_fit contrato_ativo cosméticos indústria pais_brasil plantao_nao team_automatico ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "54",
+        "ticket_subject": "Atualização Mês Junho - Painel Presença",
+        "ticket_channel": "E-mail",
+        "ticket_tags": "advanced cesta_higiene cliente com_fit contrato_ativo cosméticos indústria pais_brasil plantao_nao team_automatico ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "53",
+        "ticket_subject": "Problemas con validación de fotos en la app Cámara.",
+        "ticket_channel": "Formulario web",
+        "ticket_tags": "agente_light always_unbabel contrato_ativo espanhol fit_involves motivo_ajuda_um_comportamento_do_sistema_esta_impedindo_a_rotina_da_minha_operacao pais_mexico plantao_nao produto_ri ramo_negocio_involves team_automatico tier_involves usuario_involves"
+    },
+    {
+        "ticket_id": "52",
+        "ticket_subject": "Pesquisa ri",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced cesta_higiene cliente com_fit contrato_ativo cosméticos indústria motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_involves_stage team_automatico ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "51",
+        "ticket_subject": "Conversa com Jhoselin Guzman",
+        "ticket_channel": "Chat",
+        "ticket_tags": "always_unbabel consultoria contrato_ativo enterprise pais_bolivia plantao_nao team_automatico ticket_chat tier_1 zopim_chat"
+    },
+    {
+        "ticket_id": "50",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "49",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "48",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "47",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "46",
+        "ticket_subject": "Dúvida sobre pesquisa manual (Ausência de pesquina no painel)",
+        "ticket_channel": "E-mail",
+        "ticket_tags": "advanced cesta_higiene cliente com_fit contrato_ativo cosméticos indústria pais_brasil plantao_nao team_automatico ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "45",
+        "ticket_subject": "DIVERGENCIAS EM RECONHECIMENTO DE IMAGEM | CARGILL",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced agência agências_e_consultoria cliente com_fit contrato_ativo motivo_ajuda_um_comportamento_do_sistema_esta_impedindo_a_rotina_da_minha_operacao pais_brasil plantao_nao produto_ri team_automatico ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "44",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "43",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "42",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "41",
+        "ticket_subject": "DIVERGENCIAS EM RECONHECIMENTO DE IMAGEM | CARGILL",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced agência agências_e_consultoria cliente com_fit contrato_ativo motivo_ajuda_um_comportamento_do_sistema_esta_impedindo_a_rotina_da_minha_operacao pais_brasil plantao_nao produto_ri team_automatico ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "40",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao plataforma_web produto_ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "38",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "37",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "35",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "34",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao plataforma_web produto_ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "33",
+        "ticket_subject": "Conversa com Caio Leite - Grupo Tagg.",
+        "ticket_channel": "Chat",
+        "ticket_tags": "advanced agência agências_e_consultoria cliente com_fit contrato_ativo pais_brasil plantao_nao team_automatico ticket_chat tier_2 zopim_chat"
+    },
+    {
+        "ticket_id": "32",
+        "ticket_subject": "Problemas con la aplicación móvil",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced com_fit contrato_ativo indústria motivo_ajuda_um_comportamento_do_sistema_esta_impedindo_a_rotina_da_minha_operacao pais_bolivia plantao_nao produto_ri team_automatico ticket_publico tier_2"
+    },
+    {
+        "ticket_id": "31",
+        "ticket_subject": "DIVERGENCIAS EM RECONHECIMENTO DE IMAGEM | CARGILL",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced agência agências_e_consultoria cliente com_fit contrato_ativo motivo_ajuda_um_comportamento_do_sistema_esta_impedindo_a_rotina_da_minha_operacao pais_brasil plantao_nao produto_ri team_automatico ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "30",
+        "ticket_subject": "Conversa com Caio Leite - Grupo Tagg.",
+        "ticket_channel": "Chat",
+        "ticket_tags": "advanced agência agências_e_consultoria cliente com_fit contrato_ativo pais_brasil plantao_nao team_automatico ticket_chat tier_2 zopim_chat"
+    },
+    {
+        "ticket_id": "29",
+        "ticket_subject": "Planograma - Extrato",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced com_fit contrato_ativo indústria motivo_ajuda_um_comportamento_do_sistema_esta_impedindo_a_rotina_da_minha_operacao pais_brasil plantao_nao produto_ri rock_stars team_automatico ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "28",
+        "ticket_subject": "Conversa com Amanda Neves",
+        "ticket_channel": "Chat",
+        "ticket_tags": "agente_light contrato_ativo mdm_redirect pais_brasil plantao_nao team_automatico ticket_chat tier_involves usuario_involves zopim_chat"
+    },
+    {
+        "ticket_id": "27",
+        "ticket_subject": "DIVERGENCIAS EM RECONHECIMENTO DE IMAGEM | CARGILL",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced agência agências_e_consultoria cliente com_fit contrato_ativo motivo_ajuda_um_comportamento_do_sistema_esta_impedindo_a_rotina_da_minha_operacao pais_brasil plantao_nao produto_ri team_automatico ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "26",
+        "ticket_subject": "DIVERGENCIAS EM RECONHECIMENTO DE IMAGEM | CARGILL",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced agência agências_e_consultoria cliente com_fit contrato_ativo motivo_ajuda_um_comportamento_do_sistema_esta_impedindo_a_rotina_da_minha_operacao pais_brasil plantao_nao produto_ri team_automatico ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "25",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "24",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "23",
+        "ticket_subject": "NESTLÉ PA - PILOTO RI",
+        "ticket_channel": "Formulario web",
+        "ticket_tags": "agente_light always_unbabel contrato_ativo mdm_redirect motivo_ajuda_tenho_duvidas_sobre_os_meus_dados pais_brasil plantao_nao produto_bi_intelligence team_automatico tier_involves"
+    },
+    {
+        "ticket_id": "22",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "21",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema contestacao_jnj modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade plantao_nao produto_ri ri team_reconhecimento_por_imagem_data_quality ticket_publico"
+    },
+    {
+        "ticket_id": "20",
+        "ticket_subject": "Erro na substituição do template granado.",
+        "ticket_channel": "Ticket fechado",
+        "ticket_tags": "area_suporte causa_raiz_duvida com_fit contrato_ativo enterprise indústria modulo_painel_de_pesquisas_funcao_cadastro/edicao/exclusao motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao plataforma_web produto_involves_stage team_encore ticket_publico tier_5"
+    },
+    {
+        "ticket_id": "19",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema contestacao_jnj modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade plantao_nao produto_ri ri team_reconhecimento_por_imagem_data_quality ticket_publico"
+    },
+    {
+        "ticket_id": "18",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema contestacao_jnj modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade plantao_nao produto_ri ri team_reconhecimento_por_imagem_data_quality ticket_publico"
+    },
+    {
+        "ticket_id": "17",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema contestacao_jnj modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade plantao_nao produto_ri ri team_reconhecimento_por_imagem_data_quality ticket_publico"
+    },
+    {
+        "ticket_id": "16",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "15",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "14",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "13",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao plataforma_web produto_involves_stage rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "10",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "9",
+        "ticket_subject": "Problema integração AFD - embelleze",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "contrato_ativo mdm_redirect motivo_ajuda_nao_consigo_acessar_meu_sistema_indisponibilidade_geral pais_brasil plantao_nao produto_involves_stage team_automatico tier_involves usuario_involves"
+    },
+    {
+        "ticket_id": "7",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "6",
+        "ticket_subject": "Reprocessamento RI > Cargil (20/06)",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "agente_light contrato_ativo fit_involves involves motivo_ajuda_um_comportamento_do_sistema_esta_impedindo_a_rotina_da_minha_operacao organização_involves pais_brasil parceiro plantao_nao produto_ri ramo_negocio_involves software team_automatico tier_involves"
+    },
+    {
+        "ticket_id": "4",
+        "ticket_subject": "[Contestação J&J]",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "area_suporte atendimento_n1_n2 c_jnj_nao causa_raiz_problema com_fit contestacao_jnj contrato_ativo enterprise indústria modulo_ia_-_homologacao_funcao_identificacao_de_produtos motivo_ajuda_tenho_duvidas_sobre_uma_funcionalidade pais_brasil plantao_nao produto_ri ri rock_stars team_reconhecimento_por_imagem_data_quality ticket_publico tier_1"
+    },
+    {
+        "ticket_id": "2",
+        "ticket_subject": "Conversa com Liliane Cruz",
+        "ticket_channel": "Chat",
+        "ticket_tags": "advanced agência agências_e_consultoria cliente com_fit contrato_ativo pais_brasil plantao_nao team_automatico ticket_chat tier_4 zopim_chat"
+    },
+    {
+        "ticket_id": "1",
+        "ticket_subject": "SuperCategorias Cargill",
+        "ticket_channel": "Formulário web",
+        "ticket_tags": "advanced agência agências_e_consultoria cliente com_fit contrato_ativo motivo_ajuda_um_comportamento_do_sistema_esta_impedindo_a_rotina_da_minha_operacao pais_brasil plantao_nao produto_involves_stage team_automatico ticket_publico tier_1"
+    }
+]
 
-teste1()
+for ticket in tickets:
+    api_response = requests.post('http://127.0.0.1:5000/request-ticket-assignment', json=ticket)

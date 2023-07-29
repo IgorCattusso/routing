@@ -7,6 +7,8 @@ from sqlalchemy.orm import Session
 from app import engine, app
 from config import ZENDESK_BASE_URL
 from flask_login import logout_user
+import re
+import json
 
 
 def generate_zendesk_headers():
@@ -69,11 +71,34 @@ def internal_render_template(template, **kwargs):
             kwargs['unread_notifications_count'] = unread_notifications_count
             kwargs['user_notifications'] = user_notifications
 
-    profile_picture = get_user_profile_picture(session['_user_id'])
+            profile_picture = get_user_profile_picture(session['_user_id'])
 
-    # Redirects the user to the login page in case they have been inactivated, deleted or logged out
-    if not user.active or not user.authenticated or user.deleted:
-        logout_user()
-        return redirect(url_for('login'))
+            # Redirects the user to the login page in case they have been inactivated, deleted or logged out
+            if not user.active or not user.authenticated or user.deleted:
+                logout_user()
+                return redirect(url_for('login'))
 
-    return render_template(template, kwargs=kwargs, profile_picture=profile_picture)
+            return render_template(template, kwargs=kwargs, profile_picture=profile_picture)
+
+    return render_template(template, kwargs=kwargs)
+
+
+def fix_double_quotes_in_subject(request_json):
+    """
+    :param request_json:
+
+    Receives a json that has double quotes on the ticket_subject's value
+    Returns the same json with the double quotes replaced by single quotes
+    """
+    sanitized_string = repr(request_json.decode('utf-8')).replace(r'\n', '').replace(r'\r', '').replace('    ', '')
+
+    start_index = sanitized_string.find('"ticket_subject": "') + len('"ticket_subject": "')
+    end_index = sanitized_string.find('"ticket_channel":')
+    new_ticket_subject = sanitized_string[start_index:end_index][:-2].replace('"', "'") + '",'
+
+    fixed_string = sanitized_string[:start_index] + new_ticket_subject + sanitized_string[end_index:]
+    fixed_json = json.loads(fixed_string[1:-1])
+
+    print(f'aaa: {fixed_json}')
+
+    return fixed_json

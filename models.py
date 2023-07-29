@@ -1,8 +1,9 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, delete, update, insert, and_, or_, BLOB
+from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, delete, update, insert, and_, or_, case, Column
 from sqlalchemy.sql import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import FlushError
+from sqlalchemy.dialects.mysql import DATETIME
 from datetime import datetime, timedelta, date, time
 from sqlalchemy import create_engine
 from config import url_object, ZENDESK_BASE_URL
@@ -250,7 +251,7 @@ class AssignedTicketsLog(Base):
     zendesk_tickets_id: Mapped[int] = mapped_column(ForeignKey("zendesk_tickets.id"))
     users_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     log: Mapped[str] = mapped_column(String(5000), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DATETIME(fsp=3), server_default=func.now())
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.zendesk_tickets_id}, {self.zendesk_tickets_id}, {self.log}'
@@ -276,8 +277,14 @@ class AssignedTicketsLog(Base):
             last_ten_logs = db_session.execute(
                 select(
                     AssignedTicketsLog.id,
-                    ZendeskTickets.ticket_id,
-                    Users.name,
+                    case(
+                        (ZendeskTickets.ticket_id == None, '-'),
+                        else_=ZendeskTickets.ticket_id
+                    ),
+                    case(
+                        (Users.name == None, '-'),
+                        else_=Users.name
+                    ),
                     AssignedTicketsLog.log,
                     AssignedTicketsLog.created_at,
                 ).join(ZendeskTickets, isouter=True)
@@ -285,6 +292,9 @@ class AssignedTicketsLog(Base):
                 .limit(10)
                 .order_by(AssignedTicketsLog.id.desc())
             ).all()
+
+            for log in last_ten_logs:
+                print(log.created_at)
 
             return last_ten_logs
 
@@ -297,8 +307,14 @@ class AssignedTicketsLog(Base):
         try:
             stmt = select(
                 AssignedTicketsLog.id,
-                ZendeskTickets.ticket_id,
-                Users.name,
+                case(
+                    (ZendeskTickets.ticket_id == None, '-'),
+                    else_=ZendeskTickets.ticket_id
+                ),
+                case(
+                    (Users.name == None, '-'),
+                    else_=Users.name
+                ),
                 AssignedTicketsLog.log,
                 AssignedTicketsLog.created_at,
             ) \
@@ -1514,10 +1530,13 @@ class Users(Base):
                     ).where(Users.id == users_id)
                     .join(Users)
                 ).first()
-                if working_hours.monday_start <= delta_time <= working_hours.monday_end:
-                    return True
+                if working_hours.monday_start and working_hours.monday_end:
+                    if working_hours.monday_start <= delta_time <= working_hours.monday_end:
+                        return True
+                    else:
+                        return False
                 else:
-                    return False
+                    return True
 
             elif date.today().weekday() == 1:
                 working_hours = db_session.execute(
@@ -1527,10 +1546,13 @@ class Users(Base):
                     ).where(Users.id == users_id)
                     .join(Users)
                 ).first()
-                if working_hours.tuesday_start <= delta_time <= working_hours.tuesday_end:
-                    return True
+                if working_hours.tuesday_start and working_hours.tuesday_end:
+                    if working_hours.tuesday_start <= delta_time <= working_hours.tuesday_end:
+                        return True
+                    else:
+                        return False
                 else:
-                    return False
+                    return True
 
             elif date.today().weekday() == 2:
                 working_hours = db_session.execute(
@@ -1540,10 +1562,13 @@ class Users(Base):
                     ).where(Users.id == users_id)
                     .join(Users)
                 ).first()
-                if working_hours.wednesday_start <= delta_time <= working_hours.wednesday_end:
-                    return True
+                if working_hours.wednesday_start and working_hours.wednesday_end:
+                    if working_hours.wednesday_start <= delta_time <= working_hours.wednesday_end:
+                        return True
+                    else:
+                        return False
                 else:
-                    return False
+                    return True
 
             elif date.today().weekday() == 3:
                 working_hours = db_session.execute(
@@ -1553,10 +1578,13 @@ class Users(Base):
                     ).where(Users.id == users_id)
                     .join(Users)
                 ).first()
-                if working_hours.thursday_start <= delta_time <= working_hours.thursday_end:
-                    return True
+                if working_hours.thursday_start and working_hours.thursday_end:
+                    if working_hours.thursday_start <= delta_time <= working_hours.thursday_end:
+                        return True
+                    else:
+                        return False
                 else:
-                    return False
+                    return True
 
             elif date.today().weekday() == 4:
                 working_hours = db_session.execute(
@@ -1566,10 +1594,13 @@ class Users(Base):
                     ).where(Users.id == users_id)
                     .join(Users)
                 ).first()
-                if working_hours.friday_start <= delta_time <= working_hours.friday_end:
-                    return True
+                if working_hours.friday_start and working_hours.friday_end:
+                    if working_hours.friday_start <= delta_time <= working_hours.friday_end:
+                        return True
+                    else:
+                        return False
                 else:
-                    return False
+                    return True
 
             elif date.today().weekday() == 5:
                 working_hours = db_session.execute(
@@ -1580,10 +1611,13 @@ class Users(Base):
                     ).where(Users.id == users_id)
                     .join(ZendeskSchedules, Users.zendesk_schedules_id == ZendeskSchedules.id)
                 ).first()
-                if working_hours.saturday_start <= delta_time <= working_hours.saturday_end:
-                    return True
+                if working_hours.saturday_start and working_hours.saturday_end:
+                    if working_hours.saturday_start <= delta_time <= working_hours.saturday_end:
+                        return True
+                    else:
+                        return False
                 else:
-                    return False
+                    return True
 
             elif date.today().weekday() == 6:
                 working_hours = db_session.execute(
@@ -1593,10 +1627,13 @@ class Users(Base):
                     ).where(Users.id == users_id)
                     .join(Users)
                 ).first()
-                if working_hours.sunday_start <= delta_time <= working_hours.sunday_end:
-                    return True
+                if working_hours.sunday_start and working_hours.sunday_end:
+                    if working_hours.sunday_start <= delta_time <= working_hours.sunday_end:
+                        return True
+                    else:
+                        return False
                 else:
-                    return False
+                    return True
             else:
                 return None
 
@@ -1847,7 +1884,7 @@ class UsersQueue(Base):
             return f'There was an error: {error_info}'
 
     @staticmethod
-    def is_user_alread_in_queue(db_session, users_id):
+    def does_user_exist_in_queue(db_session, users_id):
         try:
             user = db_session.execute(
                 select(UsersQueue.id).where(UsersQueue.users_id == users_id)
@@ -1876,7 +1913,7 @@ class UsersQueue(Base):
             return f'There was an error: {error_info}'
 
     @staticmethod
-    def fix_queue_after_removig_or_deleting_user(db_session, current_user):
+    def fix_queue_after_removing_or_deleting_user(db_session, current_user):
         users_ahead_of_current_user = db_session.execute(
             select(UsersQueue.id, UsersQueue.users_id, UsersQueue.position).where(
                 UsersQueue.position > current_user.position)
@@ -1907,7 +1944,20 @@ class UsersQueue(Base):
                 }],
             )
 
-            UsersQueue.fix_queue_after_removig_or_deleting_user(db_session, current_user)
+            UsersQueue.fix_queue_after_removing_or_deleting_user(db_session, current_user)
+
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def remove_all_users_from_queue(db_session):
+        try:
+            db_session.execute(
+                update(UsersQueue).values(position=0).where(UsersQueue.position > 0)
+            )
 
             return True
 
@@ -1926,7 +1976,7 @@ class UsersQueue(Base):
                 delete(UsersQueue).where(UsersQueue.id == current_user.id)
             )
 
-            UsersQueue.fix_queue_after_removig_or_deleting_user(db_session, current_user)
+            UsersQueue.fix_queue_after_removing_or_deleting_user(db_session, current_user)
 
             return True
 
@@ -1967,7 +2017,7 @@ class UsersQueue(Base):
                     db_session.execute(
                         update(UsersQueue), [{
                             'id': current_user.id,
-                            'position': last_user_in_the_queue.position + 1,
+                            'position': last_user_in_the_queue.position,
                             'updated_at': datetime.now(),
                         }],
                     )
@@ -2049,10 +2099,7 @@ class UsersQueue(Base):
                 select(UsersQueue.position)
                 .where(UsersQueue.users_id == users_id)
             ).scalar()
-            if position:
-                return position
-            else:
-                return None
+            return position
 
         except (IntegrityError, FlushError) as error:
             error_info = error.orig.args
@@ -2061,7 +2108,8 @@ class UsersQueue(Base):
     @staticmethod
     def get_next_user_in_queue(db_session, users_id):
         try:
-            next_position = UsersQueue.get_user_position(db_session, users_id) + 1
+            current_position = UsersQueue.get_user_position(db_session, users_id)
+            next_position = int(current_position) + 1
             next_agent_in_queue = db_session.execute(
                 select(UsersQueue.id, UsersQueue.users_id, UsersQueue.position)
                 .where(UsersQueue.position == next_position)

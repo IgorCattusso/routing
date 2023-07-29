@@ -3,7 +3,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import zoneinfo
 from datetime import datetime
 import tzlocal
-from models import Users
+from models import Users, UsersQueue
 from sqlalchemy.orm import Session
 from app import engine
 
@@ -11,6 +11,7 @@ from app import engine
 def disconnect_all_users():
     with Session(engine) as db_session:
         Users.disconnect_all_users(db_session)
+        UsersQueue.remove_all_users_from_queue(db_session)
         db_session.commit()
 
 

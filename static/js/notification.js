@@ -43,6 +43,7 @@ function notification(userId) {
                     body: get_notification_response["content"],
                     icon: "/static/img/favicon.png",
                 }
+
                 $.ajaxSetup({
                     beforeSend: function(xhr, settings) {
                         if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
@@ -50,7 +51,6 @@ function notification(userId) {
                         }
                     }
                 });
-
                 $.ajax({
                     type: "POST", // Sets the notification as received
                     url: "/flag-notification-as-sent/" + get_notification_response["id"],
@@ -62,10 +62,14 @@ function notification(userId) {
                                 addNewNotificationToList(
                                     get_notification_response["id"],
                                     get_notification_response["content"],
-                                    get_notification_response["url"]
+                                    get_notification_response["url"],
                                 )
                             } else {
-                                new Notification("Operação concluída!", options)
+                                new Notification("Operação concluída!", options);
+                                addNewNotificationToList(
+                                    get_notification_response["id"],
+                                    get_notification_response["content"],
+                                )
                             }
 
                             // Plays a sound. To play the sound is either necessary:
@@ -79,7 +83,6 @@ function notification(userId) {
                                 notification.onclick = function (event) {
                                     event.preventDefault();
                                     window.open(get_notification_response["url"]);
-
                                 }
                             }
                             // Sets the notification as received

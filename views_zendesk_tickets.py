@@ -74,12 +74,13 @@ def get_user_backlog():
     next_url = api_url
 
     while next_url:
+        print('request')
         with Session(engine) as db_session:
             for ticket in api_response['results']:
                 if ticket['assignee_id']:
                     zendesk_users_id = ZendeskUsers.get_zendesk_users_id(db_session, ticket['assignee_id'])
-                    users_id = Users.get_user_from_zendesk_users_id(db_session, zendesk_users_id)
-                    if users_id != 'null':
+                    user = Users.get_user_from_zendesk_users_id(db_session, zendesk_users_id)
+                    if user != 'null':
                         ticket_id = int(ticket['id'])
                         ticket_status = str(ticket['status'])
                         custom_fields = ticket['custom_fields']
@@ -90,7 +91,7 @@ def get_user_backlog():
                                     ticket_level = ''
 
                         new_user_backlog = UserBacklog(
-                            users_id=users_id,
+                            users_id=user.id,
                             ticket_id=ticket_id,
                             ticket_status=ticket_status,
                             ticket_level=ticket_level,
