@@ -8,6 +8,10 @@ from sqlalchemy.orm import Session
 from app import engine
 
 
+scheduler = BackgroundScheduler(timezone="America/Sao_Paulo")
+scheduler.remove_all_jobs()
+
+
 def disconnect_all_users():
     with Session(engine) as db_session:
         Users.disconnect_all_users(db_session)
@@ -15,9 +19,7 @@ def disconnect_all_users():
         db_session.commit()
 
 
-scheduler = BackgroundScheduler(timezone="America/Sao_Paulo")
 scheduler.add_job(disconnect_all_users, "cron", hour="23", minute="59", second="59")
-
 # scheduler.add_job(test_func, 'interval', seconds=30)
 
 scheduler.start()

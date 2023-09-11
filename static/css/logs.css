@@ -90,7 +90,7 @@
 }
 
 .std-td {
-    line-height: 2em;
+    max-height: 100%;
 }
 
 .filter-wrapper {
@@ -166,7 +166,8 @@
 
 pre {
     font-family: 'Consolas', 'Menlo', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
-    overflow-wrap: break-word;
+    text-wrap: wrap;
+    padding-right: 1em;
     font-size: 12px;
 }
 

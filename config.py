@@ -17,19 +17,10 @@ ZENDESK_API_KEY = str(os.getenv('ZENDESK_API_KEY'))
 
 USER_PROFILE_PICTURE_UPLOAD_PATH = os.path.dirname(os.path.abspath(__file__)) + '/static/assets/users/'
 
-SQLALCHEMY_DATABASE_URI = \
-    '{SGBD}://{user}:{password}@{server}/{database}'.format(
-        SGBD='mysql+mysqlconnector',
-        user=str(os.getenv('DATABASE_USER')),
-        password=str(os.getenv('DATABASE_PASSWORD')),
-        server='localhost',
-        database='routing'
-    )  # configurando conexão com o banco de dados
-
 url_object = URL.create(  # Creating connection string
     "mysql+pymysql",
-    username="igor",
-    password="igor",
+    username=str(os.getenv('DATABASE_USER')),
+    password=str(os.getenv('DATABASE_PASSWORD')),
     host="localhost",
     database="routing",
 )
@@ -38,4 +29,3 @@ ZENDESK_TICKET_LEVEL_ID = 11490675185819  # Campo atendimento no Zendesk
 
 EMAIL_SENDER = str(os.getenv('GMAIL_ACCOUNT_EMAIL'))
 EMAIL_PASSWORD = str(os.getenv('GMAIL_APP_PASSWORD'))
-

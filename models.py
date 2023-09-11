@@ -1,5 +1,6 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, delete, update, insert, and_, or_, case, Column
+from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, delete, update, insert, and_, or_, case, Column, \
+    JSON
 from sqlalchemy.sql import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import FlushError
@@ -93,6 +94,28 @@ class ZendeskTickets(Base):
             error_info = error.orig.args
             return f'There was an error: {error_info}'
 
+    @staticmethod
+    def get_ticket_by_id(db_session, zendesk_tickets_id):
+        try:
+            ticket = db_session.execute(
+                select(
+                    ZendeskTickets.id,
+                    ZendeskTickets.ticket_id,
+                    ZendeskTickets.ticket_subject,
+                    ZendeskTickets.ticket_channel,
+                    ZendeskTickets.ticket_tags,
+                    ZendeskTickets.received_at,
+                ).where(ZendeskTickets.id == zendesk_tickets_id)
+            ).first()
+            if ticket:
+                return ticket
+            else:
+                return None
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
 
 class ZendeskUsers(Base):
     __tablename__ = "zendesk_users"
@@ -130,6 +153,24 @@ class ZendeskUsers(Base):
                     ZendeskUsers.email,
                     ZendeskUsers.suspended,
                 )
+            ).all()
+            return all_users
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_valid_zendesk_users(db_session):
+        try:
+            all_users = db_session.execute(
+                select(
+                    ZendeskUsers.id,
+                    ZendeskUsers.zendesk_user_id,
+                    ZendeskUsers.name,
+                    ZendeskUsers.email,
+                    ZendeskUsers.suspended,
+                ).where(ZendeskUsers.suspended == False)
             ).all()
             return all_users
 
@@ -177,6 +218,25 @@ class ZendeskGroupMemberships(Base):
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.zendesk_users_id}, {self.zendesk_groups_id}, {self.default}'
+
+    @staticmethod
+    def get_all_groups_and_mebers(db_session):
+        try:
+            groups_and_members = db_session.execute(
+                select(
+                    ZendeskGroups.id,
+                    ZendeskGroups.name,
+                    func.group_concat(ZendeskUsers.name.distinct()).label('users'),
+                )
+                .join(ZendeskGroupMemberships, ZendeskGroupMemberships.zendesk_groups_id == ZendeskGroups.id)
+                .join(ZendeskUsers, ZendeskGroupMemberships.zendesk_users_id == ZendeskUsers.id)
+                .group_by(ZendeskGroups.id, ZendeskGroups.name)
+            ).all()
+            return groups_and_members
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
 
 
 class AssignedTickets(Base):
@@ -250,18 +310,18 @@ class AssignedTicketsLog(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     zendesk_tickets_id: Mapped[int] = mapped_column(ForeignKey("zendesk_tickets.id"))
     users_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    log: Mapped[str] = mapped_column(String(5000), nullable=False)
+    json: Mapped[dict | list] = mapped_column(type_=JSON, nullable=False)
     created_at = Column(DATETIME(fsp=3), server_default=func.now())
 
     def __repr__(self) -> str:
-        return f'{self.id}, {self.zendesk_tickets_id}, {self.zendesk_tickets_id}, {self.log}'
+        return f'{self.id}, {self.zendesk_tickets_id}, {self.zendesk_tickets_id}, {self.json}'
 
     @staticmethod
-    def insert_new_log(db_session, zendesk_tickets_id, log, users_id=None):
+    def insert_new_log(db_session, zendesk_tickets_id, json, users_id=None):
         new_log = AssignedTicketsLog(
             zendesk_tickets_id=zendesk_tickets_id,
             users_id=users_id,
-            log=log,
+            json=json,
         )
         try:
             db_session.add(new_log)
@@ -285,16 +345,13 @@ class AssignedTicketsLog(Base):
                         (Users.name == None, '-'),
                         else_=Users.name
                     ),
-                    AssignedTicketsLog.log,
+                    AssignedTicketsLog.json,
                     AssignedTicketsLog.created_at,
                 ).join(ZendeskTickets, isouter=True)
                 .join(Users, isouter=True)
                 .limit(10)
                 .order_by(AssignedTicketsLog.id.desc())
             ).all()
-
-            for log in last_ten_logs:
-                print(log.created_at)
 
             return last_ten_logs
 
@@ -315,7 +372,7 @@ class AssignedTicketsLog(Base):
                     (Users.name == None, '-'),
                     else_=Users.name
                 ),
-                AssignedTicketsLog.log,
+                AssignedTicketsLog.json,
                 AssignedTicketsLog.created_at,
             ) \
                 .join(ZendeskTickets, isouter=True) \
@@ -829,7 +886,7 @@ class GeneralSettings(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    use_routes: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    use_routes: Mapped[bool] = mapped_column(Boolean, nullable=False)  # 0 = Zendesk Views | 1 = Routes
     routing_model: Mapped[int] = mapped_column(nullable=False)  # 0 = Least Active | 1 = Round Robin
     agent_backlog_limit: Mapped[int] = mapped_column(nullable=False)
     daily_ticket_assignment_limit: Mapped[int] = mapped_column(nullable=False)
@@ -904,6 +961,8 @@ class GeneralSettings(Base):
                 if working_hours.monday_start and working_hours.monday_end:
                     if working_hours.monday_start <= delta_time <= working_hours.monday_end:
                         return True
+                    else:
+                        return False
                 else:
                     return False
 
@@ -917,6 +976,8 @@ class GeneralSettings(Base):
                 if working_hours.tuesday_start and working_hours.tuesday_end:
                     if working_hours.tuesday_start <= delta_time <= working_hours.tuesday_end:
                         return True
+                    else:
+                        return False
                 else:
                     return False
 
@@ -930,6 +991,8 @@ class GeneralSettings(Base):
                 if working_hours.wednesday_start and working_hours.wednesday_end:
                     if working_hours.wednesday_start <= delta_time <= working_hours.wednesday_end:
                         return True
+                    else:
+                        return False
                 else:
                     return False
 
@@ -943,6 +1006,8 @@ class GeneralSettings(Base):
                 if working_hours.thursday_start and working_hours.thursday_end:
                     if working_hours.thursday_start <= delta_time <= working_hours.thursday_end:
                         return True
+                    else:
+                        return False
                 else:
                     return False
 
@@ -956,6 +1021,8 @@ class GeneralSettings(Base):
                 if working_hours.friday_start and working_hours.friday_end:
                     if working_hours.friday_start <= delta_time <= working_hours.friday_end:
                         return True
+                    else:
+                        return False
                 else:
                     return False
 
@@ -969,6 +1036,8 @@ class GeneralSettings(Base):
                 if working_hours.saturday_start and working_hours.saturday_end:
                     if working_hours.saturday_start <= delta_time <= working_hours.saturday_end:
                         return True
+                    else:
+                        return False
                 else:
                     return False
 
@@ -982,6 +1051,8 @@ class GeneralSettings(Base):
                 if working_hours.sunday_start and working_hours.sunday_end:
                     if working_hours.sunday_start <= delta_time <= working_hours.sunday_end:
                         return True
+                    else:
+                        return False
                 else:
                     return False
             else:
@@ -1217,11 +1288,6 @@ class Users(Base):
     routing_status: Mapped[int] = mapped_column(nullable=False)  # 0 = offline | 1 = online | 2 = away
     zendesk_users_id: Mapped[int] = mapped_column(ForeignKey('zendesk_users.id'))
     zendesk_schedules_id: Mapped[int] = mapped_column(ForeignKey('zendesk_schedules.id'))
-    latam_user: Mapped[int] = mapped_column(nullable=False)  # 0 = no | 1 = yes | 2 = both
-    rock_star_user: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    jnj_contestation_user: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    jnj_homologation_user: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    chatbot_no_service_user: Mapped[bool] = mapped_column(Boolean, nullable=False)
     backlog_limit: Mapped[int] = mapped_column(nullable=False)
     hourly_ticket_assignment_limit: Mapped[int] = mapped_column(nullable=False)
     daily_ticket_assignment_limit: Mapped[int] = mapped_column(nullable=False)
@@ -1260,11 +1326,6 @@ class Users(Base):
                     Users.zendesk_users_id,
                     ZendeskUsers.zendesk_user_id,
                     Users.zendesk_schedules_id,
-                    Users.latam_user,  # 0 = no | 1 = yes | 2 = both
-                    Users.rock_star_user,
-                    Users.jnj_contestation_user,
-                    Users.jnj_homologation_user,
-                    Users.chatbot_no_service_user,
                     Users.backlog_limit,
                     Users.hourly_ticket_assignment_limit,
                     Users.daily_ticket_assignment_limit,
@@ -1374,9 +1435,7 @@ class Users(Base):
 
     @staticmethod
     def insert_new_user(db_session, name, email, active, zendesk_users_id, zendesk_schedules_id,
-                        latam_user, rock_star_user, jnj_contestation_user, jnj_homologation_user,
-                        chatbot_no_service_user, backlog_limit, hourly_ticket_assignment_limit,
-                        daily_ticket_assignment_limit):
+                        backlog_limit, hourly_ticket_assignment_limit, daily_ticket_assignment_limit):
         new_user = Users(
             name=name,
             email=email,
@@ -1389,11 +1448,6 @@ class Users(Base):
             routing_status=0,
             zendesk_users_id=zendesk_users_id,
             zendesk_schedules_id=zendesk_schedules_id,
-            latam_user=latam_user,
-            rock_star_user=rock_star_user,
-            jnj_contestation_user=jnj_contestation_user,
-            jnj_homologation_user=jnj_homologation_user,
-            chatbot_no_service_user=chatbot_no_service_user,
             backlog_limit=backlog_limit,
             hourly_ticket_assignment_limit=hourly_ticket_assignment_limit,
             daily_ticket_assignment_limit=daily_ticket_assignment_limit,
@@ -1425,7 +1479,6 @@ class Users(Base):
 
     @staticmethod
     def update_user(db_session, user_id, name, email, active, zendesk_users_id, zendesk_schedules_id,
-                    latam_user, rock_star_user, jnj_contestation_user, jnj_homologation_user, chatbot_no_service_user,
                     backlog_limit, hourly_ticket_assignment_limit, daily_ticket_assignment_limit):
         try:
             db_session.execute(
@@ -1436,11 +1489,6 @@ class Users(Base):
                     'active': active,
                     'zendesk_users_id': zendesk_users_id,
                     'zendesk_schedules_id': zendesk_schedules_id,
-                    'latam_user': latam_user,
-                    'rock_star_user': rock_star_user,
-                    'jnj_contestation_user': jnj_contestation_user,
-                    'jnj_homologation_user': jnj_homologation_user,
-                    'chatbot_no_service_user': chatbot_no_service_user,
                     'backlog_limit': backlog_limit,
                     'hourly_ticket_assignment_limit': hourly_ticket_assignment_limit,
                     'daily_ticket_assignment_limit': daily_ticket_assignment_limit,
@@ -1496,11 +1544,6 @@ class Users(Base):
                     Users.routing_status,  # 0 = offline | 1 = online | 2 = away
                     Users.zendesk_users_id,
                     Users.zendesk_schedules_id,
-                    Users.latam_user,  # 0 = no | 1 = yes | 2 = both
-                    Users.rock_star_user,
-                    Users.jnj_contestation_user,
-                    Users.jnj_homologation_user,
-                    Users.chatbot_no_service_user,
                     Users.backlog_limit,
                     Users.hourly_ticket_assignment_limit,
                     Users.daily_ticket_assignment_limit,
@@ -1725,6 +1768,9 @@ class Notifications(Base):
 
     @staticmethod
     def create_notification(db_session, user_id, notification_type, content, *ticket_id):
+        if len(content) >= 499:
+            content = content[:494] + '[...]'
+
         if ticket_id:
             new_notification = Notifications(
                 users_id=user_id,
@@ -2239,6 +2285,626 @@ class SchedulerLogs(Base):
         try:
             db_session.add(new_request_obj)
             return new_request_obj.uuid
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+
+class ZendeskViews(Base):
+    __tablename__ = 'zendesk_views'
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    zendesk_view_id: Mapped[int] = mapped_column(nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    deleted: Mapped[bool] = mapped_column(Boolean, nullable=False)
+
+    @staticmethod
+    def get_views(db_session):
+        try:
+            views = db_session.execute(
+                select(
+                    ZendeskViews.id,
+                    ZendeskViews.zendesk_view_id,
+                    ZendeskViews.name,
+                    ZendeskViews.active,
+                    ZendeskViews.deleted,
+                )
+            ).all()
+
+            return views
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_all_valid_views(db_session):
+        try:
+            views = db_session.execute(
+                select(
+                    ZendeskViews.id,
+                    ZendeskViews.zendesk_view_id,
+                    ZendeskViews.name,
+                    ZendeskViews.active,
+                    ZendeskViews.deleted,
+                ).where(
+                    ZendeskViews.active == True,
+                    ZendeskViews.deleted == False,
+                )
+            ).all()
+
+            return views
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_view(db_session, view_id):
+        try:
+            view = db_session.execute(
+                select(
+                    ZendeskViews.id,
+                    ZendeskViews.zendesk_view_id,
+                    ZendeskViews.name,
+                    ZendeskViews.active,
+                    ZendeskViews.deleted,
+                ).where(
+                    ZendeskViews.id == view_id,
+                )
+            ).first()
+
+            return view
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_view_by_zendesk_id(db_session, zendesk_view_id):
+        try:
+            view = db_session.execute(
+                select(
+                    ZendeskViews.id,
+                    ZendeskViews.zendesk_view_id,
+                    ZendeskViews.name,
+                    ZendeskViews.active,
+                    ZendeskViews.deleted,
+                ).where(
+                    ZendeskViews.zendesk_view_id == zendesk_view_id,
+                )
+            ).first()
+
+            return view
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def insert_new_view(db_session, view):
+        try:
+            db_session.add(view)
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def update_view(db_session, view_id, name, active, deleted):
+        try:
+            db_session.execute(
+                update(ZendeskViews)
+                .values(
+                    name=name,
+                    active=active,
+                    deleted=deleted,
+                ).where(
+                    ZendeskViews.id == view_id,
+                )
+            )
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def delete_view(db_session, view_id):
+        try:
+            db_session.execute(
+                update(ZendeskViews)
+                .values(
+                    deleted=True,
+                ).where(
+                    ZendeskViews.id == view_id,
+                )
+            )
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+
+class RoutingViews(Base):
+    __tablename__ = 'routing_views'
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    zendesk_views_id: Mapped[int] = mapped_column(ForeignKey('zendesk_views.id'))
+    zendesk_schedules_id: Mapped[int] = mapped_column(ForeignKey('zendesk_schedules.id'))
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    deleted: Mapped[bool] = mapped_column(Boolean, nullable=False)
+
+    @staticmethod
+    def get_all_routing_views(db_session):
+        try:
+            views = db_session.execute(
+                select(
+                    RoutingViews.id,
+                    RoutingViews.zendesk_views_id,
+                    RoutingViews.zendesk_schedules_id,
+                    RoutingViews.name,
+                    RoutingViews.active,
+                    RoutingViews.deleted,
+                )
+            ).all()
+
+            return views
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_all_valid_routing_views(db_session):
+        try:
+            views = db_session.execute(
+                select(
+                    RoutingViews.id,
+                    RoutingViews.zendesk_views_id,
+                    RoutingViews.zendesk_schedules_id,
+                    RoutingViews.name,
+                    RoutingViews.active,
+                    RoutingViews.deleted,
+                ).where(
+                    RoutingViews.deleted == False
+                )
+            ).all()
+
+            return views
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_routing_view(db_session, routing_view_id):
+        try:
+            view = db_session.execute(
+                select(
+                    RoutingViews.id,
+                    RoutingViews.zendesk_views_id,
+                    RoutingViews.zendesk_schedules_id,
+                    RoutingViews.name,
+                    RoutingViews.active,
+                    RoutingViews.deleted,
+                ).where(
+                    RoutingViews.id == routing_view_id,
+                )
+            ).first()
+
+            return view
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def insert_new_routing_view(db_session, routing_view):
+        try:
+            new_view = db_session.add(routing_view)
+            return new_view
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def update_routing_view(db_session, routing_view_id, zendesk_views_id, zendesk_schedules_id, name, active, deleted):
+        try:
+            db_session.execute(
+                update(RoutingViews)
+                .values(
+                    zendesk_views_id=zendesk_views_id,
+                    zendesk_schedules_id=zendesk_schedules_id,
+                    name=name,
+                    active=active,
+                    deleted=deleted,
+                ).where(
+                    RoutingViews.id == routing_view_id,
+                )
+            )
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def delete_routing_view(db_session, routing_view_id):
+        try:
+            db_session.execute(
+                update(RoutingViews)
+                .values(
+                    deleted=True,
+                ).where(
+                    RoutingViews.id == routing_view_id,
+                )
+            )
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def deactivate_routing_view(db_session, routing_view_id):
+        try:
+            db_session.execute(
+                update(RoutingViews)
+                .values(
+                    active=False,
+                ).where(
+                    RoutingViews.id == routing_view_id,
+                )
+            )
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def is_view_in_working_hours(db_session, routing_view_id):
+        try:
+            current_time = datetime.now().time()
+            midnight_time = datetime.combine(datetime.today(), time.min).time()
+
+            delta_time = \
+                datetime.combine(date.today(), current_time) - \
+                datetime.combine(date.today(), midnight_time)
+
+            view_schedule_id = db_session.execute(
+                select(RoutingViews.zendesk_schedules_id).
+                where(RoutingViews.id == routing_view_id)
+            ).scalar()
+
+            if date.today().weekday() == 0:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.monday_start,
+                        ZendeskSchedules.monday_end,
+                    ).where(ZendeskSchedules.id == view_schedule_id)
+                ).first()
+                if working_hours.monday_start and working_hours.monday_end:
+                    if working_hours.monday_start <= delta_time <= working_hours.monday_end:
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
+
+            elif date.today().weekday() == 1:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.tuesday_start,
+                        ZendeskSchedules.tuesday_end,
+                    ).where(ZendeskSchedules.id == view_schedule_id)
+                ).first()
+                if working_hours.tuesday_start and working_hours.tuesday_end:
+                    if working_hours.tuesday_start <= delta_time <= working_hours.tuesday_end:
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
+
+            elif date.today().weekday() == 2:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.wednesday_start,
+                        ZendeskSchedules.wednesday_end,
+                    ).where(ZendeskSchedules.id == view_schedule_id)
+                ).first()
+                if working_hours.wednesday_start and working_hours.wednesday_end:
+                    if working_hours.wednesday_start <= delta_time <= working_hours.wednesday_end:
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
+
+            elif date.today().weekday() == 3:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.thursday_start,
+                        ZendeskSchedules.thursday_end,
+                    ).where(ZendeskSchedules.id == view_schedule_id)
+                ).first()
+                if working_hours.thursday_start and working_hours.thursday_end:
+                    if working_hours.thursday_start <= delta_time <= working_hours.thursday_end:
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
+
+            elif date.today().weekday() == 4:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.friday_start,
+                        ZendeskSchedules.friday_end,
+                    ).where(ZendeskSchedules.id == view_schedule_id)
+                ).first()
+                if working_hours.friday_start and working_hours.friday_end:
+                    if working_hours.friday_start <= delta_time <= working_hours.friday_end:
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
+
+            elif date.today().weekday() == 5:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.saturday_start,
+                        ZendeskSchedules.saturday_end,
+                    ).where(ZendeskSchedules.id == view_schedule_id)
+                ).first()
+                if working_hours.saturday_start and working_hours.saturday_end:
+                    if working_hours.saturday_start <= delta_time <= working_hours.saturday_end:
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
+
+            elif date.today().weekday() == 6:
+                working_hours = db_session.execute(
+                    select(
+                        ZendeskSchedules.sunday_start,
+                        ZendeskSchedules.sunday_end,
+                    ).where(ZendeskSchedules.id == view_schedule_id)
+                ).first()
+                if working_hours.sunday_start and working_hours.sunday_end:
+                    if working_hours.sunday_start <= delta_time <= working_hours.sunday_end:
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
+            else:
+                return None
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+
+class RoutingViewsUsers(Base):
+    __tablename__ = 'routing_views_users'
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    routing_views_id: Mapped[int] = mapped_column(ForeignKey('routing_views.id'))
+    users_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+
+    @staticmethod
+    def get_view_users(db_session, routing_views_id):
+        try:
+            view_users = db_session.execute(
+                select(
+                    RoutingViewsUsers.users_id,
+                )
+                .where(
+                    RoutingViewsUsers.routing_views_id == routing_views_id
+                )
+            ).all()
+
+            return view_users
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_all_views_and_users(db_session):
+        try:
+            all_views_and_users = db_session.execute(
+                select(
+                    RoutingViewsUsers.id,
+                    RoutingViewsUsers.routing_views_id,
+                    RoutingViewsUsers.users_id,
+                )
+            ).all()
+
+            return all_views_and_users
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def insert_new_users_in_view(db_session, routing_views_user):
+        try:
+            db_session.add(routing_views_user)
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def delete_user_from_view(db_session, routing_views_id, users_id):
+        try:
+            db_session.execute(
+                delete(
+                    RoutingViewsUsers
+                ).where(
+                    RoutingViewsUsers.routing_views_id == routing_views_id,
+                    RoutingViewsUsers.users_id == users_id,
+                )
+            )
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def delete_all_users_from_view(db_session, routing_views_id):
+        try:
+            db_session.execute(
+                delete(
+                    RoutingViewsUsers
+                ).where(
+                    RoutingViewsUsers.routing_views_id == routing_views_id,
+                )
+            )
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+
+class RoutingViewsGroups(Base):
+    __tablename__ = 'routing_views_groups'
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    routing_views_id: Mapped[int] = mapped_column(ForeignKey('routing_views.id'))
+    zendesk_groups_id: Mapped[int] = mapped_column(ForeignKey('zendesk_groups.id'))
+
+    @staticmethod
+    def get_view_groups(db_session, routing_views_id):
+        try:
+            view_groups = db_session.execute(
+                select(
+                    RoutingViewsGroups.id,
+                    RoutingViewsGroups.routing_views_id,
+                    RoutingViewsGroups.zendesk_groups_id,
+                ).where(
+                    RoutingViewsGroups.routing_views_id == routing_views_id
+                )
+            ).all()
+
+            return view_groups
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_all_views_and_groups(db_session):
+        try:
+            all_views_and_groups = db_session.execute(
+                select(
+                    RoutingViewsGroups.id,
+                    RoutingViewsGroups.routing_views_id,
+                    RoutingViewsGroups.zendesk_groups_id,
+                )
+            ).all()
+
+            return all_views_and_groups
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def insert_new_groups_in_view(db_session, routing_views_group):
+        try:
+            new_group = db_session.add(routing_views_group)
+            return new_group
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def delete_group_from_view(db_session, routing_views_id, groups_id):
+        try:
+            db_session.execute(
+                delete(
+                    RoutingViewsGroups
+                ).where(
+                    RoutingViewsGroups.routing_views_id == routing_views_id,
+                    RoutingViewsGroups.zendesk_groups_id == groups_id,
+                )
+            )
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def delete_all_groups_from_view(db_session, routing_views_id):
+        try:
+            db_session.execute(
+                delete(
+                    RoutingViewsGroups
+                ).where(
+                    RoutingViewsGroups.routing_views_id == routing_views_id,
+                )
+            )
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+
+class ZendeskViewsTickets(Base):
+    __tablename__ = 'zendesk_views_tickets'
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    zendesk_tickets_id: Mapped[int] = mapped_column(ForeignKey('zendesk_tickets.id'))
+    zendesk_views_id: Mapped[int] = mapped_column(ForeignKey('zendesk_views.id'))
+
+    @staticmethod
+    def get_view_tickets(db_session, zendesk_views_id):
+        try:
+            view_tickets = db_session.execute(
+                select(
+                    ZendeskViewsTickets.id,
+                    ZendeskViewsTickets.zendesk_tickets_id,
+                    ZendeskViewsTickets.zendesk_views_id,
+                ).where(
+                    ZendeskViewsTickets.zendesk_views_id == zendesk_views_id
+                )
+            ).all()
+
+            return view_tickets
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def insert_new_ticket_in_view(db_session, new_ticket_in_view):
+        try:
+            new_ticket = db_session.add(new_ticket_in_view)
+            return new_ticket
 
         except (IntegrityError, FlushError) as error:
             error_info = error.orig.args

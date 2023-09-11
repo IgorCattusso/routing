@@ -1,6 +1,6 @@
 // Get the border of the routeName from being red, because it was blank on submit,
 // back to normal when something is filled and to transparent when the field is out of focus
-const routeName = document.getElementById("routeName");
+const routeName = document.getElementById("viewName");
 routeName.addEventListener("input", function () {
     routeName.style.border = "2px solid #4693f8";
 });
@@ -17,7 +17,7 @@ const saveButton = document.querySelector("#save");
 saveButton.addEventListener("click", () => {
     // Setting variables
     const routeId = document.getElementById("routeId");
-    const routeName = document.getElementById("routeName");
+    const routeName = document.getElementById("viewName");
     const selectedUsers = document.querySelectorAll(".js-users-option-container.selected");
     const selectedGroups = document.querySelectorAll(".js-group-option-container.selected");
     const selectedLocales = document.querySelectorAll(".js-locale-option-container.selected");

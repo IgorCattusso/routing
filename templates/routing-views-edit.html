@@ -1,0 +1,151 @@
+{% extends "template.html" %}
+{% block conteudo %}
+
+    <link rel="stylesheet" href="/static/css/routing_views_new.css">
+
+    <label>
+        <input id="routingViewId" hidden="hidden" value="{{ kwargs['routing_view'].id }}">
+    </label>
+
+    <div class="container">
+        <div class="main-content">
+            <h1>Editar visualização</h1>
+            <div class="content-form scrollable">
+                <div class="content-form-container">
+                    <h2>Dados da visualização</h2>
+                    <div id="viewData" class="content-form-header">
+                        <div class="form-item form-item-status">
+                            <h3 class="view-status-title">Status da visualização</h3>
+                            <div onclick="toggleCheckbox()" class="status-container" id="viewStatusWrapper">
+                                {% if kwargs['routing_view'].active == True %}
+                                    <input type="checkbox" id="viewStatus" class="active-input" checked="checked"/>
+                                    <label id="active-label" class="active-label" for="viewStatus"></label>
+                                {% elif kwargs['routing_view'].active == False %}
+                                    <input type="checkbox" id="viewStatus" class="active-input"/>
+                                    <label id="active-label" class="active-label" for="viewStatus"></label>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-item form-item-status">
+                            <h3 class="view-name-title">Nome da visualização</h3>
+                            <div class="name-container" id="viewNameWrapper">
+                                <input type="text" id="viewName" class="form-item-input-text" value="{{ kwargs['routing_view'].name }}"/>
+                                <label class="view-name-input" for="viewName"></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 class="zendesk-bind-title">Vínculo com o Zendesk</h2>
+                    <div class="zendesk-settings-wrapper">
+                        <div id="zendeskViewsWrapper" class="zendesk-views-filter-container filter-container">
+                            <h3 class="zendesk-bind-title">Visualização correspondente no Zendesk</h3>
+                            <div class="dropdown-menu-button-container">
+                                <form>
+                                    <label aria-label="Selecione">
+                                        <input id="{{ kwargs['routing_view'].zendesk_views_id }}" class="chosen-value chosen-form-value zendesk-views-id-chosen-value" type="text" value="{{ 'Selecione' if not kwargs['routing_view'].zendesk_views_id else kwargs['selected_zendesk_view'].name }}" placeholder="Selecione">
+                                    </label>
+                                    <ul id="zendeskViewId" class="view-values-list values-list scrollable">
+                                        {% for view in kwargs['zendesk_views'] %}
+                                            <li class="view-dropdown-menu-option dropdown-menu-option" id={{ view.id }} value={{ view.id }}>{{ view.name }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div id="zendeskSchedulesWrapper" class="zendesk-schedules-filter-container filter-container">
+                            <h3 class="zendesk-bind-title">Programação da visualização</h3>
+                            <div class="dropdown-menu-button-container">
+                                <form>
+                                    <label aria-label="Selecione">
+                                        <input id="{{ kwargs['routing_view'].zendesk_schedules_id }}" class="chosen-value chosen-form-value zendesk-schedules-id-chosen-value" type="text" value="{{ 'Selecione' if not kwargs['routing_view'].zendesk_schedules_id else kwargs['selected_zendesk_schedule'].name }}" placeholder="Selecione">
+                                    </label>
+                                    <ul id="zendeskSchedulesId" class="schedule-values-list values-list scrollable">
+                                        {% for schedule in kwargs['zendesk_schedules'] %}
+                                            <li class="schedule-dropdown-menu-option dropdown-menu-option" id={{ schedule.id }} value={{ schedule.id }}>{{ schedule.name }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2>Destinatários da visualização</h2>
+                    <div id="viewUsers" class="content-form-body">
+                        <div class="content-container">
+                            <h3>Selecione o tipo de destinatário</h3>
+                            <div class="selector-container">
+                                <div class="selector-option-container">
+                                    <input class="radio-selector" type="radio" id="recipient-users" name="ticket-recipient-type" value="recipient-users" {{ "checked" if kwargs['selected_users'] }}>
+                                    <label class="radio-selector-label" for="recipient-users">Usuários</label>
+                                </div>
+                                <div class="selector-option-container">
+                                    <input class="radio-selector" type="radio" id="recipient-groups" name="ticket-recipient-type" value="recipient-groups" {{ "checked" if kwargs['selected_groups'] }}>
+                                    <label class="radio-selector-label" for="recipient-groups">Grupos</label>
+                                </div>
+                            </div>
+
+                            <div id="recipientsUsersListContainer" class="options-container-wrapper recipient-users-container recipients-container" {{ 'selected=selected' if kwargs['selected_users'] }}  {{ 'hidden=hidden' if not kwargs['selected_users'] }}>
+                                <h4>Selecione quais usuários receberão os tickets</h4>
+                                <div class="options-container">
+                                    <div class="options-title-container">
+                                        <div class="options-title">Nome do Usuário</div>
+                                    </div>
+                                    <div class="option-wrapper">
+                                        {% for user in kwargs['recipient_users'] %}
+                                            <div class="option-container js-user-option-container {{ "selected" if user.id in kwargs['selected_users'] }}">
+                                                <option class="option list-option recipient-user-option" id="{{ user.id }}" value="{{ user.id }}">{{ user.name }}</option>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="recipientsGroupsListContainer" class="options-container-wrapper recipient-groups-container recipients-container" {{ 'selected=selected' if kwargs['selected_groups'] }}  {{ 'hidden=hidden' if not kwargs['selected_groups'] }}>
+                                <h4>Selecione os grupos cujos membros receberão os tickets</h4>
+                                <div class="options-container">
+                                    <div class="options-title-container">
+                                        <div class="options-title">Nome do Grupo</div>
+                                        <div class="options-title">Usuários no Grupo</div>
+                                    </div>
+                                    <div class="option-wrapper">
+                                        {% for group in kwargs['recipient_groups'] %}
+                                            <div class="option-container js-group-option-container  {{ "selected" if group.id in kwargs['selected_groups'] }}">
+                                                <option class="option list-option recipient-group-option" id={{ group.id }} value={{ group.id }}>{{ group.name }}</option>
+                                                <div class="option list-option">{{ group.users }}</div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-items">
+                <div class="options">
+                    <button onclick="toggleOptions()" style="display: none">Opções</button>
+                </div>
+                <div class="page-actions">
+                    <a href="/routing-views">
+                        <div>
+                            <button id="goBackToViews">Voltar</button>
+                        </div>
+                    </a>
+                    <div id="save2">
+                        <button id="save" type="submit">Salvar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
+    <script src="/static/js/routing_by_views_edit.js"></script>
+    <script src="/static/js/routing_by_views_save.js"></script>
+
+{% endblock %}

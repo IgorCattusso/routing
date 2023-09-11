@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="-14.673 -12.356 48.34 48.527" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <g stroke-width="0" transform="matrix(1, 0, 0, 1, 651.143233, 225.999997)"/>
+  <g stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.576" transform="matrix(1, 0, 0, 1, 651.143233, 225.999997)"/>
+  <g stroke-width="0" transform="matrix(1, 0, 0, 1, 229.939819, 220.985672)"/>
+  <g stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.576" transform="matrix(1, 0, 0, 1, 229.939819, 220.985672)"/>
+  <g transform="matrix(0.934138, 0, 0, 0.996246, 131.081528, 216.236115)" style="">
+    <path d="M -113.76 -199.846 L -113.76 -191.808 C -113.76 -187.635 -117.258 -184.252 -121.571 -184.252 C -125.886 -184.252 -129.383 -187.635 -129.383 -191.808 L -129.368 -217.321 C -129.368 -221.843 -132.866 -225.506 -137.182 -225.506 C -141.496 -225.506 -144.992 -221.843 -144.992 -217.321 L -144.992 -199.846" stroke-linecap="round" stroke-linejoin="round" style="stroke-width: 5.17026px; paint-order: fill; stroke: rgb(255, 255, 255); fill: rgba(255, 255, 255, 0);"/>
+  </g>
+  <path d="M 24.709 11.394 L 32.048 24.658 L 17.37 24.658 L 24.709 11.394 Z" style="stroke-width: 0px; fill: rgb(255, 255, 255); stroke: rgb(255, 255, 255);" bx:shape="triangle 17.37 11.394 14.678 13.264 0.5 0 1@2ce934c8"/>
+  <ellipse style="stroke-width: 0px; fill: rgb(255, 255, 255); stroke: rgb(255, 255, 255);" cx="24.709" cy="-6.208" rx="5.771" ry="5.771"/>
+  <path style="stroke-miterlimit: 50; stroke-linecap: round; vector-effect: non-scaling-stroke; stroke-width: 0px; fill: rgb(255, 255, 255); stroke: rgb(255, 255, 255);" d="M 18.252 -0.071 H 31.167 A 2.2 2.2 0 0 1 33.367 2.129 V 10.788 H 16.052 V 2.129 A 2.2 2.2 0 0 1 18.252 -0.071 Z" bx:shape="rect 16.052 -0.071 17.315 10.859 2.2 2.2 0 0 1@6323affb"/>
+  <path d="M 5.683 25.784 C 5.683 31.307 1.206 35.784 -4.317 35.784 C -9.84 35.784 -14.317 31.307 -14.317 25.784 C -14.317 20.261 -9.84 15.784 -4.317 15.784 C 1.206 15.784 5.683 20.261 5.683 25.784 Z M -4.317 19.784 C -7.631 19.784 -10.317 22.47 -10.317 25.784 C -10.317 29.098 -7.631 31.784 -4.317 31.784 C -1.003 31.784 1.683 29.098 1.683 25.784 C 1.683 22.47 -1.003 19.784 -4.317 19.784 Z" style="stroke: rgb(0, 0, 0); stroke-width: 0px; fill: rgb(255, 255, 255);"/>
+</svg>

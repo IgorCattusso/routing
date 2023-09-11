@@ -366,7 +366,7 @@ zendesk_default_user_group(11490525550747)
 
 #
 # with Session(engine) as db_session:
-#     a = UserBacklog.get_user_backlog(db_session, 13)
+#     a = UserBacklog.get_users_backlog(db_session, 13)
 #     b = UserBacklog.get_agent_backlog_count(db_session, 13)
 #
 # print(str(a))
@@ -638,7 +638,7 @@ zendesk_default_user_group(11490525550747)
 #     webhook_id = '01H2Y133W3QNZVMBYFVW8H9MQT'
 #     api_url = f'https://agilepromoter.zendesk.com/api/v2/webhooks/{webhook_id}/invocations'
 #
-#     zendesk_api_key = 'm5NAEH0rYvhBSdttLTNgdpB2t6BriAxRJMG6Nyj4'
+#     zendesk_api_key = 'm5NAEH0rYvhBSdttLTNgdpB2t6BriAxRJMG6Nyj4' # token revogado
 #     concatenate = 'igor.cattusso@involves.com' + '/token:' + zendesk_api_key
 #     concatenate_bytes = concatenate.encode('ascii')
 #     base64_bytes = base64.b64encode(concatenate_bytes)

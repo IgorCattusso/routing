@@ -244,7 +244,7 @@ formDropdownArray.forEach(item => {
 
                 // Iterate through the fields
                 for (let i = 0; i < data.fields.length; i++) {
-                    // Log the id and title properties of each field to the console
+                    // TicketAssignmentLog the id and title properties of each field to the console
                     // console.log("ID: " + data.fields[i].id + ", Title: " + data.fields[i].title);
                     var parentElement = document.getElementById("formFields")
                     var newElement = document.createElement("li");
@@ -265,7 +265,7 @@ formDropdownArray.forEach(item => {
         ticketFieldsWrapper.style.display = "flex";
 
         let script = document.createElement("script");
-        script.src = "/static/js/routes_fields.js";
+        script.src = "/static/js/routing_by_routes_fields.js";
         document.body.appendChild(script); // or document.body.appendChild(script);
 
     });

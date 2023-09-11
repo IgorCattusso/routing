@@ -1,6 +1,6 @@
 from app import app, engine
 from models import ZendeskUsers, ZendeskGroups, ZendeskGroupMemberships, ZendeskLocales, ZendeskTicketForms, \
-    ZendeskTags, Routes, ZendeskSchedules, GeneralSettings, AssignedTicketsLog
+    ZendeskTags, Routes, ZendeskSchedules, GeneralSettings, AssignedTicketsLog, RoutingViews
 from sqlalchemy import select, desc, case, func
 from sqlalchemy.orm import Session
 from flask import session, redirect, request
@@ -194,3 +194,16 @@ def logs():
     list_of_logs = logs_as_list(last_ten_logs)
 
     return internal_render_template('logs.html', list_of_logs=list_of_logs, users=log_users)
+
+
+@app.route('/routing-views')
+@login_required
+def routing_views():
+    with Session(engine) as db_session:
+        all_routing_views = RoutingViews.get_all_valid_routing_views(db_session)
+
+    time.sleep(.35)
+    return internal_render_template(
+        'routing-views.html',
+        routing_views=all_routing_views
+    )

@@ -34,19 +34,11 @@ saveButton.addEventListener("click", () => {
     const userZendeskUserId = document.getElementsByClassName("zendesk-users-id-chosen-value");
     const userZendeskScheduleId = document.getElementsByClassName("zendesk-schedules-id-chosen-value");
 
-    const latamUser = document.getElementsByName("latam-user");
-    const rockStarUser = document.getElementsByName("rock-star-user");
-    const jnjContestationUser = document.getElementsByName("jnj-contestation-user");
-    const jnjHomologationUser = document.getElementsByName("jnj-homologation-user");
-    const chatbotNoServiceUser = document.getElementsByName("chatbot-no-service-user");
-
     const backlogLimit = document.getElementById("ticketLimit");
     const dailyLimit = document.getElementById("dailyLimit");
     const hourlyLimit = document.getElementById("hourlyLimit");
 
     const CSRFToken = document.getElementById("CSRFToken");
-
-
 
     let userZendeskUserIdValue = ""
     for (let i = 0; i < userZendeskUserId.length; i++) {
@@ -65,70 +57,6 @@ saveButton.addEventListener("click", () => {
     if (userZendeskScheduleIdValue === "userZendeskSchedulesId") {
         userZendeskScheduleIdValue = null
     }
-
-    let latamUserValue
-    for (let i = 0; i < latamUser.length; i++) {
-        if (latamUser[i].checked) {
-            let latamUserOption = latamUser[i].id
-            if (latamUserOption === "latam-no") {
-                latamUserValue = 0
-            } else if (latamUserOption === "latam-yes") {
-                latamUserValue = 1
-            } else if (latamUserOption === "latam-both") {
-                latamUserValue = 2
-            }
-        }
-    }
-
-    let rockStarUserValue
-    for (let i = 0; i < rockStarUser.length; i++) {
-        if (rockStarUser[i].checked) {
-            let rockStarUserOption = rockStarUser[i].id
-            if (rockStarUserOption === "rock-star-no") {
-                rockStarUserValue = 0
-            } else if (rockStarUserOption === "rock-star-yes") {
-                rockStarUserValue = 1
-            }
-        }
-    }
-
-
-    let jnjContestationUserValue
-    for (let i = 0; i < jnjContestationUser.length; i++) {
-        if (jnjContestationUser[i].checked) {
-            let jnjContestationUserOption = jnjContestationUser[i].id
-            if (jnjContestationUserOption === "jnj-contestation-no") {
-                jnjContestationUserValue = 0
-            } else if (jnjContestationUserOption === "jnj-contestation-yes") {
-                jnjContestationUserValue = 1
-            }
-        }
-    }
-
-    let jnjHomologationUserValue
-    for (let i = 0; i < jnjHomologationUser.length; i++) {
-        if (jnjHomologationUser[i].checked) {
-            let jnjHomologationUserOption = jnjHomologationUser[i].id
-            if (jnjHomologationUserOption === "jnj-homologation-no") {
-                jnjHomologationUserValue = 0
-            } else if (jnjHomologationUserOption === "jnj-homologation-yes") {
-                jnjHomologationUserValue = 1
-            }
-        }
-    }
-
-    let chatbotNoServiceValue
-    for (let i = 0; i < chatbotNoServiceUser.length; i++) {
-        if (chatbotNoServiceUser[i].checked) {
-            let chatbotNoServiceUserOption = chatbotNoServiceUser[i].id
-            if (chatbotNoServiceUserOption === "chatbot-no-service-no") {
-                chatbotNoServiceValue = 0
-            } else if (chatbotNoServiceUserOption === "chatbot-no-service-yes") {
-                chatbotNoServiceValue = 1
-            }
-        }
-    }
-
 
     if (backlogLimit.value === 0) {
         backlogLimit.value = null
@@ -175,11 +103,6 @@ saveButton.addEventListener("click", () => {
                 user_email: userEmail.value,
                 zendesk_users_id: userZendeskUserIdValue,
                 zendesk_schedules_id: userZendeskScheduleIdValue,
-                latam_user: latamUserValue,
-                rock_star_user: rockStarUserValue,
-                jnj_contestation_user: jnjContestationUserValue,
-                jnj_homologation_user: jnjHomologationUserValue,
-                chatbot_no_service_user: chatbotNoServiceValue,
                 backlog_limit: backlogLimit.value,
                 hourly_ticket_assignment_limit: hourlyLimit.value,
                 daily_ticket_assignment_limit: dailyLimit.value,
@@ -215,11 +138,6 @@ saveButton.addEventListener("click", () => {
                 user_email: userEmail.value,
                 zendesk_users_id: userZendeskUserIdValue,
                 zendesk_schedules_id: userZendeskScheduleIdValue,
-                latam_user: latamUserValue,
-                rock_star_user: rockStarUserValue,
-                jnj_contestation_user: jnjContestationUserValue,
-                jnj_homologation_user: jnjHomologationUserValue,
-                chatbot_no_service_user: chatbotNoServiceValue,
                 backlog_limit: backlogLimit.value,
                 hourly_ticket_assignment_limit: hourlyLimit.value,
                 daily_ticket_assignment_limit: dailyLimit.value,

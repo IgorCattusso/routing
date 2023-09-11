@@ -13,9 +13,9 @@ def logs_as_list(logs):
             'log_id': log[0],
             'ticket_id': log[1],
             'user_name': log[2],
-            'short_message': ast.literal_eval(log[3])['message'],  # converting str to dict
+            'short_message': log[3]['message'],  # converting str to dict
             'full_message':
-                str(ast.literal_eval(log[3]))
+                str(log[3])
                 .replace("'", '"')
                 .replace('True', '"True"')
                 .replace('False', '"False"')

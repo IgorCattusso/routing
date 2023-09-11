@@ -205,3 +205,11 @@ h5 {
 .zendesk-schedules-filter-container  {
     margin-left: 1em;
 }
+
+#routesNoConfigureLink {
+    width: 42px;
+}
+
+#routesNoConfigureContainer {
+    margin-left: -10px;
+}

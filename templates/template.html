@@ -42,12 +42,29 @@
                             <div><span class="no-dropdown-link-text">Home</span></div>
                         </div>
                     </li>
-                    <li onclick="window.location.href='/routes'">
-                        <div class="no-dropdown-link">
-                            <div><img src="/static/svg/routes.svg" alt="Rotas" class="menu-img"></div>
-                            <div><span class="no-dropdown-link-text">Rotas</span></div>
+
+                    <li>
+                        <div class="dropdown-link">
+                            <img src="/static/svg/routing.svg" alt="Routing" class="menu-img">
+                            <div><span class="dropdown-link-text">Routing</span></div>
                         </div>
+                        <ul class="submenu-Items">
+                            <li>
+                                <a href="/routes" class="submenu-item-link-container">
+                                    <img src="/static/svg/routes.svg" alt="Rotas" class="menu-img">
+                                    <span class="submenu-item-text">Rotas</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/routing-views" class="submenu-item-link-container">
+                                    <img src="/static/svg/views.svg" alt="Localidades" class="menu-img">
+                                    <span class="submenu-item-text">Visualizações</span>
+                                </a>
+                            </li>
+
+                        </ul>
                     </li>
+
                     <li onclick="window.location.href='/users'">
                         <div class="dropdown-link">
                             <div><img src="/static/svg/user.svg" alt="Usuários" class="menu-img"></div>

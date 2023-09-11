@@ -1,0 +1,54 @@
+{% extends "template.html" %}
+{% block conteudo %}
+
+    <div class="container">
+        <div class="main-content">
+            <h1>Visualizações</h1>
+            <div id="contentTable" class="content-table">
+                <div class="std-table" id="std-table">
+                    <div class="std-thead" id="thead">
+                        <span class="std-th th-id" data-sortby="id">ID</span>
+                        <span class="std-th th-name" data-sortby="name">Nome</span>
+                        <span class="std-th th-email" data-sortby="name">Ativa</span>
+                    </div>
+                    <div class="std-body scrollable" id="tbody">
+                        {% for route_view in kwargs['routing_views'] %}
+                            <div class="std-tr" data-id="{{ route_view.id }}">
+                                <span class="std-td std-td-id">{{ route_view.id }}</span>
+                                <span class="std-td std-td-name">{{ route_view.name }}</span>
+                                {% if route_view.active == 0 %}
+                                    <span class="std-td std-td-name">Não</span>
+                                {% elif route_view.active == 1 %}
+                                    <span class="std-td std-td-name">Sim</span>
+                                {% else %}
+                                    <span class="std-td std-td-name">{{ route_view.active }}</span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-items">
+                <div class="options">
+                    <ul class="options-list" id="options-list">
+                        <li><a href="/get-zendesk-views">Atualizar Visualizações do Zendesk</a></li>
+                    </ul>
+                    <button onclick="toggleOptions()">Opções</button>
+                </div>
+                <div class="page-actions">
+                    <div><button id="runView" disabled="disabled">Executar visualização</button></div>
+                    <div><button id="delete" disabled="disabled">Excluir</button></div>
+                    <div><button id="deactivate" disabled="disabled">Inativar</button></div>
+                    <div><button id="edit" disabled="disabled">Editar</button></div>
+                    <div><a href="/routing-views/new"><button id="new">+ Nova</button></a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/routing_by_views.js"></script>
+
+{% endblock %}

@@ -21,17 +21,22 @@ csrf = CSRFProtect(app)
 from views import *
 from views_login import *
 from views_logs import *
-from views_routes import *
+from views_routing_by_routes import *
 from views_settings import *
 from views_users import *
 from views_zendesk import *
 from views_zendesk_groups import *
-from views_zendesk_tickets import *
+from zendesk_tickets import *
 from views_zendesk_users import *
-from routing import *
+from routing_by_post import *
+from routing_by_views import *
 from views_notifications import *
 from scheduler import *
+from views_zendesk_views import *
+from views_routing_by_views import *
 
 if __name__ == '__main__':
     csrf.init_app(app)
     app.run()
+
+

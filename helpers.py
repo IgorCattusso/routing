@@ -102,3 +102,59 @@ def fix_double_quotes_in_subject(request_json):
     print(f'aaa: {fixed_json}')
 
     return fixed_json
+
+
+class TicketAssignmentLog:
+    def __init__(self, user_id, user_name, user_active, user_deleted, user_authenticated, user_routing_status,
+                 queue_id, queue_position, zendesk_ticket_id, routing_by_route, route_id, route_name, routing_by_views,
+                 view_id, view_name, message):
+        self.user_id = user_id
+        self.user_name = user_name
+        self.user_active = user_active
+        self.user_deleted = user_deleted
+        self.user_authenticated = user_authenticated
+        self.user_status = user_routing_status
+
+        self.queue_id = queue_id
+        self.queue_position = queue_position
+
+        self.zendesk_ticket_id = zendesk_ticket_id
+
+        self.routing_by_route = routing_by_route
+        self.route_id = route_id
+        self.route_name = route_name
+
+        self.routing_by_views = routing_by_views
+        self.view_id = view_id
+        self.view_name = view_name
+
+        self.message = message
+
+    def create_log_json(self):
+        log = {
+            'user_id': self.user_id,
+            'user_name': self.user_name,
+            'user_active': self.user_active,
+            'user_deleted': self.user_deleted,
+            'user_authenticated': self.user_authenticated,
+            'user_status': self.user_status,
+            'queue_id': self.queue_id,
+            'queue_position': self.queue_position,
+            'zendesk_ticket_id': self.zendesk_ticket_id,
+            'routing_by_route': self.routing_by_route,
+            'route_id': self.route_id,
+            'route_name': self.route_name,
+            'routing_by_views': self.routing_by_views,
+            'view_id': self.view_id,
+            'view_name': self.view_name,
+            'message': self.message
+        }
+
+        return log
+
+
+class ZendeskAPIResponse:
+    def __init__(self, status_code, reason, text):
+        self.status_code = status_code
+        self.reason = reason
+        self.text = text
