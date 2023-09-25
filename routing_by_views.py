@@ -19,63 +19,40 @@ def run_views():
     with Session(engine) as db_session:
         is_app_in_working_hours = GeneralSettings.is_currently_hour_working_hours(db_session)
 
-    if is_app_in_working_hours:
-        with Session(engine) as db_session:
-            general_settings = GeneralSettings.get_settings(db_session)
-            all_routing_views = RoutingViews.get_all_valid_routing_views(db_session)
-            users_queue = UsersQueue.get_users_in_queue(db_session)
+    if not is_app_in_working_hours:
+        print('pikachu')
+        return
 
-        get_tickets_from_all_views()
-        users_backlog = get_users_backlog()
+    print('onix')
+    with Session(engine) as db_session:
+        general_settings = GeneralSettings.get_settings(db_session)
+        all_routing_views = RoutingViews.get_all_valid_routing_views(db_session)
+        users_queue = UsersQueue.get_users_in_queue(db_session)
 
-        for routing_view in all_routing_views:
-            if RoutingViews.is_view_in_working_hours(db_session, routing_view.id):
-                routing_view_unassigned_tickets = get_view_unassigned_tickets(routing_view.id)
+    get_tickets_from_all_views()
+    users_backlog = get_users_backlog()
 
-                for each_tuple in routing_view_unassigned_tickets:
-                    for each_ticket in each_tuple:
-                        for each_queue_user in users_queue:
-                            user = Users.get_user(db_session, each_queue_user.users_id)
-                            ticket = ZendeskTickets.get_ticket_by_id(db_session, each_ticket)
-                            log = TicketAssignmentLog(
-                                user.id,
-                                user.name,
-                                user.active,
-                                user.deleted,
-                                user.authenticated,
-                                user.routing_status,
-                                each_queue_user.id,
-                                each_queue_user.position,
-                                ticket.ticket_id,
-                                False,
-                                None,
-                                None,
-                                True,
-                                routing_view.id,
-                                routing_view.name,
-                                None
-                            )
+    for routing_view in all_routing_views:
+        print('charmander')
 
-                            log.message = 'test'
+        if RoutingViews.is_view_in_working_hours(db_session, routing_view.id):
+            print('squirtle')
 
-                            print(log)
+            routing_view_unassigned_tickets = get_view_unassigned_tickets(routing_view.id)
 
-                            AssignedTicketsLog.insert_new_log(db_session, ticket.id, log.create_log_json())
-                            db_session.commit()
+            if routing_view_unassigned_tickets:
+                print('bulbassaur')
+                with Session(engine) as db_session:
+                    user = UsersQueue.get_first_user_in_queue(db_session)
 
-                            return str(log.create_log_json())
+                print(has_user_exceeded_its_backlog_limit(users_backlog, user.users_id))
+                print(has_user_exceeded_routing_backlog_limit(users_backlog, user.users_id))
 
 
-                            print(users_backlog[user.id])
-                            print(user.id)
-                            print(user.active)
-                            print(user.deleted)
-                            print(user.authenticated)
-                            print(user.routing_status)
-                            print(user.zendesk_users_id)
-                            print(user.backlog_limit)
-                            print(user.hourly_ticket_assignment_limit)
-                            print(user.daily_ticket_assignment_limit)
+
+
+
+
 
 
 
@@ -123,7 +100,9 @@ def get_view_unassigned_tickets(routing_view_id):
             .where(ZendeskViewsTickets.zendesk_views_id == zendesk_view_id)
         ).all()
 
-    return unassigned_tickets
+    unassigned_tickets_list = [ticket for each_tuple in unassigned_tickets for ticket in each_tuple]
+
+    return unassigned_tickets_list
 
 
 def get_users_backlog():
@@ -157,6 +136,40 @@ def get_users_backlog():
     time.sleep(.35)
 
     return backlog
+
+
+def has_user_exceeded_its_backlog_limit(users_backlog, user_id):
+    with Session(engine) as db_session:
+        user = Users.get_user(db_session, user_id)
+
+    if user_id in users_backlog:
+        user_backlog_size = users_backlog[user_id]
+    else:
+        return False
+
+    if user.backlog_limit and user_backlog_size >= user.backlog_limit:
+        return True
+    elif user.backlog_limit and user_backlog_size < user.backlog_limit:
+        return False
+
+    return False
+
+
+def has_user_exceeded_routing_backlog_limit(users_backlog, user_id):
+    with Session(engine) as db_session:
+        general_settings = GeneralSettings.get_settings(db_session)
+
+    if user_id in users_backlog:
+        user_backlog_size = users_backlog[user_id]
+    else:
+        return False
+
+    if general_settings.backlog_limit and user_backlog_size >= general_settings.backlog_limit:
+        return True
+    elif general_settings.backlog_limit and user_backlog_size < general_settings.backlog_limit:
+        return False
+
+    return False
 
 
 def assign_ticket(ticket):

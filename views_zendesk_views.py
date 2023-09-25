@@ -72,4 +72,4 @@ def get_zendesk_views():
         )
         db_session.commit()
 
-    return redirect(url_for('views'))
+    return redirect(url_for('zendesk_views'))

@@ -1,5 +1,5 @@
 {% extends "template.html" %}
-{% block conteudo %}
+{% block content %}
 
     <link rel="stylesheet" href="/static/css/routing_settings.css">
 
@@ -106,7 +106,7 @@
                                 </div>
                                 <div class="rule-container ticket-limit-container" id="ticketLimitContainer">
                                     <label class="rule-label" for="ticketLimit"></label>
-                                    <input type="number" id="ticketLimit" class="rule-input ticket-limit-input" value="{{ kwargs['agent_backlog_limit'] if kwargs['agent_backlog_limit'] else '' }}">
+                                    <input type="number" id="ticketLimit" class="rule-input ticket-limit-input" value="{{ kwargs['backlog_limit'] if kwargs['backlog_limit'] else '' }}">
                                 </div>
                             </div>
 

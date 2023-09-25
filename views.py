@@ -1,6 +1,6 @@
 from app import app, engine
 from models import ZendeskUsers, ZendeskGroups, ZendeskGroupMemberships, ZendeskLocales, ZendeskTicketForms, \
-    ZendeskTags, Routes, ZendeskSchedules, GeneralSettings, AssignedTicketsLog, RoutingViews
+    ZendeskTags, Routes, ZendeskSchedules, GeneralSettings, AssignedTicketsLog, RoutingViews, ZendeskViews
 from sqlalchemy import select, desc, case, func
 from sqlalchemy.orm import Session
 from flask import session, redirect, request
@@ -124,7 +124,7 @@ def routing_settings():
         'routing-settings.html',
         use_routes=all_settings.use_routes,
         routing_model=all_settings.routing_model,
-        agent_backlog_limit=all_settings.agent_backlog_limit,
+        backlog_limit=all_settings.backlog_limit,
         daily_assignment_limit=all_settings.daily_ticket_assignment_limit,
         hourly_assignment_limit=all_settings.hourly_ticket_assignment_limit,
         zendesk_schedules_id=all_settings.zendesk_schedules_id,
@@ -184,9 +184,9 @@ def users():
     return internal_render_template('users.html', all_users=all_users)
 
 
-@app.route('/logs')
+@app.route('/ticket-assignment-logs')
 @login_required
-def logs():
+def ticket_assignment_logs():
     with Session(engine) as db_session:
         last_ten_logs = AssignedTicketsLog.get_last_ten_logs(db_session)
         log_users = Users.get_all_users(db_session)
@@ -207,3 +207,13 @@ def routing_views():
         'routing-views.html',
         routing_views=all_routing_views
     )
+
+
+@app.route('/zendesk-views')
+@login_required
+def zendesk_views():
+    with Session(engine) as db_session:
+        all_views = ZendeskViews.get_views(db_session)
+
+    time.sleep(.35)
+    return internal_render_template('zendesk-views.html', views=all_views)

@@ -38,5 +38,3 @@ from views_routing_by_views import *
 if __name__ == '__main__':
     csrf.init_app(app)
     app.run()
-
-

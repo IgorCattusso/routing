@@ -67,7 +67,7 @@ saveButton.addEventListener("click", () => {
         data: JSON.stringify({
             use_routes: useRoutes,
             routing_model: routing_model,
-            agent_backlog_limit: ticketLimit.value,
+            backlog_limit: ticketLimit.value,
             daily_assignment_limit: dailyLimit.value,
             hourly_assignment_limit: hourlyLimit.value,
             zendesk_schedules_id: userZendeskScheduleIdValue,

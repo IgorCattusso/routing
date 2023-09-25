@@ -9,10 +9,10 @@ def update_general_settings():
     if request.method == 'PUT':
         data = request.get_json()
 
-        if data['agent_backlog_limit'] == '':
-            agent_backlog_limit = None
+        if data['backlog_limit'] == '':
+            backlog_limit = None
         else:
-            agent_backlog_limit = data['agent_backlog_limit']
+            backlog_limit = data['backlog_limit']
 
         if data['daily_assignment_limit'] == '':
             daily_assignment_limit = None
@@ -29,7 +29,7 @@ def update_general_settings():
                 session,
                 data['use_routes'],
                 data['routing_model'],
-                agent_backlog_limit,
+                backlog_limit,
                 daily_assignment_limit,
                 hourly_assignment_limit,
                 zendesk_schedules_id=data['zendesk_schedules_id'],
@@ -37,6 +37,3 @@ def update_general_settings():
             session.commit()
 
     return 'Data processed successfully'
-
-
-

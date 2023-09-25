@@ -185,7 +185,7 @@ def assign_ticket_round_robin(ticket):
 
             # TODO Condition 5: **OK**
             if int(len(user_backlog) or 0) > int(user.backlog_limit or 9999) or \
-                    int(len(user_backlog) or 0) > int(app_settings.agent_backlog_limit or 9999):
+                    int(len(user_backlog) or 0) > int(app_settings.backlog_limit or 9999):
                 log.message = 'Usuário com backlog cheio.'
                 AssignedTicketsLog.insert_new_log(db_session, ticket.id, TicketAssignmentLog.create_log(log), user.id)
                 queue_user = UsersQueue.get_next_user_in_queue(db_session, queue_user.users_id)
@@ -194,7 +194,7 @@ def assign_ticket_round_robin(ticket):
 
             # TODO Condition 5.1: **OK**
             if int(len(user_backlog) or 0) < int(user.backlog_limit or 9999) or \
-                    int(len(user_backlog) or 0) < int(app_settings.agent_backlog_limit or 9999):
+                    int(len(user_backlog) or 0) < int(app_settings.backlog_limit or 9999):
                 pass
 
             # TODO Condition 6: **OK**

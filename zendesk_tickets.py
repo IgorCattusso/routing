@@ -29,7 +29,6 @@ def get_tickets_from_a_zendesk_view(zendesk_views_id):
                         ticket_id=ticket['id'],
                         ticket_channel=ticket['via']['channel'],
                         ticket_subject=ticket['subject'],
-                        ticket_tags=' '.join(ticket['tags']),
                         received_at=datetime.now(tz=pytz.timezone('America/Sao_Paulo'))
                     )
                     ZendeskTickets.insert_new_ticket(db_session, new_zendesk_ticket)

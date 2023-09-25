@@ -36,7 +36,7 @@ def send_password_reset_email(email_receiver, receiver_name, password_reset_url)
         <body style="background-color:#040C26;padding:50px;text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:14px">
             <div style="background-color:white;padding:50px;text-align:left;width:20%;margin:auto;border-radius:30px">
                 <div style="text-align:center">
-                    <img src="cid:{asparagus_cid[1:-1]}" />
+                    <img src="cid:{asparagus_cid[1:-1]} style="width: 50px; height: 50px" />
                 </div>
                 <br>
                 <div style="text-align:center">
@@ -55,13 +55,15 @@ def send_password_reset_email(email_receiver, receiver_name, password_reset_url)
     </html>
     """, subtype='html')
 
-    with open("static/img/favicon.png", 'rb') as img:
+    with open("static/img/favicon-black.png", 'rb') as img:
         msg.get_payload()[1].add_related(img.read(), 'image', 'png', cid=asparagus_cid)
 
     context = ssl.create_default_context()
 
     with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
         smtp.login(email_sender, email_password)
-        message_status = smtp.send_message(msg)
+        smtp.send_message(msg)
 
-        return message_status
+        smtp.quit()
+
+        return 'success'

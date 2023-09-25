@@ -6,7 +6,7 @@ import datetime
 load_dotenv()
 
 SECRET_KEY = str(os.getenv('APP_SECRET_KEY'))
-WTF_CSRF_TIME_LIMIT = 28800  # 8 hours
+WTF_CSRF_TIME_LIMIT = 43200  # 12 hours
 PERMANENT_SESSION_LIFETIME = datetime.timedelta(hours=12)
 
 ZENDESK_BASE_URL = 'https://agilepromoter1671733243.zendesk.com/'

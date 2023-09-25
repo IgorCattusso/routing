@@ -270,13 +270,14 @@ def forgot_password():
             if user:
                 new_password_request = PasswordResetRequests.create_new_request_returning_uuid(db_session, user.id)
                 PasswordResetRequests.invalidate_other_user_requests(db_session, new_password_request, user.id)
+
                 password_reset_email = send_password_reset_email(
                     user.email,
                     user.name,
                     request.base_url.replace('/forgot-password', '') + '/reset-password/' + new_password_request
                 )   # TODO think of a better way to create this URL
 
-                if not password_reset_email:
+                if password_reset_email:
                     db_session.commit()
                     flash('E-mail enviado com sucesso!', 'success')
                     return redirect(url_for('login'))
@@ -290,7 +291,7 @@ def forgot_password():
                 return redirect(url_for('forgot_password'))
 
         else:
-            flash('Ocorreum um erro!')
+            flash('Ocorreu um erro!')
             return redirect(url_for('login'))
 
 

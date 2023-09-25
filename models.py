@@ -6,12 +6,16 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import FlushError
 from sqlalchemy.dialects.mysql import DATETIME
 from datetime import datetime, timedelta, date, time
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, BigInteger, Time
 from config import url_object, ZENDESK_BASE_URL
 import uuid
 from app import bcrypt
 import random
 import string
+from sqlalchemy_utils import database_exists, create_database
+from sqlalchemy.orm import Session
+import time
+
 
 engine = create_engine(url_object)
 
@@ -28,8 +32,7 @@ class ZendeskTickets(Base):
     ticket_id: Mapped[int] = mapped_column(nullable=False)
     ticket_subject: Mapped[str] = mapped_column(String(150), nullable=False)
     ticket_channel: Mapped[str] = mapped_column(String(150), nullable=False)
-    ticket_tags: Mapped[str] = mapped_column(String(21385))
-    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=True)
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.ticket_id}, {self.ticket_subject}, {self.ticket_channel}, {self.received_at}'
@@ -44,7 +47,6 @@ class ZendeskTickets(Base):
                     ZendeskTickets.ticket_subject,
                     ZendeskTickets.ticket_channel,
                     ZendeskTickets.received_at,
-                    ZendeskTickets.ticket_tags,
                 )
                 .join(AssignedTickets, isouter=True)
                 .where(ZendeskTickets.ticket_channel != 'chat')
@@ -81,7 +83,6 @@ class ZendeskTickets(Base):
                     ZendeskTickets.ticket_id,
                     ZendeskTickets.ticket_subject,
                     ZendeskTickets.ticket_channel,
-                    ZendeskTickets.ticket_tags,
                     ZendeskTickets.received_at,
                 ).where(ZendeskTickets.ticket_id == ticket_id)
             ).first()
@@ -103,7 +104,6 @@ class ZendeskTickets(Base):
                     ZendeskTickets.ticket_id,
                     ZendeskTickets.ticket_subject,
                     ZendeskTickets.ticket_channel,
-                    ZendeskTickets.ticket_tags,
                     ZendeskTickets.received_at,
                 ).where(ZendeskTickets.id == zendesk_tickets_id)
             ).first()
@@ -122,7 +122,7 @@ class ZendeskUsers(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    zendesk_user_id: Mapped[int] = mapped_column(nullable=False)
+    zendesk_user_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     name: Mapped[str] = mapped_column(String(150), nullable=False)
     email: Mapped[str] = mapped_column(String(150), nullable=False)
     suspended: Mapped[bool] = mapped_column(Boolean, nullable=False)
@@ -198,7 +198,7 @@ class ZendeskGroups(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    zendesk_group_id: Mapped[int] = mapped_column(nullable=False)
+    zendesk_group_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
 
     def __repr__(self) -> str:
@@ -211,9 +211,9 @@ class ZendeskGroupMemberships(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     zendesk_users_id: Mapped[int] = mapped_column(ForeignKey("zendesk_users.id"))
-    user_id_on_zendesk: Mapped[int] = mapped_column(nullable=False)
+    user_id_on_zendesk: Mapped[int] = mapped_column(BigInteger, nullable=False)
     zendesk_groups_id: Mapped[int] = mapped_column(ForeignKey("zendesk_groups.id"))
-    group_id_on_zendesk: Mapped[int] = mapped_column(nullable=False)
+    group_id_on_zendesk: Mapped[int] = mapped_column(BigInteger, nullable=False)
     default: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
     def __repr__(self) -> str:
@@ -244,9 +244,9 @@ class AssignedTickets(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    zendesk_tickets_id: Mapped[int] = mapped_column(ForeignKey("zendesk_tickets.id"))
-    users_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    assigned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    zendesk_tickets_id: Mapped[int] = mapped_column(ForeignKey("zendesk_tickets.id"), nullable=False)
+    users_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
+    assigned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.zendesk_tickets_id}, {self.users_id}, {self.assigned_at}'
@@ -308,10 +308,10 @@ class AssignedTicketsLog(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    zendesk_tickets_id: Mapped[int] = mapped_column(ForeignKey("zendesk_tickets.id"))
-    users_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    zendesk_tickets_id: Mapped[int] = mapped_column(ForeignKey("zendesk_tickets.id"), nullable=False)
+    users_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     json: Mapped[dict | list] = mapped_column(type_=JSON, nullable=False)
-    created_at = Column(DATETIME(fsp=3), server_default=func.now())
+    created_at = Column(DATETIME, server_default=func.now(), nullable=False)
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.zendesk_tickets_id}, {self.zendesk_tickets_id}, {self.json}'
@@ -405,10 +405,10 @@ class UserBacklog(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    users_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    users_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     ticket_id: Mapped[int] = mapped_column(nullable=False)
     ticket_status: Mapped[str] = mapped_column(String(100), nullable=False)
-    ticket_level: Mapped[str] = mapped_column(String(100))
+    ticket_level: Mapped[str] = mapped_column(String(100), nullable=False)
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.users_id}, {self.ticket_id}, ' \
@@ -433,7 +433,7 @@ class UserBacklog(Base):
             return f'There was an error: {error_info}'
 
     @staticmethod
-    def get_agent_backlog_count(db_session, users_id):
+    def get_user_backlog_size(db_session, users_id):
         try:
             user_open_backlog = db_session.execute(
                 select(
@@ -497,7 +497,7 @@ class ZendeskLocales(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    zendesk_locale_id: Mapped[int] = mapped_column(nullable=False)
+    zendesk_locale_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     locale: Mapped[str] = mapped_column(String(10), nullable=False)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     presentation_name: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -513,8 +513,8 @@ class ZendeskTicketForms(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    zendesk_ticket_form_id: Mapped[int] = mapped_column(nullable=False)
-    name: Mapped[str] = mapped_column(String(10), nullable=False)
+    zendesk_ticket_form_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
     display_name: Mapped[str] = mapped_column(String(100), nullable=False)
     default: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
@@ -528,7 +528,7 @@ class ZendeskTicketFields(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    zendesk_ticket_field_id: Mapped[int] = mapped_column(nullable=False)
+    zendesk_ticket_field_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     type: Mapped[str] = mapped_column(String(100), nullable=False)
 
@@ -541,8 +541,8 @@ class ZendeskTicketFieldsInForms(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    zendesk_ticket_forms_id: Mapped[int] = mapped_column(ForeignKey("zendesk_ticket_forms.id"))
-    zendesk_ticket_fields_id: Mapped[int] = mapped_column(ForeignKey("zendesk_ticket_fields.id"))
+    zendesk_ticket_forms_id: Mapped[int] = mapped_column(ForeignKey("zendesk_ticket_forms.id"), nullable=False)
+    zendesk_ticket_fields_id: Mapped[int] = mapped_column(ForeignKey("zendesk_ticket_fields.id"), nullable=False)
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.zendesk_ticket_forms_id}, {self.zendesk_ticket_fields_id}'
@@ -568,8 +568,8 @@ class ZendeskTicketFieldOptions(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    zendesk_ticket_fields_id: Mapped[int] = mapped_column(ForeignKey("zendesk_ticket_fields.id"))
-    zendesk_ticket_field_option_id: Mapped[int] = mapped_column(nullable=False)
+    zendesk_ticket_fields_id: Mapped[int] = mapped_column(ForeignKey("zendesk_ticket_fields.id"), nullable=False)
+    zendesk_ticket_field_option_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     value: Mapped[str] = mapped_column(String(255), nullable=False)
     position: Mapped[int] = mapped_column(nullable=False)
@@ -607,7 +607,7 @@ class RouteRecipientType(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"))
+    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"), nullable=False)
     recipient_type: Mapped[int] = mapped_column(nullable=False)  # 0 = users | 1 = group
 
     def __repr__(self) -> str:
@@ -619,8 +619,8 @@ class RouteRecipientUsers(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"))
-    zendesk_users_id: Mapped[int] = mapped_column(ForeignKey("zendesk_users.id"))
+    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"), nullable=False)
+    zendesk_users_id: Mapped[int] = mapped_column(ForeignKey("zendesk_users.id"), nullable=False)
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.routes_id}, {self.zendesk_users_id}'
@@ -631,8 +631,8 @@ class RouteRecipientGroups(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"))
-    zendesk_groups_id: Mapped[int] = mapped_column(ForeignKey("zendesk_groups.id"))
+    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"), nullable=False)
+    zendesk_groups_id: Mapped[int] = mapped_column(ForeignKey("zendesk_groups.id"), nullable=False)
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.routes_id}, {self.zendesk_groups_id}'
@@ -643,8 +643,8 @@ class RouteTicketLocales(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"))
-    zendesk_locales_id: Mapped[int] = mapped_column(ForeignKey("zendesk_locales.id"))
+    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"), nullable=False)
+    zendesk_locales_id: Mapped[int] = mapped_column(ForeignKey("zendesk_locales.id"), nullable=False)
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.routes_id}, {self.zendesk_locales_id}'
@@ -719,8 +719,8 @@ class RouteTicketGroups(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"))
-    zendesk_groups_id: Mapped[int] = mapped_column(ForeignKey("zendesk_groups.id"))
+    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"), nullable=False)
+    zendesk_groups_id: Mapped[int] = mapped_column(ForeignKey("zendesk_groups.id"), nullable=False)
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.routes_id}, {self.zendesk_groups_id}'
@@ -810,8 +810,8 @@ class RouteTicketTags(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"))
-    zendesk_tags_id: Mapped[int] = mapped_column(ForeignKey("zendesk_tags.id"))
+    routes_id: Mapped[int] = mapped_column(ForeignKey("routes.id"), nullable=False)
+    zendesk_tags_id: Mapped[int] = mapped_column(ForeignKey("zendesk_tags.id"), nullable=False)
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.routes_id}, {self.zendesk_tags_id}'
@@ -888,14 +888,14 @@ class GeneralSettings(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     use_routes: Mapped[bool] = mapped_column(Boolean, nullable=False)  # 0 = Zendesk Views | 1 = Routes
     routing_model: Mapped[int] = mapped_column(nullable=False)  # 0 = Least Active | 1 = Round Robin
-    agent_backlog_limit: Mapped[int] = mapped_column(nullable=False)
-    daily_ticket_assignment_limit: Mapped[int] = mapped_column(nullable=False)
-    hourly_ticket_assignment_limit: Mapped[int] = mapped_column(nullable=False)
-    zendesk_schedules_id: Mapped[int] = mapped_column(ForeignKey("zendesk_schedules.id"))
+    backlog_limit: Mapped[int] = mapped_column(nullable=True)
+    daily_ticket_assignment_limit: Mapped[int] = mapped_column(nullable=True)
+    hourly_ticket_assignment_limit: Mapped[int] = mapped_column(nullable=True)
+    zendesk_schedules_id: Mapped[int] = mapped_column(ForeignKey("zendesk_schedules.id"), nullable=True)
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.use_routes}, {self.routing_model}, ' \
-               f'{self.agent_backlog_limit}, {self.daily_ticket_assignment_limit}'
+               f'{self.backlog_limit}, {self.daily_ticket_assignment_limit}'
 
     @staticmethod
     def get_settings(db_session):
@@ -904,7 +904,7 @@ class GeneralSettings(Base):
                 select(
                     GeneralSettings.use_routes,
                     GeneralSettings.routing_model,
-                    GeneralSettings.agent_backlog_limit,
+                    GeneralSettings.backlog_limit,
                     GeneralSettings.daily_ticket_assignment_limit,
                     GeneralSettings.hourly_ticket_assignment_limit,
                     GeneralSettings.zendesk_schedules_id,
@@ -917,7 +917,7 @@ class GeneralSettings(Base):
             return f'There was an error: {error_info}'
 
     @staticmethod
-    def update_settings(db_session, use_routes, routing_model, agent_backlog_limit,
+    def update_settings(db_session, use_routes, routing_model, backlog_limit,
                         daily_ticket_assignment_limit, hourly_ticket_assignment_limit, zendesk_schedules_id):
         try:
             db_session.execute(
@@ -925,7 +925,7 @@ class GeneralSettings(Base):
                 .values(
                     use_routes=use_routes,
                     routing_model=routing_model,
-                    agent_backlog_limit=agent_backlog_limit,
+                    backlog_limit=backlog_limit,
                     daily_ticket_assignment_limit=daily_ticket_assignment_limit,
                     hourly_ticket_assignment_limit=hourly_ticket_assignment_limit,
                     zendesk_schedules_id=zendesk_schedules_id,
@@ -940,12 +940,6 @@ class GeneralSettings(Base):
     @staticmethod
     def is_currently_hour_working_hours(db_session):
         try:
-            current_time = datetime.now().time()
-            midnight_time = datetime.combine(datetime.today(), time.min).time()
-
-            delta_time = \
-                datetime.combine(date.today(), current_time) - \
-                datetime.combine(date.today(), midnight_time)
 
             app_schedule_id = db_session.execute(
                 select(GeneralSettings.zendesk_schedules_id)
@@ -959,7 +953,7 @@ class GeneralSettings(Base):
                     ).where(ZendeskSchedules.id == app_schedule_id)
                 ).first()
                 if working_hours.monday_start and working_hours.monday_end:
-                    if working_hours.monday_start <= delta_time <= working_hours.monday_end:
+                    if working_hours.monday_start <= datetime.now().time() <= working_hours.monday_end:
                         return True
                     else:
                         return False
@@ -974,7 +968,7 @@ class GeneralSettings(Base):
                     ).where(ZendeskSchedules.id == app_schedule_id)
                 ).first()
                 if working_hours.tuesday_start and working_hours.tuesday_end:
-                    if working_hours.tuesday_start <= delta_time <= working_hours.tuesday_end:
+                    if working_hours.tuesday_start <= datetime.now().time() <= working_hours.tuesday_end:
                         return True
                     else:
                         return False
@@ -989,7 +983,7 @@ class GeneralSettings(Base):
                     ).where(ZendeskSchedules.id == app_schedule_id)
                 ).first()
                 if working_hours.wednesday_start and working_hours.wednesday_end:
-                    if working_hours.wednesday_start <= delta_time <= working_hours.wednesday_end:
+                    if working_hours.wednesday_start <= datetime.now().time() <= working_hours.wednesday_end:
                         return True
                     else:
                         return False
@@ -1004,7 +998,7 @@ class GeneralSettings(Base):
                     ).where(ZendeskSchedules.id == app_schedule_id)
                 ).first()
                 if working_hours.thursday_start and working_hours.thursday_end:
-                    if working_hours.thursday_start <= delta_time <= working_hours.thursday_end:
+                    if working_hours.thursday_start <= datetime.now().time() <= working_hours.thursday_end:
                         return True
                     else:
                         return False
@@ -1019,7 +1013,7 @@ class GeneralSettings(Base):
                     ).where(ZendeskSchedules.id == app_schedule_id)
                 ).first()
                 if working_hours.friday_start and working_hours.friday_end:
-                    if working_hours.friday_start <= delta_time <= working_hours.friday_end:
+                    if working_hours.friday_start <= datetime.now().time() <= working_hours.friday_end:
                         return True
                     else:
                         return False
@@ -1033,8 +1027,9 @@ class GeneralSettings(Base):
                         ZendeskSchedules.saturday_end,
                     ).where(ZendeskSchedules.id == app_schedule_id)
                 ).first()
+
                 if working_hours.saturday_start and working_hours.saturday_end:
-                    if working_hours.saturday_start <= delta_time <= working_hours.saturday_end:
+                    if working_hours.saturday_start <= datetime.now().time() <= working_hours.saturday_end:
                         return True
                     else:
                         return False
@@ -1049,7 +1044,7 @@ class GeneralSettings(Base):
                     ).where(ZendeskSchedules.id == app_schedule_id)
                 ).first()
                 if working_hours.sunday_start and working_hours.sunday_end:
-                    if working_hours.sunday_start <= delta_time <= working_hours.sunday_end:
+                    if working_hours.sunday_start <= datetime.now().time() <= working_hours.sunday_end:
                         return True
                     else:
                         return False
@@ -1062,29 +1057,52 @@ class GeneralSettings(Base):
             error_info = error.orig.args
             return f'There was an error: {error_info}'
 
+    @staticmethod
+    def insert_default_settings(db_session):
+        try:
+            db_session.execute(
+                insert(GeneralSettings), [
+                    {
+                        "id": 1,
+                        "use_routes": 0,
+                        "routing_model": 1,
+                        "backlog_limit": None,
+                        "daily_ticket_assignment_limit": None,
+                        "hourly_ticket_assignment_limit": None,
+                        "zendesk_schedules_id": None,
+                    }
+                ]
+            )
+
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
 
 class ZendeskSchedules(Base):
     __tablename__ = "zendesk_schedules"
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    zendesk_schedule_id: Mapped[int] = mapped_column(nullable=False)
+    zendesk_schedule_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     timezone: Mapped[str] = mapped_column(String(100), nullable=False)
-    sunday_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    sunday_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    monday_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    monday_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    tuesday_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    tuesday_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    wednesday_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    wednesday_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    thursday_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    thursday_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    friday_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    friday_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    saturday_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    saturday_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    sunday_start: Mapped[datetime] = mapped_column(Time(timezone=True), nullable=True)
+    sunday_end: Mapped[datetime] = mapped_column(Time(timezone=True), nullable=True)
+    monday_start: Mapped[datetime] = mapped_column(Time(timezone=True), nullable=True)
+    monday_end: Mapped[datetime] = mapped_column(Time(timezone=True), nullable=True)
+    tuesday_start: Mapped[datetime] = mapped_column(Time(timezone=True), nullable=True)
+    tuesday_end: Mapped[datetime] = mapped_column(Time(timezone=True), nullable=True)
+    wednesday_start: Mapped[datetime] = mapped_column(Time(timezone=True), nullable=True)
+    wednesday_end: Mapped[datetime] = mapped_column(Time(timezone=True), nullable=True)
+    thursday_start: Mapped[datetime] = mapped_column(Time(timezone=True), nullable=True)
+    thursday_end: Mapped[datetime] = mapped_column(Time(timezone=True), nullable=True)
+    friday_start: Mapped[datetime] = mapped_column(Time(timezone=True), nullable=True)
+    friday_end: Mapped[datetime] = mapped_column(Time(timezone=True), nullable=True)
+    saturday_start: Mapped[datetime] = mapped_column(Time(timezone=True), nullable=True)
+    saturday_end: Mapped[datetime] = mapped_column(Time(timezone=True), nullable=True)
 
     def __repr__(self) -> str:
         return f'{self.id}, {self.name}, {self.timezone}'
@@ -1105,12 +1123,12 @@ class ZendeskSchedules(Base):
             return f'There was an error: {error_info}'
 
     @staticmethod
-    def get_zendesk_schedule_name_by_id(db_session, id):
+    def get_zendesk_schedule_name_by_id(db_session, zendesk_schedules_id):
         try:
             schedule_name = db_session.execute(
                 select(
                     ZendeskSchedules.name,
-                ).where(ZendeskSchedules.id == id)
+                ).where(ZendeskSchedules.id == zendesk_schedules_id)
             ).scalar()
             return schedule_name
 
@@ -1281,16 +1299,16 @@ class Users(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(150), nullable=False)
     email: Mapped[str] = mapped_column(String(150), nullable=False)
-    password: Mapped[str] = mapped_column(String(500))
+    password: Mapped[str] = mapped_column(String(500), nullable=True)
     active: Mapped[bool] = mapped_column(Boolean, nullable=False)
     deleted: Mapped[bool] = mapped_column(Boolean, nullable=False)
     authenticated: Mapped[bool] = mapped_column(Boolean, nullable=False)
     routing_status: Mapped[int] = mapped_column(nullable=False)  # 0 = offline | 1 = online | 2 = away
-    zendesk_users_id: Mapped[int] = mapped_column(ForeignKey('zendesk_users.id'))
-    zendesk_schedules_id: Mapped[int] = mapped_column(ForeignKey('zendesk_schedules.id'))
-    backlog_limit: Mapped[int] = mapped_column(nullable=False)
-    hourly_ticket_assignment_limit: Mapped[int] = mapped_column(nullable=False)
-    daily_ticket_assignment_limit: Mapped[int] = mapped_column(nullable=False)
+    zendesk_users_id: Mapped[int] = mapped_column(ForeignKey('zendesk_users.id'), nullable=True)
+    zendesk_schedules_id: Mapped[int] = mapped_column(ForeignKey('zendesk_schedules.id'), nullable=True)
+    backlog_limit: Mapped[int] = mapped_column(nullable=True)
+    hourly_ticket_assignment_limit: Mapped[int] = mapped_column(nullable=True)
+    daily_ticket_assignment_limit: Mapped[int] = mapped_column(nullable=True)
 
     @staticmethod
     def get_all_users(db_session):
@@ -1558,13 +1576,6 @@ class Users(Base):
     @staticmethod
     def is_user_on_working_hours(db_session, users_id):
         try:
-            current_time = datetime.now().time()
-            midnight_time = datetime.combine(datetime.today(), time.min).time()
-
-            delta_time = \
-                datetime.combine(date.today(), current_time) - \
-                datetime.combine(date.today(), midnight_time)
-
             if date.today().weekday() == 0:
                 working_hours = db_session.execute(
                     select(
@@ -1574,7 +1585,7 @@ class Users(Base):
                     .join(Users)
                 ).first()
                 if working_hours.monday_start and working_hours.monday_end:
-                    if working_hours.monday_start <= delta_time <= working_hours.monday_end:
+                    if working_hours.monday_start <= datetime.now().time() <= working_hours.monday_end:
                         return True
                     else:
                         return False
@@ -1590,7 +1601,7 @@ class Users(Base):
                     .join(Users)
                 ).first()
                 if working_hours.tuesday_start and working_hours.tuesday_end:
-                    if working_hours.tuesday_start <= delta_time <= working_hours.tuesday_end:
+                    if working_hours.tuesday_start <= datetime.now().time() <= working_hours.tuesday_end:
                         return True
                     else:
                         return False
@@ -1606,7 +1617,7 @@ class Users(Base):
                     .join(Users)
                 ).first()
                 if working_hours.wednesday_start and working_hours.wednesday_end:
-                    if working_hours.wednesday_start <= delta_time <= working_hours.wednesday_end:
+                    if working_hours.wednesday_start <= datetime.now().time() <= working_hours.wednesday_end:
                         return True
                     else:
                         return False
@@ -1622,7 +1633,7 @@ class Users(Base):
                     .join(Users)
                 ).first()
                 if working_hours.thursday_start and working_hours.thursday_end:
-                    if working_hours.thursday_start <= delta_time <= working_hours.thursday_end:
+                    if working_hours.thursday_start <= datetime.now().time() <= working_hours.thursday_end:
                         return True
                     else:
                         return False
@@ -1638,7 +1649,7 @@ class Users(Base):
                     .join(Users)
                 ).first()
                 if working_hours.friday_start and working_hours.friday_end:
-                    if working_hours.friday_start <= delta_time <= working_hours.friday_end:
+                    if working_hours.friday_start <= datetime.now().time() <= working_hours.friday_end:
                         return True
                     else:
                         return False
@@ -1655,7 +1666,7 @@ class Users(Base):
                     .join(ZendeskSchedules, Users.zendesk_schedules_id == ZendeskSchedules.id)
                 ).first()
                 if working_hours.saturday_start and working_hours.saturday_end:
-                    if working_hours.saturday_start <= delta_time <= working_hours.saturday_end:
+                    if working_hours.saturday_start <= datetime.now().time() <= working_hours.saturday_end:
                         return True
                     else:
                         return False
@@ -1671,7 +1682,7 @@ class Users(Base):
                     .join(Users)
                 ).first()
                 if working_hours.sunday_start and working_hours.sunday_end:
-                    if working_hours.sunday_start <= delta_time <= working_hours.sunday_end:
+                    if working_hours.sunday_start <= datetime.now().time() <= working_hours.sunday_end:
                         return True
                     else:
                         return False
@@ -1728,21 +1739,64 @@ class Users(Base):
             error_info = error.orig.args
             return f'There was an error: {error_info}'
 
+    @staticmethod
+    def insert_new_sysadmin(db_session):
+        try:
+            db_session.execute(
+                insert(Users), [
+                    {
+                        "id": 1,
+                        "name": "sysadmin",
+                        "email": "sysadmin",
+                        "password": None,
+                        "active": True,
+                        "deleted": False,
+                        "authenticated": False,
+                        "routing_status": 0,
+                        "zendesk_users_id": None,
+                        "zendesk_schedules_id": None,
+                        "backlog_limit": None,
+                        "hourly_ticket_assignment_limit": None,
+                        "daily_ticket_assignment_limit": None,
+                    }
+                ]
+            )
+
+            db_session.commit()
+
+            characters = string.ascii_letters + string.digits
+            new_password = ''.join(random.choice(characters) for i in range(32))
+
+            Users.update_user_password(
+                db_session,
+                1,
+                bcrypt.generate_password_hash(new_password).decode('utf-8')
+            )
+
+            time.sleep(2)
+            print(f'A sysadmin was created. The sysadmin password is: {new_password}')
+
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
 
 class Notifications(Base):
     __tablename__ = 'notifications'
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    users_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    users_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
     type: Mapped[int] = mapped_column(nullable=False)  # 0 = new_ticket | 1 = system notifications
     content: Mapped[str] = mapped_column(String(500), nullable=False)
-    url: Mapped[str] = mapped_column(String(500), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    url: Mapped[str] = mapped_column(String(500), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     sent: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    sent_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    sent_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
     received: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
     read: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
     @staticmethod
@@ -2179,9 +2233,9 @@ class PasswordResetRequests(Base):
     uuid: Mapped[str] = mapped_column(String(500), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     used: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    used_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    used_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
     valid: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    invalidated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    invalidated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
 
     @staticmethod
     def create_new_request_returning_uuid(db_session, users_id):
@@ -2259,7 +2313,7 @@ class PasswordResetRequests(Base):
             return f'There was an error: {error_info}'
 
 
-class SchedulerLogs(Base):
+class SchedulerLogs(Base):  # TODO
     __tablename__ = 'scheduler_logs'
     __table_args__ = {'extend_existing': True}
 
@@ -2270,7 +2324,7 @@ class SchedulerLogs(Base):
     used: Mapped[bool] = mapped_column(Boolean, nullable=False)
     used_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     valid: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    invalidated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    invalidated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
 
     @staticmethod
     def create_new_request_returning_uuid(db_session, users_id):
@@ -2296,7 +2350,7 @@ class ZendeskViews(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    zendesk_view_id: Mapped[int] = mapped_column(nullable=False)
+    zendesk_view_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     active: Mapped[bool] = mapped_column(Boolean, nullable=False)
     deleted: Mapped[bool] = mapped_column(Boolean, nullable=False)
@@ -2436,8 +2490,8 @@ class RoutingViews(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    zendesk_views_id: Mapped[int] = mapped_column(ForeignKey('zendesk_views.id'))
-    zendesk_schedules_id: Mapped[int] = mapped_column(ForeignKey('zendesk_schedules.id'))
+    zendesk_views_id: Mapped[int] = mapped_column(ForeignKey('zendesk_views.id'), nullable=True)
+    zendesk_schedules_id: Mapped[int] = mapped_column(ForeignKey('zendesk_schedules.id'), nullable=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     active: Mapped[bool] = mapped_column(Boolean, nullable=False)
     deleted: Mapped[bool] = mapped_column(Boolean, nullable=False)
@@ -2574,13 +2628,6 @@ class RoutingViews(Base):
     @staticmethod
     def is_view_in_working_hours(db_session, routing_view_id):
         try:
-            current_time = datetime.now().time()
-            midnight_time = datetime.combine(datetime.today(), time.min).time()
-
-            delta_time = \
-                datetime.combine(date.today(), current_time) - \
-                datetime.combine(date.today(), midnight_time)
-
             view_schedule_id = db_session.execute(
                 select(RoutingViews.zendesk_schedules_id).
                 where(RoutingViews.id == routing_view_id)
@@ -2594,7 +2641,7 @@ class RoutingViews(Base):
                     ).where(ZendeskSchedules.id == view_schedule_id)
                 ).first()
                 if working_hours.monday_start and working_hours.monday_end:
-                    if working_hours.monday_start <= delta_time <= working_hours.monday_end:
+                    if working_hours.monday_start <= datetime.now().time() <= working_hours.monday_end:
                         return True
                     else:
                         return False
@@ -2609,7 +2656,7 @@ class RoutingViews(Base):
                     ).where(ZendeskSchedules.id == view_schedule_id)
                 ).first()
                 if working_hours.tuesday_start and working_hours.tuesday_end:
-                    if working_hours.tuesday_start <= delta_time <= working_hours.tuesday_end:
+                    if working_hours.tuesday_start <= datetime.now().time() <= working_hours.tuesday_end:
                         return True
                     else:
                         return False
@@ -2624,7 +2671,7 @@ class RoutingViews(Base):
                     ).where(ZendeskSchedules.id == view_schedule_id)
                 ).first()
                 if working_hours.wednesday_start and working_hours.wednesday_end:
-                    if working_hours.wednesday_start <= delta_time <= working_hours.wednesday_end:
+                    if working_hours.wednesday_start <= datetime.now().time() <= working_hours.wednesday_end:
                         return True
                     else:
                         return False
@@ -2639,7 +2686,7 @@ class RoutingViews(Base):
                     ).where(ZendeskSchedules.id == view_schedule_id)
                 ).first()
                 if working_hours.thursday_start and working_hours.thursday_end:
-                    if working_hours.thursday_start <= delta_time <= working_hours.thursday_end:
+                    if working_hours.thursday_start <= datetime.now().time() <= working_hours.thursday_end:
                         return True
                     else:
                         return False
@@ -2654,7 +2701,7 @@ class RoutingViews(Base):
                     ).where(ZendeskSchedules.id == view_schedule_id)
                 ).first()
                 if working_hours.friday_start and working_hours.friday_end:
-                    if working_hours.friday_start <= delta_time <= working_hours.friday_end:
+                    if working_hours.friday_start <= datetime.now().time() <= working_hours.friday_end:
                         return True
                     else:
                         return False
@@ -2669,7 +2716,7 @@ class RoutingViews(Base):
                     ).where(ZendeskSchedules.id == view_schedule_id)
                 ).first()
                 if working_hours.saturday_start and working_hours.saturday_end:
-                    if working_hours.saturday_start <= delta_time <= working_hours.saturday_end:
+                    if working_hours.saturday_start <= datetime.now().time() <= working_hours.saturday_end:
                         return True
                     else:
                         return False
@@ -2684,7 +2731,7 @@ class RoutingViews(Base):
                     ).where(ZendeskSchedules.id == view_schedule_id)
                 ).first()
                 if working_hours.sunday_start and working_hours.sunday_end:
-                    if working_hours.sunday_start <= delta_time <= working_hours.sunday_end:
+                    if working_hours.sunday_start <= datetime.now().time() <= working_hours.sunday_end:
                         return True
                     else:
                         return False
@@ -2703,8 +2750,8 @@ class RoutingViewsUsers(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    routing_views_id: Mapped[int] = mapped_column(ForeignKey('routing_views.id'))
-    users_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    routing_views_id: Mapped[int] = mapped_column(ForeignKey('routing_views.id'), nullable=False)
+    users_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
 
     @staticmethod
     def get_view_users(db_session, routing_views_id):
@@ -2790,8 +2837,8 @@ class RoutingViewsGroups(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    routing_views_id: Mapped[int] = mapped_column(ForeignKey('routing_views.id'))
-    zendesk_groups_id: Mapped[int] = mapped_column(ForeignKey('zendesk_groups.id'))
+    routing_views_id: Mapped[int] = mapped_column(ForeignKey('routing_views.id'), nullable=False)
+    zendesk_groups_id: Mapped[int] = mapped_column(ForeignKey('zendesk_groups.id'), nullable=False)
 
     @staticmethod
     def get_view_groups(db_session, routing_views_id):
@@ -2878,8 +2925,8 @@ class ZendeskViewsTickets(Base):
     __table_args__ = {'extend_existing': True}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    zendesk_tickets_id: Mapped[int] = mapped_column(ForeignKey('zendesk_tickets.id'))
-    zendesk_views_id: Mapped[int] = mapped_column(ForeignKey('zendesk_views.id'))
+    zendesk_tickets_id: Mapped[int] = mapped_column(ForeignKey('zendesk_tickets.id'), nullable=False)
+    zendesk_views_id: Mapped[int] = mapped_column(ForeignKey('zendesk_views.id'), nullable=False)
 
     @staticmethod
     def get_view_tickets(db_session, zendesk_views_id):
@@ -2909,3 +2956,112 @@ class ZendeskViewsTickets(Base):
         except (IntegrityError, FlushError) as error:
             error_info = error.orig.args
             return f'There was an error: {error_info}'
+
+
+class ApplicationLogs(Base):
+    __tablename__ = "application_logs"
+    __table_args__ = {'extend_existing': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    users_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    json: Mapped[dict | list] = mapped_column(type_=JSON, nullable=False)
+    created_at = Column(DATETIME, server_default=func.now(), nullable=False)
+
+    @staticmethod
+    def insert_new_log(db_session, json, users_id=None):
+        new_log = AssignedTicketsLog(
+            zendesk_tickets_id=zendesk_tickets_id,
+            users_id=users_id,
+            json=json,
+        )
+        try:
+            db_session.add(new_log)
+            return True
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_last_ten_logs(db_session):
+        try:
+            last_ten_logs = db_session.execute(
+                select(
+                    AssignedTicketsLog.id,
+                    case(
+                        (ZendeskTickets.ticket_id == None, '-'),
+                        else_=ZendeskTickets.ticket_id
+                    ),
+                    case(
+                        (Users.name == None, '-'),
+                        else_=Users.name
+                    ),
+                    AssignedTicketsLog.json,
+                    AssignedTicketsLog.created_at,
+                ).join(ZendeskTickets, isouter=True)
+                .join(Users, isouter=True)
+                .limit(10)
+                .order_by(AssignedTicketsLog.id.desc())
+            ).all()
+
+            return last_ten_logs
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+    @staticmethod
+    def get_logs(db_session, **kwargs):
+        try:
+            stmt = select(
+                AssignedTicketsLog.id,
+                case(
+                    (ZendeskTickets.ticket_id == None, '-'),
+                    else_=ZendeskTickets.ticket_id
+                ),
+                case(
+                    (Users.name == None, '-'),
+                    else_=Users.name
+                ),
+                AssignedTicketsLog.json,
+                AssignedTicketsLog.created_at,
+            ) \
+                .join(ZendeskTickets, isouter=True) \
+                .join(Users, isouter=True) \
+                .order_by(AssignedTicketsLog.id.desc())
+
+            if kwargs['data']['initial_date']:
+                stmt = stmt.where(AssignedTicketsLog.created_at >= kwargs['data']['initial_date'])
+
+            if kwargs['data']['final_date']:
+                stmt = stmt.where(AssignedTicketsLog.created_at <= kwargs['data']['final_date'])
+
+            if kwargs['data']['users_id']:
+                stmt = stmt.where(AssignedTicketsLog.users_id == kwargs['data']['users_id'])
+
+            if kwargs['data']['zendesk_ticket_id']:
+                stmt = stmt.where(ZendeskTickets.ticket_id == kwargs['data']['zendesk_ticket_id'])
+
+            logs_with_filters = db_session.execute(stmt).all()
+
+            return logs_with_filters
+
+        except (IntegrityError, FlushError) as error:
+            error_info = error.orig.args
+            return f'There was an error: {error_info}'
+
+
+if not database_exists(engine.url):
+    create_database(engine.url)
+
+Base.metadata.create_all(engine)
+
+with Session(engine) as sys_init_db_session:
+    existing_sys_admin = Users.get_user(sys_init_db_session, 1)
+    insert_default_settings = GeneralSettings.get_settings(sys_init_db_session)
+    if not existing_sys_admin:
+        Users.insert_new_sysadmin(sys_init_db_session)
+    if not insert_default_settings:
+        GeneralSettings.insert_default_settings(sys_init_db_session)
+
+    sys_init_db_session.commit()

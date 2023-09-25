@@ -76,11 +76,14 @@ def get_zendesk_schedule_hours(schedule_id):
     times_list = []
 
     for item in schedule:
-        if type(item) == timedelta:
-            dt = datetime(1, 1, 1, 0, 0) + item
-            times_list.append(dt.strftime("%H:%M:%S"))
-        elif not item:
-            times_list.append('--:--:--')
+        print(item)
+        print(type(item))
+        if str(type(item)) == "<class 'datetime.time'>":
+            times_list.append(item)
+        if str(type(item)) == "<class 'NoneType'>":
+            times_list.append("--:--:--")
+
+    print(times_list)
 
     return internal_render_template(
         'zendesk-schedule.html',
