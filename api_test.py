@@ -1333,6 +1333,3 @@ tickets = [
 
 for ticket in tickets:
     api_response = requests.post('http://127.0.0.1:5000/request-ticket-assignment', json=ticket)
-
-
-# test
