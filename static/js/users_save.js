@@ -45,18 +45,20 @@ saveButton.addEventListener("click", () => {
         userZendeskUserIdValue = userZendeskUserId[i].id
     }
 
-    if (userZendeskUserIdValue === "userZendeskUsersId") {
-        userZendeskUserIdValue = null
-    }
-
     let userZendeskScheduleIdValue = "";
     for (let i = 0; i < userZendeskScheduleId.length; i++) {
         userZendeskScheduleIdValue = userZendeskScheduleId[i].id
     }
 
-    if (userZendeskScheduleIdValue === "userZendeskSchedulesId") {
+    if (userZendeskUserIdValue === "ZendeskUsers" || userZendeskUserIdValue === "None") {
+        userZendeskUserIdValue = null
+    }
+
+    if (userZendeskScheduleIdValue === "zendeskUserSchedules" || userZendeskScheduleIdValue === "None") {
         userZendeskScheduleIdValue = null
     }
+
+
 
     if (backlogLimit.value === 0) {
         backlogLimit.value = null
@@ -101,8 +103,8 @@ saveButton.addEventListener("click", () => {
                 user_status: userStatusValue,
                 user_name: userName.value,
                 user_email: userEmail.value,
-                zendesk_users_id: userZendeskUserIdValue,
-                zendesk_schedules_id: userZendeskScheduleIdValue,
+                zendesk_users_id: parseInt(userZendeskUserIdValue),
+                zendesk_schedules_id: parseInt(userZendeskScheduleIdValue),
                 backlog_limit: backlogLimit.value,
                 hourly_ticket_assignment_limit: hourlyLimit.value,
                 daily_ticket_assignment_limit: dailyLimit.value,
