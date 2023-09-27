@@ -61,7 +61,7 @@
                         <div class="dropdown-menu-button-container">
                             <form>
                                 <label aria-label="Selecione">
-                                    <input id="{{ kwargs['user'].zendesk_schedules_id }}" class="chosen-value chosen-form-value zendesk-schedules-id-chosen-value" type="text" value="{{ 'Selecione' if not kwargs['zendesk_schedule_name'].name else kwargs['zendesk_schedule_name'].name }}" placeholder="Selecione">
+                                    <input id="{{ kwargs['user'].zendesk_schedules_id }}" class="chosen-value chosen-form-value zendesk-schedules-id-chosen-value" type="text" value="{{ 'Selecione' if not kwargs['zendesk_schedule_name'] else kwargs['zendesk_schedule_name'] }}" placeholder="Selecione">
                                 </label>
                                 <ul id="zendeskSchedulesId" class="schedule-values-list values-list">
                                     {% for schedule in kwargs['zendesk_schedules'] %}
