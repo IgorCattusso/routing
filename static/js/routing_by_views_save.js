@@ -32,6 +32,7 @@ saveButton.addEventListener("click", () => {
         zendeskViewIdValue = null
     }
 
+
     let zendeskScheduleIdValue = "";
     for (let i = 0; i < zendeskScheduleId.length; i++) {
         zendeskScheduleIdValue = zendeskScheduleId[i].id
@@ -40,6 +41,7 @@ saveButton.addEventListener("click", () => {
     if (zendeskScheduleIdValue === "zendeskSchedules") {
         zendeskScheduleIdValue = null
     }
+
 
     const CSRFToken = document.getElementById("CSRFToken");
 
@@ -135,20 +137,18 @@ saveButton.addEventListener("click", () => {
                 routing_view_name: routingViewName.value,
                 recipient_users: selectedUsersValues,
                 recipient_groups: selectedGroupsValues,
-                zendesk_view_id: zendeskViewIdValue,
-                zendesk_schedule_id: zendeskScheduleIdValue,
+                zendesk_view_id: parseInt(zendeskViewIdValue),
+                zendesk_schedule_id: parseInt(zendeskScheduleIdValue),
             }),
             contentType: "application/json",
 
             success: function (response) {
                 // Provide feedback to the users that the data was processed successfully
-                console.log(this.data)
                 alert("Cadastro alterado com sucesso!");
                 window.location.href = "/routing-views";
             },
             error: function (xhr, status, error) {
                 // Provide feedback to the users that an error occurred during the processing of the data
-                console.log(this.data);
                 alert("Ocorreu um erro ao alterar o cadastro: " + error);
             }
         });
