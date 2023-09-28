@@ -1,6 +1,6 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import String, Boolean, ForeignKey, DateTime, select, delete, update, insert, and_, or_, case, Column, \
-    JSON
+    JSON, join
 from sqlalchemy.sql import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import FlushError
@@ -2956,6 +2956,35 @@ class ZendeskViewsTickets(Base):
         except (IntegrityError, FlushError) as error:
             error_info = error.orig.args
             return f'There was an error: {error_info}'
+    
+    @staticmethod
+    def get_view_unassigned_tickets(db_session, routing_view_id):
+        try:
+            zendesk_view_id = db_session.execute(
+                select(RoutingViews.zendesk_views_id)
+                .where(RoutingViews.id == routing_view_id)
+            ).scalar()
+
+            unassigned_tickets = db_session.execute(
+                select(ZendeskTickets.id)
+                .select_from(join(
+                    ZendeskTickets,
+                    AssignedTickets,
+                    AssignedTickets.zendesk_tickets_id == ZendeskTickets.id,
+                    isouter=True
+                ))
+                .join(ZendeskViewsTickets)
+                .where(AssignedTickets.id == None)
+                .where(ZendeskViewsTickets.zendesk_views_id == zendesk_view_id)
+            ).all()
+
+            unassigned_tickets_list = [ticket for each_tuple in unassigned_tickets for ticket in each_tuple]
+
+            return unassigned_tickets_list
+    
+        except (IntegrityError, FlushError) as error:
+                error_info = error.orig.args
+                return f'There was an error: {error_info}'
 
 
 class ApplicationLogs(Base):

@@ -21,9 +21,10 @@ def run_views():
 
     if not is_app_in_working_hours:
         print('pikachu')
-        return
+        return "Outside of app working hours"
 
     print('onix')
+    
     with Session(engine) as db_session:
         general_settings = GeneralSettings.get_settings(db_session)
         all_routing_views = RoutingViews.get_all_valid_routing_views(db_session)
@@ -35,18 +36,22 @@ def run_views():
     for routing_view in all_routing_views:
         print('charmander')
 
-        if RoutingViews.is_view_in_working_hours(db_session, routing_view.id):
+        if not RoutingViews.is_view_in_working_hours(db_session, routing_view.id):
             print('squirtle')
+            continue
 
-            routing_view_unassigned_tickets = get_view_unassigned_tickets(routing_view.id)
+        with Session(engine) as db_session:
+            routing_view_unassigned_tickets = ZendeskViewsTickets.get_view_unassigned_tickets(db_session, routing_view.id)
 
-            if routing_view_unassigned_tickets:
-                print('bulbassaur')
-                with Session(engine) as db_session:
-                    user = UsersQueue.get_first_user_in_queue(db_session)
+        if not routing_view_unassigned_tickets:
+            print('bulbassaur')
+            continue
+            
+        with Session(engine) as db_session:
+            user = UsersQueue.get_first_user_in_queue(db_session)
 
-                print(has_user_exceeded_its_backlog_limit(users_backlog, user.users_id))
-                print(has_user_exceeded_routing_backlog_limit(users_backlog, user.users_id))
+        print(has_user_exceeded_its_backlog_limit(users_backlog, user.users_id))
+        print(has_user_exceeded_routing_backlog_limit(users_backlog, user.users_id))
 
 
 
@@ -80,34 +85,9 @@ def get_tickets_from_all_views():
     return 'success'
 
 
-def get_view_unassigned_tickets(routing_view_id):
-    with Session(engine) as db_session:
-        zendesk_view_id = db_session.execute(
-            select(RoutingViews.zendesk_views_id)
-            .where(RoutingViews.id == routing_view_id)
-        ).scalar()
-
-        unassigned_tickets = db_session.execute(
-            select(ZendeskTickets.id)
-            .select_from(join(
-                ZendeskTickets,
-                AssignedTickets,
-                AssignedTickets.zendesk_tickets_id == ZendeskTickets.id,
-                isouter=True
-            ))
-            .join(ZendeskViewsTickets)
-            .where(AssignedTickets.id == None)
-            .where(ZendeskViewsTickets.zendesk_views_id == zendesk_view_id)
-        ).all()
-
-    unassigned_tickets_list = [ticket for each_tuple in unassigned_tickets for ticket in each_tuple]
-
-    return unassigned_tickets_list
-
-
 def get_users_backlog():
     zendesk_endpoint_url = 'api/v2/search.json?page=1'
-    zendesk_search_query = 'query=type:ticket status:open status:pending'
+    zendesk_search_query = 'query=type:ticket status:open'
 
     api_url = ZENDESK_BASE_URL + zendesk_endpoint_url + '&' + zendesk_search_query
 
@@ -118,15 +98,22 @@ def get_users_backlog():
 
     while next_url:
         for ticket in api_response['results']:
-            if ticket['assignee_id']:
-                assignee_id = ticket['assignee_id']
-                with Session(engine) as db_session:
-                    zendesk_users_id = ZendeskUsers.get_zendesk_users_id(db_session, assignee_id)
-                    user = Users.get_user_from_zendesk_users_id(db_session, zendesk_users_id)
-                if user.id in backlog:
-                    backlog[user.id] += 1
-                else:
-                    backlog[user.id] = 1
+            if not ticket['assignee_id']:
+                continue
+            
+            assignee_id = ticket['assignee_id']
+            
+            with Session(engine) as db_session:
+                zendesk_users_id = ZendeskUsers.get_zendesk_users_id(db_session, assignee_id)
+                user = Users.get_user_from_zendesk_users_id(db_session, zendesk_users_id)
+            
+            if not zendesk_users_id or not user:
+                continue
+            
+            if user.id in backlog:
+                backlog[user.id] += 1
+            else:
+                backlog[user.id] = 1
 
         next_url = api_response['next_page']
 
